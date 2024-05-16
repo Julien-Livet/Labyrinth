@@ -229,7 +229,7 @@ namespace Labyrinth2d
 			/*!
 			 *  \brief Return the full trace as a vector of tuples
 			 */
-            std::vector<std::tuple<size_t, size_t, size_t> > const& fullTrace() const;
+            std::vector<std::pair<size_t, size_t> > const& fullTrace() const;
 
         private:
             size_t startI_;
@@ -245,10 +245,10 @@ namespace Labyrinth2d
             size_t state_;
             std::chrono::time_point<std::chrono::steady_clock> startTime_;
             bool enabledTrace_;
-            std::vector<std::tuple<size_t, size_t, size_t> > traceIntersections_;
+            std::vector<std::pair<size_t, size_t> > traceIntersections_;
             bool blockingFinish_;
 			bool keptFullTrace_;
-            std::vector<std::tuple<size_t, size_t, size_t> > fullTrace_;
+            std::vector<std::pair<size_t, size_t> > fullTrace_;
 
             friend class Labyrinth;
 
@@ -262,6 +262,7 @@ namespace Labyrinth2d
 }
 
 #include "Labyrinth.h"
+#include "Solver/FailureException.h"
 #include "Solver/TimeoutException.h"
 
 template <class URG, class Solver>
@@ -306,11 +307,17 @@ bool Labyrinth2d::Player::solve(URG& g, Solver& solver, size_t finishIndex, size
     {
         solver(g, *this, finishIndex, movements, operationsCycle, cyclePause, timeout);
     }
-    catch (Labyrinth2d::Solver::TimeoutException const&)
+    catch (Labyrinth2d::Solver::FailureException const& e)
     {
         state_ &= ~Solving;
 
-        throw;
+        throw e;
+    }
+    catch (Labyrinth2d::Solver::TimeoutException const& e)
+    {
+        state_ &= ~Solving;
+
+        throw e;
     }
 
     if (state_ & Finished)

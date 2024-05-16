@@ -1,17 +1,19 @@
 #ifndef QLABYRINTH_H
 #define QLABYRINTH_H
 
-#include <QWidget>
 #include <QColor>
-#include <QPixmap>
-#include <QTimer>
-#include <QScrollArea>
+#include <QDataStream>
+#include <QElapsedTimer>
 #include <QMenu>
 #include <QPaintDevice>
-#include <QDataStream>
+#include <QPixmap>
+#include <QScrollArea>
 #include <QTime>
+#include <QTimer>
+#include <QWidget>
 
 #include "Labyrinth2D/Labyrinth.h"
+#include "Labyrinth2d/Mover/QKeyPress.h"
 
 class GLLabyrinth;
 
@@ -159,8 +161,6 @@ class QLabyrinth : public QWidget
         void rafraichir();
         void arreterResolution();
         bool getArretResolution() const;
-		bool getEffacerChemin() const;
-		void setEffacerChemin(bool effacerChemin);
 
     signals:
         void partieCommencee();
@@ -172,7 +172,7 @@ class QLabyrinth : public QWidget
     private:
 		QList<QList<int> > labyrinthe; // to be unused
         Labyrinth2d::Labyrinth* labyrinth;
-		Labyrinth2d::QKeyPress* qKeyPress;
+        Labyrinth2d::Mover::QKeyPress* qKeyPress;
 		size_t playerId;
         //int xEntree;
         //int yEntree;
@@ -209,9 +209,9 @@ class QLabyrinth : public QWidget
         qreal angle;
         int intervalleRotation;
         int indexTimerRotation;
-        QTime tR;
-        QTime tDV;
-        QTime tDH;
+        QElapsedTimer tR;
+        QElapsedTimer tDV;
+        QElapsedTimer tDH;
         int tempsRestantRotation;
         int tempsRestantDistorsionVerticale;
         int tempsRestantDistorsionHorizontale;

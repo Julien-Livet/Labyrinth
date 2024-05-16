@@ -10,14 +10,14 @@
 #define LONGUEURDIFFICILE 81
 #define LARGEURDIFFICILE 71
 #define COULEURFOND QColor(255, 255, 255)
-#define MOTIFFOND QString(":/Images/Images/Motif_fond.png")
-#define IMAGEFOND QString(":/Images/Images/Image_fond.png")
+#define MOTIFFOND QString(":/Images/resources/background_pattern.png")
+#define IMAGEFOND QString(":/Images/resources/background_image.png")
 #define COULEURMUR QColor(0, 0, 0)
-#define MOTIFMUR QString(":/Images/Images/Motif_mur.png")
-#define IMAGEMUR QString(":/Images/Images/Image_mur.png")
+#define MOTIFMUR QString(":/Images/resources/wall_pattern.png")
+#define IMAGEMUR QString(":/Images/resources/wall_image.png")
 #define COULEURPARCOURS QColor(64, 64, 64)
-#define MOTIFPARCOURS QString(":/Images/Images/Motif_parcours.png")
-#define IMAGEPARCOURS QString(":/Images/Images/Image_parcours.png")
+#define MOTIFPARCOURS QString(":/Images/resources/way_pattern.png")
+#define IMAGEPARCOURS QString(":/Images/resources/way_image.png")
 #define TAILLECASE QSize(10, 10)
 #define INTERVALLEROTATIONMAX 1*60*1000
 #define INTERVALLEROTATIONMIN 10

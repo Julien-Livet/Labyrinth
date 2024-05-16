@@ -1,32 +1,33 @@
-#include <ctime>
+#include <cmath>
 #include <cstdlib>
-#include <QPainter>
-#include <QKeyEvent>
-#include <QScrollBar>
-#include <QFont>
+#include <ctime>
+#include <random>
+
 #include <QApplication>
-#include <QDesktopWidget>
-#include <QPixmap>
 #include <QFileInfo>
-#include <QMainWindow>
-#include <QRadialGradient>
+#include <QFont>
 #include <QHBoxLayout>
-#include <math.h>
+#include <QKeyEvent>
+#include <QMainWindow>
+#include <QPainter>
+#include <QPixmap>
+#include <QRadialGradient>
+#include <QScrollBar>
 
 #include "Labyrinth2d/Algorithm/Algorithm.h"
-
-#include "QLabyrinth.h"
-#include "GLLabyrinth.h"
-#include "FenPrincipale.h"
-#include "constantes.h"
+#include "Labyrinth2d/Qt/QLabyrinth.h"
+#include "Labyrinth2d/Qt/GLLabyrinth.h"
+#include "Labyrinth2d/Qt/MainWindow.h"
+#include "Labyrinth2d/Qt/constants.h"
+#include "Labyrinth2d/Solver/AStar.h"
 
 QLabyrinth::QLabyrinth(QScrollArea *parent, Niveau n, int longueurLabyrinthe, int largeurLabyrinthe, Algorithme a, TypeLabyrinthe type, FormeLabyrinthe forme, ModeLabyrinthe *mode) : QWidget(parent)
 {
     scrollArea = parent;
 
 	labyrinth = new Labyrinth2d::Labyrinth(1, 1);
-    player1Id = labyrinth.addPlayer(0, 0, {labyrinth.grid().rows() - 1}, {labyrinth.grid().columns() - 1}, true);
-	qKeyPress = new QKeyPress(labyrinth, playerId);
+    playerId = labyrinth->addPlayer(0, 0, {labyrinth->grid().rows() - 1}, {labyrinth->grid().columns() - 1}, true);
+    qKeyPress = new Labyrinth2d::Mover::QKeyPress(*labyrinth, playerId);
     //xEntree = 0;
     //yEntree = 1;
     //xSortie = 0;
@@ -58,8 +59,7 @@ QLabyrinth::QLabyrinth(QScrollArea *parent, Niveau n, int longueurLabyrinthe, in
     enConstruction = false;
     resolutionProgressive = false;
     afficherTrace = true;
-    //effacerChemin = true;
-	labyrinth->enableTrace(false);
+    setEffacerChemin(true);
     modeLabyrinthe.mode = Aucun;
     algorithme = FirstDepthSearch;
     modeLabyrinthe.couleurObscurite = COULEUROBSCURITE;
@@ -145,7 +145,7 @@ QLabyrinth::QLabyrinth(QScrollArea *parent, Niveau n, int longueurLabyrinthe, in
     setMouseTracking(true);
 
     QPalette p = palette();
-    p.setColor(QPalette::Background, textures[0].couleur);
+    p.setColor(QPalette::Window, textures[0].couleur);
 
     menu = new QMenu(this);
     menu->hide();
@@ -190,7 +190,7 @@ void QLabyrinth::choisirDirection(int &d, int &e, int x, int y)
 }
 
 void QLabyrinth::construireAncienBis()
-{
+{/**
     //initialisation du tableau
 
     labyrinthe.clear();
@@ -202,7 +202,7 @@ void QLabyrinth::construireAncienBis()
             labyrinthe[y] << 0;
     }
 
-    //tracé des murs faisant les contours du labyrinthe
+    //tracÃ© des murs faisant les contours du labyrinthe
 
     for (int y = 0; y < largeur; y += largeur - 1)
         for (int x = 0; x < longueur; x++)
@@ -212,7 +212,7 @@ void QLabyrinth::construireAncienBis()
         for (int y = 1; y < largeur - 1; y++)
             labyrinthe[y][x] = 1;
 
-    //tracé du quadrillage des murs
+    //tracÃ© du quadrillage des murs
 
     for (int y = 2; y < largeur-2; y += 2)
         for (int x = 2; x < longueur-2; x += 2)
@@ -325,9 +325,9 @@ void QLabyrinth::construireAncienBis()
 
         for (int z = 0; z < longueurChemin; z++)
         {
-            int compteur = 0;//compteur pour possiblité déplacement si échec déplacement choisi/*
-            int dDepart = 0;//déplacement horizontal
-            int eDepart = 0;//déplacement vertical*/
+            int compteur = 0;//compteur pour possiblitÃ© dÃ©placement si Ã©chec dÃ©placement choisi**//*
+            int dDepart = 0;//dÃ©placement horizontal
+            int eDepart = 0;//dÃ©placement vertical*//**
             bool inversion1 = false;
             bool inversion2 = false;
             bool inversion3 = false;
@@ -354,11 +354,11 @@ void QLabyrinth::construireAncienBis()
             }
 
             int d = dDepart;
-            int e = eDepart;/*
+            int e = eDepart;**//*
             int valeur = rand() % (2 - 1 + 1) + 1;
 
             for (int i = 0 ; i < valeur; i++)
-            {*/
+            {*//**
                 do
                 {
                     connexions = 0;
@@ -430,9 +430,9 @@ void QLabyrinth::construireAncienBis()
                     {
                         compteur++;
                         if (compteur == 4)
-                            break;/*
+                            break;**//*
                         i = 0;
-                        valeur = rand() % (2 - 1 + 1) + 1;*/
+                        valeur = rand() % (2 - 1 + 1) + 1;*//**
                         marge = rand() % (margeMax - 1 + 1) + 1;//uint((x * x + y * y) / sqrt(x * x + y * y))
                         chiffre = rand() % (3 * marge + 1);
                         if (chiffre < marge)
@@ -581,18 +581,18 @@ void QLabyrinth::construireAncienBis()
                 if (compteur == 4 || !nombreConnexionsRestantes)
                     break;
             }
-/*
+**//*
             if (compteur == 4 || !nombreConnexionsRestantes)
                 break;
-        }*/
+        }*//**
     } while (nombreConnexionsRestantes);
 
     labyrinthe[yEntree][xEntree] = 2;
-    labyrinthe[ySortie][xSortie] = 0;
+    labyrinthe[ySortie][xSortie] = 0;**/
 }
 
 void QLabyrinth::construireAncien()
-{
+{/**
     //initialisation du tableau
 
     labyrinthe.clear();
@@ -604,7 +604,7 @@ void QLabyrinth::construireAncien()
             labyrinthe[y] << 0;
     }
 
-    //tracé des murs faisant les contours du labyrinthe
+    //tracÃ© des murs faisant les contours du labyrinthe
 
     for (int y = 0; y < largeur; y += largeur - 1)
         for (int x = 0; x < longueur; x++)
@@ -614,7 +614,7 @@ void QLabyrinth::construireAncien()
         for (int y = 1; y < largeur - 1; y++)
             labyrinthe[y][x] = 1;
 
-    //tracé du quadrillage des murs
+    //tracÃ© du quadrillage des murs
 
     for (int y = 2; y < largeur - 2; y += 2)
         for (int x = 2; x < longueur - 2; x += 2)
@@ -699,9 +699,9 @@ void QLabyrinth::construireAncien()
                             if (x1 < longueur)
                             {
                                 if (!labyrinthe[y1][x1])
-                                    labyrinthe[y1][x1] = 3;/*
+                                    labyrinthe[y1][x1] = 3;**//*
                                 update();
-                                QApplication::processEvents();*/
+                                QApplication::processEvents();*//**
                             }
                             else
                                 break;
@@ -714,9 +714,9 @@ void QLabyrinth::construireAncien()
                             if (y1 < largeur)
                             {
                                 if (!labyrinthe[y1][x1])
-                                    labyrinthe[y1][x1] = 3;/*
+                                    labyrinthe[y1][x1] = 3;**//*
                                 update();
-                                QApplication::processEvents();*/
+                                QApplication::processEvents();*//**
                             }
                             else
                                 break;
@@ -759,7 +759,7 @@ void QLabyrinth::construireAncien()
             }
             for (int i = 0; i < 4; i++)
                 liste[i].clear();
-        }/*
+        }**//*
         if (temp == nombreConnexionsRestantes)
         {
             compteur++;
@@ -775,7 +775,7 @@ void QLabyrinth::construireAncien()
         {
             compteur = 0;
             temp = nombreConnexionsRestantes;
-        }*/
+        }*//**
 
         do
         {
@@ -849,9 +849,9 @@ void QLabyrinth::construireAncien()
 
         for (uint z = 0; z < longueurChemin; z++)
         {
-            int c = 0;//compteur pour possiblité déplacement si échec déplacement choisi/*
-            int dDepart = 0;//déplacement horizontal
-            int eDepart = 0;//déplacement vertical*/
+            int c = 0;//compteur pour possiblitÃ© dÃ©placement si Ã©chec dÃ©placement choisi**//*
+            int dDepart = 0;//dÃ©placement horizontal
+            int eDepart = 0;//dÃ©placement vertical*//**
             bool inversion1 = false;
             bool inversion2 = false;
             bool inversion3 = false;
@@ -862,11 +862,11 @@ void QLabyrinth::construireAncien()
                 eDepart = -2 * (rand() % 2) + 1;
 
             int d = dDepart;
-            int e = eDepart;/*
+            int e = eDepart;**//*
             int valeur = rand() % (2 - 1 + 1) + 1;
 
             for (int i = 0 ; i < valeur; i++)
-            {*/
+            {*//**
                 do
                 {
                     connexions = 0;
@@ -938,9 +938,9 @@ void QLabyrinth::construireAncien()
                     {
                         c++;
                         if (c == 4)
-                            break;/*
+                            break;**//*
                         i = 0;
-                        valeur = rand() % (2 - 1 + 1) + 1;*/
+                        valeur = rand() % (2 - 1 + 1) + 1;*//**
                         int marge = rand() % (100 - 10 + 1) + 10;//uint((x * x + y * y) / sqrt(x * x + y * y))
                         int chiffre = rand() % 301;
                         if (chiffre < marge)
@@ -1089,10 +1089,10 @@ void QLabyrinth::construireAncien()
                 if (c == 4 || !nombreConnexionsRestantes)
                     break;
             }
-/*
+**//*
             if (c == 4 || !nombreConnexionsRestantes)
                 break;
-        }*/
+        }*//**
     } while (nombreConnexionsRestantes);
 
     for (int i = 0; i < liste[0].size(); i++)
@@ -1128,7 +1128,7 @@ void QLabyrinth::construireAncien()
         liste[i].clear();
 
     labyrinthe[yEntree][xEntree] = 2;
-    labyrinthe[ySortie][xSortie] = 0;
+    labyrinthe[ySortie][xSortie] = 0;**/
 }
 
 void QLabyrinth::construireHomeMadeAlgorithm1()
@@ -1142,7 +1142,7 @@ void QLabyrinth::construireHomeMadeAlgorithm2()
 }
 
 void QLabyrinth::construireHomeMadeAlgorithm3()
-{
+{/**
     int lar = largeur, lon = longueur, xE = xEntree, yE = yEntree, xS = xSortie, yS = ySortie;
 
     xEntree = 0;
@@ -1288,7 +1288,7 @@ void QLabyrinth::construireHomeMadeAlgorithm3()
     }
 
     labyrinthe[yEntree][xEntree] = 2;
-    labyrinthe[ySortie][xSortie] = 0;
+    labyrinthe[ySortie][xSortie] = 0;**/
 }
 
 bool QLabyrinth::resoudre(int nombreFois)
@@ -1304,8 +1304,8 @@ bool QLabyrinth::resoudre(int nombreFois)
 	
     size_t const cycleOperationsSolving(1);
     std::chrono::milliseconds const cyclePauseSolving(1 * 50);
-	
-	Solver::AStar ass;
+
+    Labyrinth2d::Solver::AStar ass;
 
     while (i != nombreFois && !arretResolution)
 		labyrinth->player(playerId).solve(g, ass, 0, nombreFois, cycleOperationsSolving, cyclePauseSolving);
@@ -1487,8 +1487,8 @@ void QLabyrinth::setTailleCase(const QSize &taille)
         return;
     }
 
-    setFixedSize(transform.mapRect(QRectF(0, 0, longueur * tailleCase.width(), largeur * tailleCase.height()).toRect()).size());
-    if (size().width() < QApplication::desktop()->screenGeometry().width() - 50 && size().height() < QApplication::desktop()->screenGeometry().height() - 50)
+    setFixedSize(transform.mapRect(QRectF(0, 0, getLongueur() * tailleCase.width(), getLargeur() * tailleCase.height()).toRect()).size());
+    if (size().width() < QGuiApplication::screenAt(pos())->size().width() - 50 && size().height() < QGuiApplication::screenAt(pos())->size().height() - 50)
     {
         scrollArea->setMinimumSize(size().width() + scrollArea->frameWidth() * 2, size().height() + scrollArea->frameWidth() * 2);
         QTimer::singleShot(50, this, SLOT(redimensionnerFenetrePrincipale()));
@@ -1499,7 +1499,7 @@ void QLabyrinth::setTailleCase(const QSize &taille)
         QTimer::singleShot(50, this, SLOT(maximiserFenetre()));
     }
 
-    QRect rect = transform.mapRect(QRect(emplacementXJoueur * tailleCase.width() - tailleCase.width() * 2, emplacementYJoueur * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
+    QRect rect = transform.mapRect(QRect(getEmplacementXJoueur() * tailleCase.width() - tailleCase.width() * 2, getEmplacementYJoueur() * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
     scrollArea->ensureVisible(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
@@ -1525,7 +1525,7 @@ void QLabyrinth::paintEvent(QPaintEvent *event)
 
     //painter.begin(this);
 
-    painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
 
     QFont f(QString("Comic Sans MS"));
     f.setPointSize(30);
@@ -1555,23 +1555,23 @@ void QLabyrinth::paintEvent(QPaintEvent *event)
 
         apercu(&painter, visibleRect);
 
-        if ((modeLabyrinthe.mode & Obscurite) && !(emplacementXJoueur == xSortie && emplacementYJoueur == ySortie))
+        if ((modeLabyrinthe.mode & Obscurite) && !(getEmplacementXJoueur() == getXSortie() && getEmplacementYJoueur() == getYSortie()))
         {
-            QRadialGradient radialGradient((qreal(emplacementXJoueur) + 0.5) * qreal(tailleCase.height()), (qreal(emplacementYJoueur) + 0.5) * qreal(tailleCase.height()), qMax(tailleCase.width(), tailleCase.height()) * modeLabyrinthe.rayonObscurite);
+            QRadialGradient radialGradient((qreal(getEmplacementXJoueur()) + 0.5) * qreal(tailleCase.height()), (qreal(getEmplacementYJoueur()) + 0.5) * qreal(tailleCase.height()), qMax(tailleCase.width(), tailleCase.height()) * modeLabyrinthe.rayonObscurite);
             radialGradient.setColorAt(0, QColor(0, 0, 0, 0));
             radialGradient.setColorAt(1, modeLabyrinthe.couleurObscurite);
 
             QRect r = visibleRect;
-            r.setX(r.x()-1);
-            r.setY(r.y()-1);
-            r.setWidth(r.width()-1);
-            r.setHeight(r.height()-1);
+            r.setX(r.x() - 1);
+            r.setY(r.y() - 1);
+            r.setWidth(r.width() - 1);
+            r.setHeight(r.height() - 1);
             painter.fillRect(r, radialGradient);
         }
 
-        if (emplacementXJoueur != xSortie || emplacementYJoueur != ySortie)
+        if (getEmplacementXJoueur() != getXSortie() || getEmplacementYJoueur() != getYSortie())
         {
-            QRect rect = transform.mapRect(QRect(emplacementXJoueur * tailleCase.width() - tailleCase.width() * 2, emplacementYJoueur * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
+            QRect rect = transform.mapRect(QRect(getEmplacementXJoueur() * tailleCase.width() - tailleCase.width() * 2, getEmplacementYJoueur() * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
             scrollArea->ensureVisible(rect.x(), rect.y(), rect.width(), rect.height());
         }
     }
@@ -1582,7 +1582,7 @@ void QLabyrinth::paintEvent(QPaintEvent *event)
 void QLabyrinth::apercu(QPaintDevice *device, QRect visibleRect)
 {
     QPainter painter(device);
-    painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
 
     if (visibleRect.isNull())
         visibleRect = QRect(0, 0, device->width(), device->height());
@@ -1606,13 +1606,13 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
     //Dessin du fond
     if (textures[0].typeTexture == TextureMotif && !pixmapMotifFond.isNull())
     {
-        for (int i = 0; i < largeur; i++)
+        for (int i = 0; i < getLargeur(); i++)
         {
             if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
                 break;
             if ((i + 1) * tailleCase.height() > visibleRect.y())
             {
-                for (int j = 0; j < longueur; j++)
+                for (int j = 0; j < getLongueur(); j++)
                 {
                     if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
                         break;
@@ -1637,24 +1637,24 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
     }
     else if (textures[0].typeTexture == TextureImage && !pixmapImageFond.isNull())
     {
-        for (int i = 0; i < largeur * tailleCase.height(); i += pixmapImageFond.height())
+        for (int i = 0; i < getLargeur() * tailleCase.height(); i += pixmapImageFond.height())
         {
             if (i > visibleRect.y() + visibleRect.height())
                 break;
             int h = pixmapImageFond.height();
-            if (i + pixmapImageFond.height() - largeur * tailleCase.height() > 0)
-                h = largeur * tailleCase.height() - i;
-            if (i+pixmapImageFond.width() > visibleRect.y())
+            if (i + pixmapImageFond.height() - getLargeur() * tailleCase.height() > 0)
+                h = getLargeur() * tailleCase.height() - i;
+            if (i + pixmapImageFond.width() > visibleRect.y())
             {
-                for (int j = 0; j < longueur * tailleCase.width(); j += pixmapImageFond.width())
+                for (int j = 0; j < getLongueur() * tailleCase.width(); j += pixmapImageFond.width())
                 {
                     if (j > visibleRect.x() + visibleRect.width())
                         break;
                     int w = pixmapImageFond.width();
-                    if (j+pixmapImageFond.width() > visibleRect.x())
+                    if (j + pixmapImageFond.width() > visibleRect.x())
                     {
-                        if (j+pixmapImageFond.width() - longueur * tailleCase.width() > 0)
-                            w = longueur * tailleCase.width() - j;
+                        if (j + pixmapImageFond.width() - getLongueur() * tailleCase.width() > 0)
+                            w = getLongueur() * tailleCase.width() - j;
                         painter->drawPixmap(QRect(j, i, w, h), pixmapImageFond, QRect(0, 0, w, h));
                     }
                 }
@@ -1662,18 +1662,18 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
         }
     }
     else// if (textures[0].typeTexture == TextureCouleur)
-        painter->fillRect(0, 0, longueur * tailleCase.width(), largeur * tailleCase.height(), textures[0].couleur);
+        painter->fillRect(0, 0, getLongueur() * tailleCase.width(), getLargeur() * tailleCase.height(), textures[0].couleur);
 
     //Dessin du mur
     if (textures[1].typeTexture == TextureMotif && !pixmapMotifMur.isNull())
     {
-        for (int i = 0; i < largeur; i++)
+        for (int i = 0; i < getLargeur(); i++)
         {
             if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
                 break;
             if ((i + 1) * tailleCase.height() > visibleRect.y())
             {
-                for (int j = 0; j < longueur; j++)
+                for (int j = 0; j < getLongueur(); j++)
                 {
                     if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
                         break;
@@ -1687,7 +1687,7 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
     {
         int decalageY = 0;
         int retrancheY = 0;
-        for (int i = 0; i < largeur; i++)
+        for (int i = 0; i < getLargeur(); i++)
         {
             if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
                 break;
@@ -1700,7 +1700,7 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
             if ((i + 1) * tailleCase.height() > visibleRect.y())
             {
                 int valeurY = decalageY;
-                for (int j = 0; j < longueur; j++)
+                for (int j = 0; j < getLongueur(); j++)
                 {
                     if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
                         break;
@@ -1759,13 +1759,13 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
     }
     else// if (textures[1].typeTexture == TextureCouleur)
     {
-        for (int i = 0; i < largeur; i++)
+        for (int i = 0; i < getLargeur(); i++)
         {
             if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
                 break;
             if ((i + 1) * tailleCase.height() > visibleRect.y())
             {
-                for (int j = 0; j < longueur; j++)
+                for (int j = 0; j < getLongueur(); j++)
                 {
                     if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
                         break;
@@ -1794,19 +1794,19 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
                 }
             }
             pixmapMotifParcours = QPixmap::fromImage(image, Qt::AutoColor | Qt::DiffuseDither | Qt::DiffuseAlphaDither | Qt::PreferDither);
-            for (int i = 0; i < largeur; i++)
+            for (int i = 0; i < getLargeur(); i++)
             {
                 if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
                     break;
                 if ((i + 1) * tailleCase.height() > visibleRect.y())
                 {
-                    for (int j = 0; j < longueur; j++)
+                    for (int j = 0; j < getLongueur(); j++)
                     {
                         if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
                             break;
-                        if ((j + 1) * tailleCase.width() > visibleRect.x() && (labyrinthe[i][j] == 2 || (labyrinthe[i][j] == 3 && !effacerChemin)))
+                        if ((j + 1) * tailleCase.width() > visibleRect.x() && (labyrinthe[i][j] == 2 || (labyrinthe[i][j] == 3 && !getEffacerChemin())))
                         {
-                            if (i != emplacementYJoueur || j != emplacementXJoueur)
+                            if (i != getEmplacementYJoueur() || j != getEmplacementXJoueur())
                                 painter->drawPixmap(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height(), pixmapMotifParcours);
                             else
                             {
@@ -1820,7 +1820,7 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
             }
         }
         else
-            painter->drawPixmap(emplacementXJoueur * tailleCase.width(), emplacementYJoueur * tailleCase.height(), tailleCase.width(), tailleCase.height(), pixmapMotifParcours);
+            painter->drawPixmap(getEmplacementXJoueur() * tailleCase.width(), getEmplacementYJoueur() * tailleCase.height(), tailleCase.width(), tailleCase.height(), pixmapMotifParcours);
     }
     else if (textures[2].typeTexture == TextureImage && !pixmapImageParcours.isNull())
     {
@@ -1841,7 +1841,7 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
             pixmapImageParcours = QPixmap::fromImage(image, Qt::AutoColor | Qt::DiffuseDither | Qt::DiffuseAlphaDither | Qt::PreferDither);
             int decalageY = 0;
             int retrancheY = 0;
-            for (int i = 0; i < largeur; i++)
+            for (int i = 0; i < getLargeur(); i++)
             {
                 if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
                     break;
@@ -1854,7 +1854,7 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
                 if ((i + 1) * tailleCase.height() > visibleRect.y())
                 {
                     int valeurY = decalageY;
-                    for (int j = 0; j < longueur; j++)
+                    for (int j = 0; j < getLongueur(); j++)
                     {
                         if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
                             break;
@@ -1862,9 +1862,9 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
                             decalageX += pixmapImageParcours.width();
                         if ((j + 1) * tailleCase.width() - decalageX > pixmapImageParcours.width())
                             retrancheX = (j + 1) * tailleCase.width() - decalageX - pixmapImageParcours.width();
-                        if ((j + 1) * tailleCase.width() > visibleRect.x() && (labyrinthe[i][j] == 2 || (labyrinthe[i][j] == 3 && !effacerChemin)))
+                        if ((j + 1) * tailleCase.width() > visibleRect.x() && (labyrinthe[i][j] == 2 || (labyrinthe[i][j] == 3 && !getEffacerChemin())))
                         {
-                            if (i == emplacementYJoueur && j == emplacementXJoueur)
+                            if (i == getEmplacementYJoueur() && j == getEmplacementXJoueur())
                                 pixmapImageParcours = QPixmap(textures[2].image);
                             if (!retrancheX && !retrancheY)
                                 painter->drawPixmap(QRect(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height()), pixmapImageParcours, QRect(j * tailleCase.width() - decalageX, i * tailleCase.height() - decalageY, tailleCase.width(), tailleCase.height()));
@@ -1893,7 +1893,7 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
                                     retrancheX = 0;
                                 }
                             }
-                            if (i == emplacementYJoueur && j == emplacementXJoueur)
+                            if (i == getEmplacementYJoueur() && j == getEmplacementXJoueur())
                                 pixmapImageParcours = QPixmap::fromImage(image, Qt::AutoColor | Qt::DiffuseDither | Qt::DiffuseAlphaDither | Qt::PreferDither);
                         }
                         else if (retrancheX)
@@ -1920,28 +1920,28 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
             bool b = false;
             int decalageY = 0;
             int retrancheY = 0;
-            for (int i = 0; i < largeur; i++)
+            for (int i = 0; i < getLargeur(); i++)
             {
                 if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
                     break;
                 if (i * tailleCase.height() - decalageY >= pixmapImageParcours.height())
                     decalageY += pixmapImageParcours.height();
                 if ((i + 1) * tailleCase.height() - decalageY > pixmapImageParcours.height())
-                    retrancheY = (i + 1) * tailleCase.height() - decalageY-pixmapImageParcours.height();
+                    retrancheY = (i + 1) * tailleCase.height() - decalageY - pixmapImageParcours.height();
                 int decalageX = 0;
                 int retrancheX = 0;
-                if ((i + 1) * tailleCase.height() > visibleRect.y() && i == emplacementYJoueur)
+                if ((i + 1) * tailleCase.height() > visibleRect.y() && i == getEmplacementYJoueur())
                 {
                     int valeurY = decalageY;
-                    for (int j = 0; j < longueur; j++)
+                    for (int j = 0; j < getLongueur(); j++)
                     {
                         if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
                             break;
                         if (j * tailleCase.width() - decalageX >= pixmapImageParcours.width())
                             decalageX += pixmapImageParcours.width();
                         if ((j + 1) * tailleCase.width() - decalageX > pixmapImageParcours.width())
-                            retrancheX = (j + 1) * tailleCase.width() - decalageX-pixmapImageParcours.width();
-                        if ((j + 1) * tailleCase.width() > visibleRect.x() && j == emplacementXJoueur)
+                            retrancheX = (j + 1) * tailleCase.width() - decalageX - pixmapImageParcours.width();
+                        if ((j + 1) * tailleCase.width() > visibleRect.x() && j == getEmplacementXJoueur())
                         {
                             if (!retrancheX && !retrancheY)
                                 painter->drawPixmap(QRect(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height()), pixmapImageParcours, QRect(j * tailleCase.width() - decalageX, i * tailleCase.height() - decalageY, tailleCase.width(), tailleCase.height()));
@@ -2003,19 +2003,19 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
         {
             int a = couleur.alpha();
             couleur.setAlpha(a/2);
-            for (int i = 0; i < largeur; i++)
+            for (int i = 0; i < getLargeur(); i++)
             {
                 if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
                     break;
                 if ((i + 1) * tailleCase.height() > visibleRect.y())
                 {
-                    for (int j = 0; j < longueur; j++)
+                    for (int j = 0; j < getLongueur(); j++)
                     {
                         if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
                             break;
-                        if ((j + 1) * tailleCase.width() > visibleRect.x() && (labyrinthe[i][j] == 2 || (labyrinthe[i][j] == 3 && !effacerChemin)))
+                        if ((j + 1) * tailleCase.width() > visibleRect.x() && (labyrinthe[i][j] == 2 || (labyrinthe[i][j] == 3 && !getEffacerChemin())))
                         {
-                            if (i != emplacementYJoueur || j != emplacementXJoueur)
+                            if (i != getEmplacementYJoueur() || j != getEmplacementXJoueur())
                                 painter->fillRect(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height(), couleur);
                             else
                             {
@@ -2029,11 +2029,11 @@ void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
             }
         }
         else
-            painter->fillRect(emplacementXJoueur * tailleCase.width(), emplacementYJoueur * tailleCase.height(), tailleCase.width(), tailleCase.height(), couleur);
+            painter->fillRect(getEmplacementXJoueur() * tailleCase.width(), getEmplacementYJoueur() * tailleCase.height(), tailleCase.width(), tailleCase.height(), couleur);
     }
 
-    painter->fillRect(xEntree * tailleCase.width(), yEntree * tailleCase.height(), tailleCase.width(), tailleCase.height(), QColor(0, 255, 0, 128));
-    painter->fillRect(xSortie * tailleCase.width(), ySortie * tailleCase.height(), tailleCase.width(), tailleCase.height(), QColor(255, 0, 0, 128));
+    painter->fillRect(getXEntree() * tailleCase.width(), getYEntree() * tailleCase.height(), tailleCase.width(), tailleCase.height(), QColor(0, 255, 0, 128));
+    painter->fillRect(getXSortie() * tailleCase.width(), getYSortie() * tailleCase.height(), tailleCase.width(), tailleCase.height(), QColor(255, 0, 0, 128));
 }
 
 void QLabyrinth::routineDeplacement1()
@@ -2120,13 +2120,13 @@ void QLabyrinth::routineDeplacement2()
 {
     QRect visibleRect = visibleRegion().boundingRect();
 
-    QRect r = visibleRect.intersected(QRect(emplacementXJoueur * tailleCase.width(), emplacementYJoueur * tailleCase.height(), tailleCase.width(), tailleCase.height()));
+    QRect r = visibleRect.intersected(QRect(getEmplacementXJoueur() * tailleCase.width(), getEmplacementYJoueur() * tailleCase.height(), tailleCase.width(), tailleCase.height()));
     if (r.width() != tailleCase.width())
         scrollArea->horizontalScrollBar()->setValue(scrollArea->horizontalScrollBar()->value() + scrollArea->horizontalScrollBar()->pageStep() / 2);
     if (r.height() != tailleCase.height())
         scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->value() + scrollArea->verticalScrollBar()->pageStep() / 2);
     rafraichir();
-    if (emplacementXJoueur == xSortie && emplacementYJoueur == ySortie)
+    if (getEmplacementXJoueur() == getXSortie() && getEmplacementYJoueur() == getYSortie())
     {
         if (indexTimerRotation)
         {
@@ -2170,7 +2170,7 @@ void QLabyrinth::keyPressEvent(QKeyEvent *event)
     if (typeLabyrinthe == Labyrinthe2Den3D || enResolution)
         return;
 
-    if (partieEnPause || (emplacementXJoueur == xSortie && emplacementYJoueur == ySortie))
+    if (partieEnPause || (getEmplacementXJoueur() == getXSortie() && getEmplacementYJoueur() == getYSortie()))
         return;
 
     int key = event->key();
@@ -2243,9 +2243,9 @@ void QLabyrinth::keyPressEvent(QKeyEvent *event)
     }
 	
 	QKeyEvent modifiedEvent(event->type(), key, event->modifiers(), event->text(), event->isAutoRepeat(), event->count());
-	
-	routineDeplacement1()
-	qKeyPress->eventFilter(this, &modifiedEvent);
+
+    routineDeplacement1();
+    qKeyPress->filter(&modifiedEvent);
 	emit deplacementChange();
 	routineDeplacement2();
 }
@@ -2293,9 +2293,9 @@ void QLabyrinth::mouseMoveEvent(QMouseEvent *event)
         int y = p.y()/tailleCase.height();
         QPoint posSouris = event->pos();
 
-        if ((x > emplacementXJoueur && emplacementXJoueur + 1 < longueur && labyrinthe[emplacementYJoueur][emplacementXJoueur + 1] == 1) || (x < emplacementXJoueur && emplacementXJoueur - 1 >= 0 && labyrinthe[emplacementYJoueur][emplacementXJoueur - 1] == 1))
+        if ((x > getEmplacementXJoueur() && getEmplacementXJoueur() + 1 < getLongueur() && labyrinth->grid().at(getEmplacementYJoueur(), getEmplacementXJoueur() + 1)) || (x < getEmplacementXJoueur() && getEmplacementXJoueur() - 1 >= 0 && labyrinth->grid().at(getEmplacementYJoueur(), getEmplacementXJoueur() - 1)))
             posSouris.rx() = anciennePosSouris.x();
-        if ((y > emplacementYJoueur && emplacementYJoueur + 1 < largeur && labyrinthe[emplacementYJoueur + 1][emplacementXJoueur] == 1) || (y < emplacementYJoueur && emplacementYJoueur - 1 >= 0 && labyrinthe[emplacementYJoueur - 1][emplacementXJoueur] == 1))
+        if ((y > getEmplacementYJoueur() && getEmplacementYJoueur() + 1 < getLargeur() && labyrinth->grid().at(getEmplacementYJoueur() + 1, getEmplacementXJoueur())) || (y < getEmplacementYJoueur() && getEmplacementYJoueur() - 1 >= 0 && labyrinth->grid().at(getEmplacementYJoueur() - 1, getEmplacementXJoueur())))
             posSouris.ry() = anciennePosSouris.y();
 
         if (posSouris != event->pos())
@@ -2303,7 +2303,7 @@ void QLabyrinth::mouseMoveEvent(QMouseEvent *event)
 
         mouvementSouris(event->pos());
 
-        if (!(x == emplacementXJoueur && y == emplacementYJoueur))
+        if (!(x == getEmplacementXJoueur() && y == getEmplacementYJoueur()))
             QCursor::setPos(mapToGlobal(anciennePosSouris));
 
         anciennePosSouris = event->pos();
@@ -2538,8 +2538,8 @@ void QLabyrinth::nouveau(Niveau n, int longueurLabyrinthe, int largeurLabyrinthe
 		delete labyrinth;
 	
 	labyrinth = new Labyrinth2d::Labyrinth(longueurLabyrinthe, largeurLabyrinthe);
-    player1Id = labyrinth.addPlayer(0, 0, {labyrinth.grid().rows() - 1}, {labyrinth.grid().columns() - 1}, true);
-	qKeyPress = new QKeyPress(labyrinth, playerId);
+    playerId = labyrinth->addPlayer(0, 0, {labyrinth->grid().rows() - 1}, {labyrinth->grid().columns() - 1}, true);
+    qKeyPress = new Labyrinth2d::Mover::QKeyPress(*labyrinth, playerId);
 
     size_t const cycleOperations(0 * 1);
     std::chrono::milliseconds const cyclePause(0 * 1 * 1);
@@ -2547,49 +2547,67 @@ void QLabyrinth::nouveau(Niveau n, int longueurLabyrinthe, int largeurLabyrinthe
     std::default_random_engine g(seed);
 	//std::random_device g;
 
+    using namespace Labyrinth2d;
+
     switch (algorithme)
     {
         case FirstDepthSearch:
+        {
 			Algorithm::WaySearch wsa(Algorithm::WaySearch::DepthFirstSearch);
-			labyrinth.generate(g, wsa, cycleOperations, cyclePause);
+            labyrinth->generate(g, wsa, cycleOperations, cyclePause);
             break;
+        }
         case CellFusion:
+        {
             Algorithm::CellFusion cfa;
-			labyrinth.generate(g, cfa, cycleOperations, cyclePause);
+            labyrinth->generate(g, cfa, cycleOperations, cyclePause);
             break;
+        }
         case RecursiveDivision:
+        {
             Algorithm::RecursiveDivision rda;
-			labyrinth.generate(g, rda, cycleOperations, cyclePause);
+            labyrinth->generate(g, rda, cycleOperations, cyclePause);
             break;
+        }
         case PrimsAlgorithm:
-			Algorithm::WaySearch wsa(Algorithm:WaySearch::Prim);
-			labyrinth.generate(g, wsa, cycleOperations, cyclePause);
+        {
+            Algorithm::WaySearch wsa(Algorithm::WaySearch::Prim);
+            labyrinth->generate(g, wsa, cycleOperations, cyclePause);
             break;
+        }
         case HuntAndKillAlgorithm:
+        {
 			Algorithm::WaySearch wsa(Algorithm::WaySearch::HuntAndKill);
-			labyrinth.generate(g, wsa, cycleOperations, cyclePause);
+            labyrinth->generate(g, wsa, cycleOperations, cyclePause);
             break;
+        }
         case GrowingTreeAlgorithm:
+        {
 			Algorithm::WaySearch wsa(Algorithm::WaySearch::DepthFirstSearch);
-			labyrinth.generate(g, wsa, cycleOperations, cyclePause);
+            labyrinth->generate(g, wsa, cycleOperations, cyclePause);
             break;
+        }
         case FractaleAlgorithm:
+        {
             Algorithm::Fractal fa;
-			labyrinth.generate(g, fa, cycleOperations, cyclePause);
-            break;/*
+            labyrinth->generate(g, fa, cycleOperations, cyclePause);
+            break;
+        }
         case HomeMadeAlgorithm1:
-            construireHomeMadeAlgorithm1();
+            //construireHomeMadeAlgorithm1();
             break;
         case HomeMadeAlgorithm2:
-            construireHomeMadeAlgorithm2();
+            //construireHomeMadeAlgorithm2();
             break;
         case HomeMadeAlgorithm3:
-            construireHomeMadeAlgorithm3();
-            break;*/
-        default:
-			Algorithm::WaySearch wsa(Algorithm::WaySearch::DepthFirstSearch);
-			labyrinth.generate(g, wsa, cycleOperations, cyclePause);
+            //construireHomeMadeAlgorithm3();
             break;
+        default:
+        {
+			Algorithm::WaySearch wsa(Algorithm::WaySearch::DepthFirstSearch);
+            labyrinth->generate(g, wsa, cycleOperations, cyclePause);
+            break;
+        }
     }
 
     enConstruction = false;
@@ -2626,8 +2644,8 @@ void QLabyrinth::nouveau(Niveau n, int longueurLabyrinthe, int largeurLabyrinthe
             glLabyrinth = 0;
             layout()->deleteLater();
             scrollArea->setWidgetResizable(false);
-            setFixedSize(transform.mapRect(QRectF(0, 0, longueur * tailleCase.width(), largeur * tailleCase.height()).toRect()).size());
-            if (size().width() < QApplication::desktop()->screenGeometry().width() - 50 && size().height() < QApplication::desktop()->screenGeometry().height() - 50)
+            setFixedSize(transform.mapRect(QRectF(0, 0, getLongueur() * tailleCase.width(), getLargeur() * tailleCase.height()).toRect()).size());
+            if (size().width() < QGuiApplication::screenAt(pos())->size().width() - 50 && size().height() < QGuiApplication::screenAt(pos())->size().height() - 50)
             {
                 scrollArea->setMinimumSize(size().width() + scrollArea->frameWidth() * 2, size().height() + scrollArea->frameWidth() * 2);
                 QTimer::singleShot(50, this, SLOT(redimensionnerFenetrePrincipale()));
@@ -2639,13 +2657,13 @@ void QLabyrinth::nouveau(Niveau n, int longueurLabyrinthe, int largeurLabyrinthe
             }
         }
 
-        setFixedSize(longueur * tailleCase.width(), largeur * tailleCase.height());
+        setFixedSize(getLongueur() * tailleCase.width(), getLargeur() * tailleCase.height());
         calculerTransformation();
 
         if (b || (modeLabyrinthe.mode & Rotation) || ((ancienMode & Rotation) && !(modeLabyrinthe.mode & Rotation)))
         {
-            setFixedSize(transform.mapRect(QRectF(0, 0, longueur * tailleCase.width(), largeur * tailleCase.height()).toRect()).size());
-            if (size().width() < QApplication::desktop()->screenGeometry().width() - 50 && size().height() < QApplication::desktop()->screenGeometry().height() - 50)
+            setFixedSize(transform.mapRect(QRectF(0, 0, getLongueur() * tailleCase.width(), getLargeur() * tailleCase.height()).toRect()).size());
+            if (size().width() < QGuiApplication::screenAt(pos())->size().width() - 50 && size().height() < QGuiApplication::screenAt(pos())->size().height() - 50)
             {
                 scrollArea->setMinimumSize(size().width() + scrollArea->frameWidth() * 2, size().height() + scrollArea->frameWidth() * 2);
                 QTimer::singleShot(50, this, SLOT(redimensionnerFenetrePrincipale()));
@@ -2657,7 +2675,7 @@ void QLabyrinth::nouveau(Niveau n, int longueurLabyrinthe, int largeurLabyrinthe
             }
         }
 
-        QRect rect = transform.mapRect(QRect(emplacementXJoueur * tailleCase.width() - tailleCase.width() * 2, emplacementYJoueur * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
+        QRect rect = transform.mapRect(QRect(getEmplacementXJoueur() * tailleCase.width() - tailleCase.width() * 2, getEmplacementYJoueur() * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
         scrollArea->ensureVisible(rect.x(), rect.y(), rect.width(), rect.height());
     }
 
@@ -2673,7 +2691,7 @@ void QLabyrinth::redimensionnerFenetrePrincipale()
         bool maximized = scrollArea->parentWidget()->parentWidget()->isMaximized();
         scrollArea->parentWidget()->parentWidget()->showNormal();
         scrollArea->parentWidget()->parentWidget()->resize(scrollArea->parentWidget()->parentWidget()->minimumSize());
-        scrollArea->parentWidget()->parentWidget()->move(QApplication::desktop()->screenGeometry().center() - scrollArea->parentWidget()->parentWidget()->rect().center());
+        scrollArea->parentWidget()->parentWidget()->move(QRect(QPoint(), QGuiApplication::screenAt(pos())->size()).center() - scrollArea->parentWidget()->parentWidget()->rect().center());
         if (maximized)
             scrollArea->parentWidget()->parentWidget()->setWindowState(scrollArea->parentWidget()->parentWidget()->windowState() | Qt::WindowMaximized);
         if (fullScreen)
@@ -2692,7 +2710,7 @@ void QLabyrinth::maximiserFenetre()
         bool maximized = scrollArea->parentWidget()->parentWidget()->isMaximized();
         scrollArea->parentWidget()->parentWidget()->showNormal();
         scrollArea->parentWidget()->parentWidget()->resize(scrollArea->parentWidget()->parentWidget()->minimumSize());
-        scrollArea->parentWidget()->parentWidget()->move(QApplication::desktop()->screenGeometry().center() - scrollArea->parentWidget()->parentWidget()->rect().center());
+        scrollArea->parentWidget()->parentWidget()->move(QRect(QPoint(), QGuiApplication::screenAt(pos())->size()).center() - scrollArea->parentWidget()->parentWidget()->rect().center());
         if (maximized)
             scrollArea->parentWidget()->parentWidget()->setWindowState(scrollArea->parentWidget()->parentWidget()->windowState() | Qt::WindowMaximized);
         if (fullScreen)
@@ -2783,10 +2801,10 @@ void QLabyrinth::recommencer()
             pourcentageCisaillementHorizontal = rand() % 101;
     }
 
-    setFixedSize(longueur * tailleCase.width(), largeur * tailleCase.height());
+    setFixedSize(getLongueur() * tailleCase.width(), getLargeur() * tailleCase.height());
     calculerTransformation();
 
-    if (size().width() < QApplication::desktop()->screenGeometry().width() - 50 && size().height() < QApplication::desktop()->screenGeometry().height() - 50)
+    if (size().width() < QGuiApplication::screenAt(pos())->size().width() - 50 && size().height() < QGuiApplication::screenAt(pos())->size().height() - 50)
     {
         scrollArea->setMinimumSize(size().width() + scrollArea->frameWidth() * 2, size().height() + scrollArea->frameWidth() * 2);
         QTimer::singleShot(50, this, SLOT(redimensionnerFenetrePrincipale()));
@@ -2802,20 +2820,18 @@ void QLabyrinth::recommencer()
         enregistre = false;
         emit enregistrementChange();
     }
-
-    for (int i = 0; i < largeur; i++)
-        for (int j = 0; j < longueur; j++)
+/*
+    for (int i = 0; i < getLargeur(); i++)
+        for (int j = 0; j < getLongueur(); j++)
             if (labyrinthe[i][j] > 1)
                 labyrinthe[i][j] = 0;
-
-    emplacementXJoueur = xEntree;
-    emplacementYJoueur = yEntree;
+*/
     enResolution = false;
     partieEnCours = false;
     partieEnPause = false;
     nombreDeplacement = 0;
 
-    labyrinthe[emplacementYJoueur][emplacementXJoueur] = 2;
+    //labyrinthe[emplacementYJoueur][emplacementXJoueur] = 2;
 
     QPalette p = scrollArea->palette();
 
@@ -2826,18 +2842,18 @@ void QLabyrinth::recommencer()
 
     scrollArea->setPalette(p);
 
-    QRect rect = transform.mapRect(QRect(emplacementXJoueur * tailleCase.width() - tailleCase.width() * 2, emplacementYJoueur * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
+    QRect rect = transform.mapRect(QRect(getEmplacementXJoueur() * tailleCase.width() - tailleCase.width() * 2, getEmplacementYJoueur() * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
     scrollArea->ensureVisible(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 bool QLabyrinth::getPartieTerminee() const
 {
-    return (enResolution || (emplacementXJoueur == xSortie && emplacementYJoueur == ySortie));
+    return (enResolution || (getEmplacementXJoueur() == getXSortie() && getEmplacementYJoueur() == getYSortie()));
 }
 
 void QLabyrinth::mettreEnPauseRedemarrer()
 {
-    if (emplacementXJoueur == xSortie && emplacementYJoueur == ySortie)
+    if (getEmplacementXJoueur() == getXSortie() && getEmplacementYJoueur() == getYSortie())
         return;
 
     partieEnPause = !partieEnPause;
@@ -2853,7 +2869,7 @@ void QLabyrinth::mettreEnPauseRedemarrer()
             {
                 int e = tR.elapsed();
                 tempsRestantRotation = tempsRestantRotation-e;
-                tR = QTime();
+                tR = QElapsedTimer();
                 killTimer(indexTimerRotation);
                 indexTimerRotation = 0;
             }
@@ -2882,7 +2898,7 @@ void QLabyrinth::mettreEnPauseRedemarrer()
                 {
                     int eDV = tDV.elapsed();
                     tempsRestantDistorsionVerticale = tempsRestantDistorsionVerticale - eDV;
-                    tDV = QTime();
+                    tDV = QElapsedTimer();
                     killTimer(indexTimerDistorsionVerticale);
                     indexTimerDistorsionVerticale = 0;
                 }
@@ -2890,7 +2906,7 @@ void QLabyrinth::mettreEnPauseRedemarrer()
                 {
                     int eDH = tDH.elapsed();
                     tempsRestantDistorsionHorizontale = tempsRestantDistorsionHorizontale - eDH;
-                    tDH = QTime();
+                    tDH = QElapsedTimer();
                     killTimer(indexTimerDistorsionHorizontale);
                     indexTimerDistorsionHorizontale = 0;
                 }
@@ -2939,7 +2955,7 @@ void QLabyrinth::mettreEnPauseRedemarrer()
                 {
                     int eDV = tDV.elapsed();
                     tempsRestantCisaillementVertical = tempsRestantCisaillementVertical - eDV;
-                    tDV = QTime();
+                    tDV = QElapsedTimer();
                     killTimer(indexTimerCisaillementVertical);
                     indexTimerCisaillementVertical = 0;
                 }
@@ -2947,7 +2963,7 @@ void QLabyrinth::mettreEnPauseRedemarrer()
                 {
                     int eDH = tDH.elapsed();
                     tempsRestantCisaillementHorizontal = tempsRestantCisaillementHorizontal - eDH;
-                    tDH = QTime();
+                    tDH = QElapsedTimer();
                     killTimer(indexTimerCisaillementHorizontal);
                     indexTimerCisaillementHorizontal = 0;
                 }
@@ -3111,7 +3127,7 @@ void QLabyrinth::resoudre()
     p.setColor(QPalette::Window, textures[0].couleur);
     scrollArea->setPalette(p);
 
-    QRect rect = transform.mapRect(QRect(emplacementXJoueur * tailleCase.width() - tailleCase.width() * 2, emplacementYJoueur * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
+    QRect rect = transform.mapRect(QRect(getEmplacementXJoueur() * tailleCase.width() - tailleCase.width() * 2, getEmplacementYJoueur() * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
     scrollArea->ensureVisible(rect.x(), rect.y(), rect.width(), rect.height());
 
     rafraichir();
@@ -3144,7 +3160,7 @@ void QLabyrinth::solveLabyrinth()
             scrollArea->setPalette(p);
         }
 
-        QRect rect = transform.mapRect(QRect(emplacementXJoueur * tailleCase.width() - tailleCase.width() * 2, emplacementYJoueur * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
+        QRect rect = transform.mapRect(QRect(getEmplacementXJoueur() * tailleCase.width() - tailleCase.width() * 2, getEmplacementYJoueur() * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
         scrollArea->ensureVisible(rect.x(), rect.y(), rect.width(), rect.height());
         rafraichir();
     }
@@ -3171,12 +3187,12 @@ void QLabyrinth::setResolutionProgressive(bool b)
 
 bool QLabyrinth::getEffacerChemin() const
 {
-    return effacerChemin;
+    return !labyrinth->player(playerId).keptFullTrace();
 }
 
 void QLabyrinth::setEffacerChemin(bool b)
 {
-    if (partieEnCours || effacerChemin == b)
+    if (partieEnCours || getEffacerChemin() == b)
         return;
 
     if (enregistre)
@@ -3185,7 +3201,7 @@ void QLabyrinth::setEffacerChemin(bool b)
         emit enregistrementChange();
     }
 
-    effacerChemin = b;
+    labyrinth->player(playerId).keepFullTrace(!b);
 
     rafraichir();
 }
@@ -3323,8 +3339,8 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
     enregistre = true;
     emit enregistrementChange();
 
-    int lon, lar;
-    bool b;
+    int xEntree, yEntree, xSortie, ySortie, lon, lar, emplacementXJoueur, emplacementYJoueur;
+    bool b, effacerChemin;
     unsigned int ancienMode = modeLabyrinthe.mode;
 
     data >> b;
@@ -3416,10 +3432,7 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
     data >> z;
     data >> angleRotationZ;
 
-    b = (longueur != lon || largeur != lar);
-
-    longueur = lon;
-    largeur = lar;
+    b = (getLongueur() != lon || getLargeur() != lar);
 
     if (glLabyrinth)
         glLabyrinth->hide();
@@ -3457,8 +3470,8 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
             glLabyrinth = 0;
             layout()->deleteLater();
             scrollArea->setWidgetResizable(false);
-            setFixedSize(transform.mapRect(QRectF(0, 0, longueur * tailleCase.width(), largeur * tailleCase.height()).toRect()).size());
-            if (size().width() < QApplication::desktop()->screenGeometry().width() - 50 && size().height() < QApplication::desktop()->screenGeometry().height() - 50)
+            setFixedSize(transform.mapRect(QRectF(0, 0, getLongueur() * tailleCase.width(), getLargeur() * tailleCase.height()).toRect()).size());
+            if (size().width() < QGuiApplication::screenAt(pos())->size().width() - 50 && size().height() < QGuiApplication::screenAt(pos())->size().height() - 50)
             {
                 scrollArea->setMinimumSize(size().width() + scrollArea->frameWidth() * 2, size().height() + scrollArea->frameWidth() * 2);
                 QTimer::singleShot(50, this, SLOT(redimensionnerFenetrePrincipale()));
@@ -3470,13 +3483,13 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
             }
         }
 
-        setFixedSize(longueur * tailleCase.width(), largeur * tailleCase.height());
+        setFixedSize(getLongueur() * tailleCase.width(), getLargeur() * tailleCase.height());
         calculerTransformation();
 
         if (b || (modeLabyrinthe.mode & Rotation) || ((ancienMode & Rotation) && !(modeLabyrinthe.mode & Rotation)))
         {
-            setFixedSize(transform.mapRect(QRectF(0, 0, longueur * tailleCase.width(), largeur * tailleCase.height()).toRect()).size());
-            if (size().width() < QApplication::desktop()->screenGeometry().width() - 50 && size().height() < QApplication::desktop()->screenGeometry().height() - 50)
+            setFixedSize(transform.mapRect(QRectF(0, 0, getLongueur() * tailleCase.width(), getLargeur() * tailleCase.height()).toRect()).size());
+            if (size().width() < QGuiApplication::screenAt(pos())->size().width() - 50 && size().height() < QGuiApplication::screenAt(pos())->size().height() - 50)
             {
                 scrollArea->setMinimumSize(size().width() + scrollArea->frameWidth() * 2, size().height() + scrollArea->frameWidth() * 2);
                 QTimer::singleShot(50, this, SLOT(redimensionnerFenetrePrincipale()));
@@ -3511,7 +3524,7 @@ void QLabyrinth::actualiserChargement()
 
     rafraichir();
 
-    QRect rect = transform.mapRect(QRect(emplacementXJoueur * tailleCase.width() - tailleCase.width() * 2, emplacementYJoueur * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
+    QRect rect = transform.mapRect(QRect(getEmplacementXJoueur() * tailleCase.width() - tailleCase.width() * 2, getEmplacementYJoueur() * tailleCase.height() - tailleCase.height() * 2, tailleCase.width() + tailleCase.width() * 5, tailleCase.height() + tailleCase.height() * 5));
     scrollArea->ensureVisible(rect.x(), rect.y(), rect.width(), rect.height());
 
     scrollArea->parentWidget()->parentWidget()->raise();
@@ -3540,7 +3553,7 @@ void QLabyrinth::timerEvent(QTimerEvent *event)
         {
             killTimer(indexTimerRotation);
             indexTimerRotation = 0;
-            tR = QTime();
+            tR = QElapsedTimer();
             tR.start();
             intervalleRotation = rand() % (INTERVALLEROTATIONMAX - INTERVALLEROTATIONMIN + 1) + INTERVALLEROTATIONMIN;
             tempsRestantRotation = intervalleRotation;
@@ -3579,7 +3592,7 @@ void QLabyrinth::timerEvent(QTimerEvent *event)
         {
             killTimer(indexTimerDistorsionVerticale);
             indexTimerDistorsionVerticale = 0;
-            tDV = QTime();
+            tDV = QElapsedTimer();
             tDV.start();
             intervalleDistorsionVerticale = rand() % (INTERVALLEDISTORSIONVERTICALEMAX - INTERVALLEDISTORSIONVERTICALEMIN + 1) + INTERVALLEDISTORSIONVERTICALEMIN;
             tempsRestantDistorsionVerticale = intervalleDistorsionVerticale;
@@ -3612,7 +3625,7 @@ void QLabyrinth::timerEvent(QTimerEvent *event)
                 {
                     killTimer(indexTimerDistorsionHorizontale);
                     indexTimerDistorsionHorizontale = 0;
-                    tDV = QTime();
+                    tDV = QElapsedTimer();
                     tDV.start();
                     intervalleDistorsionHorizontale = rand() % (INTERVALLEDISTORSIONHORIZONTALEMAX - INTERVALLEDISTORSIONHORIZONTALEMIN + 1) + INTERVALLEDISTORSIONHORIZONTALEMIN;
                     tempsRestantDistorsionHorizontale = intervalleDistorsionHorizontale;
@@ -3636,7 +3649,7 @@ void QLabyrinth::timerEvent(QTimerEvent *event)
         {
             killTimer(indexTimerDistorsionHorizontale);
             indexTimerDistorsionHorizontale = 0;
-            tDV = QTime();
+            tDV = QElapsedTimer();
             tDV.start();
             intervalleDistorsionHorizontale = rand() % (INTERVALLEDISTORSIONHORIZONTALEMAX - INTERVALLEDISTORSIONHORIZONTALEMIN + 1) + INTERVALLEDISTORSIONHORIZONTALEMIN;
             tempsRestantDistorsionHorizontale = intervalleDistorsionHorizontale;
@@ -3668,7 +3681,7 @@ void QLabyrinth::timerEvent(QTimerEvent *event)
         {
             killTimer(indexTimerCisaillementVertical);
             indexTimerCisaillementVertical = 0;
-            tDV = QTime();
+            tDV = QElapsedTimer();
             tDV.start();
             intervalleCisaillementVertical = rand() % (INTERVALLECISAILLEMENTVERTICALMAX - INTERVALLECISAILLEMENTVERTICALMIN + 1) + INTERVALLECISAILLEMENTVERTICALMIN;
             tempsRestantCisaillementVertical = intervalleCisaillementVertical;
@@ -3701,7 +3714,7 @@ void QLabyrinth::timerEvent(QTimerEvent *event)
                 {
                     killTimer(indexTimerCisaillementHorizontal);
                     indexTimerCisaillementHorizontal = 0;
-                    tDV = QTime();
+                    tDV = QElapsedTimer();
                     tDV.start();
                     intervalleCisaillementHorizontal = rand() % (INTERVALLECISAILLEMENTHORIZONTALMAX - INTERVALLECISAILLEMENTHORIZONTALMIN + 1) + INTERVALLECISAILLEMENTHORIZONTALMIN;
                     tempsRestantCisaillementHorizontal = intervalleCisaillementHorizontal;
@@ -3725,7 +3738,7 @@ void QLabyrinth::timerEvent(QTimerEvent *event)
         {
             killTimer(indexTimerCisaillementHorizontal);
             indexTimerCisaillementHorizontal = 0;
-            tDV = QTime();
+            tDV = QElapsedTimer();
             tDV.start();
             intervalleCisaillementHorizontal = rand() % (INTERVALLECISAILLEMENTHORIZONTALMAX - INTERVALLECISAILLEMENTHORIZONTALMIN + 1) + INTERVALLECISAILLEMENTHORIZONTALMIN;
             tempsRestantCisaillementHorizontal = intervalleCisaillementHorizontal;
@@ -3773,9 +3786,9 @@ void QLabyrinth::calculerTransformation()
     if (modeLabyrinthe.mode & Cisaillement)
         transform.shear(double(pourcentageCisaillementHorizontalCourant) / 100 * 0.9, double(pourcentageCisaillementVerticalCourant) / 100 * 0.9);//entre 0 et 1
 
-    transform.translate(-longueur * tailleCase.width() / 2, -largeur * tailleCase.height() / 2);
+    transform.translate(-getLongueur() * tailleCase.width() / 2, -getLargeur() * tailleCase.height() / 2);
 
-    setFixedSize(transform.mapRect(QRectF(0, 0, longueur * tailleCase.width(), largeur * tailleCase.height())).toRect().size());
+    setFixedSize(transform.mapRect(QRectF(0, 0, getLongueur() * tailleCase.width(), getLargeur() * tailleCase.height())).toRect().size());
 
     rafraichir();
 }
@@ -3808,14 +3821,14 @@ void QLabyrinth::passerEnModeEcranDeVeille()
 
         f.close();
 
-        qobject_cast<FenPrincipale *>(scrollArea->parentWidget()->parentWidget())->setAdaptationTailleEcran(adaptationTailleEcran);
-        qobject_cast<FenPrincipale *>(scrollArea->parentWidget()->parentWidget())->setAdaptationTaillePapier(adaptationTaillePapier);
+        qobject_cast<MainWindow *>(scrollArea->parentWidget()->parentWidget())->setAdaptationTailleEcran(adaptationTailleEcran);
+        qobject_cast<MainWindow *>(scrollArea->parentWidget()->parentWidget())->setAdaptationTaillePapier(adaptationTaillePapier);
     }
 
     QPixmap p = QPixmap(32, 32);
     p.fill(QColor(0, 0, 0, 0));
     QCursor c = QCursor(p);
-    c.setPos(QApplication::desktop()->width() / 2, QApplication::desktop()->height() / 2);
+    c.setPos(QGuiApplication::screenAt(pos())->size().width() / 2, QGuiApplication::screenAt(pos())->size().height() / 2);
 
     setCursor(c);
     raise();
@@ -3836,7 +3849,7 @@ void QLabyrinth::quitterModeEcranDeVeille()
 
     quitter = true;
 
-    if (emplacementXJoueur == xSortie && emplacementYJoueur == ySortie)
+    if (getEmplacementXJoueur() == getXSortie() && getEmplacementYJoueur() == getYSortie())
     {
         QFile f("Labyrinthe_scr.ini");
 
@@ -3845,7 +3858,7 @@ void QLabyrinth::quitterModeEcranDeVeille()
             QDataStream data(&f);
             data.setVersion(QDataStream::Qt_4_7);
 
-            enregistrer(data, false, 0, false, QString(), true, false, qobject_cast<FenPrincipale *>(scrollArea->parentWidget()->parentWidget())->getAdaptationTailleEcran(), qobject_cast<FenPrincipale *>(scrollArea->parentWidget()->parentWidget())->getAdaptationTaillePapier(), false);
+            enregistrer(data, false, 0, false, QString(), true, false, qobject_cast<MainWindow *>(scrollArea->parentWidget()->parentWidget())->getAdaptationTailleEcran(), qobject_cast<MainWindow *>(scrollArea->parentWidget()->parentWidget())->getAdaptationTaillePapier(), false);
 
             data << modesAleatoires;
             data << affichageAleatoire;
@@ -3865,7 +3878,7 @@ void QLabyrinth::quitterModeEcranDeVeille()
 void QLabyrinth::demarrerNouvellePartie()
 {
     ModeLabyrinthe mode = modeLabyrinthe;
-    int lon = longueur, lar = largeur;
+    int lon = getLongueur(), lar = getLargeur();
     Algorithme a = algorithme;
     TypeLabyrinthe type = typeLabyrinthe;
     FormeLabyrinthe forme = formeLabyrinthe;
@@ -3887,18 +3900,18 @@ void QLabyrinth::demarrerNouvellePartie()
             textures[0].typeTexture = TypeTexture(rand() % 3);
     if (tailleAleatoire)
     {
-        int longueurLabyrinthe = QApplication::desktop()->size().width()/tailleCase.width();
+        int longueurLabyrinthe = QGuiApplication::screenAt(pos())->size().width() / tailleCase.width();
         if (!(longueurLabyrinthe % 2))
         {
             longueurLabyrinthe++;
-            if (longueur * tailleCase.width() > QApplication::desktop()->size().width())
+            if (getLongueur() * tailleCase.width() > QGuiApplication::screenAt(pos())->size().width())
                 longueurLabyrinthe -= 2;
         }
-        int largeurLabyrinthe = QApplication::desktop()->size().height()/tailleCase.height();
+        int largeurLabyrinthe = QGuiApplication::screenAt(pos())->size().height() / tailleCase.height();
         if (!(largeurLabyrinthe%2))
         {
             largeurLabyrinthe++;
-            if (largeurLabyrinthe * tailleCase.height() > QApplication::desktop()->size().height())
+            if (largeurLabyrinthe * tailleCase.height() > QGuiApplication::screenAt(pos())->size().height())
                 largeurLabyrinthe -= 2;
         }
 
@@ -3982,11 +3995,11 @@ void QLabyrinth::resoudreModeEcran()
         }
     }
 
-    while (!(labyrinth->player(playerId).state() & Labyrinth2d::Player::Finished)) && !quitter)
+    while (!(labyrinth->player(playerId).state() & Labyrinth2d::Player::Finished) && !quitter)
     {
         resoudre(1);
 
-        QTime t;
+        QElapsedTimer t;
         t.start();
 
         do
@@ -4032,7 +4045,7 @@ void QLabyrinth::resoudreModeEcran()
             QDataStream data(&f);
             data.setVersion(QDataStream::Qt_4_7);
 
-            enregistrer(data, false, 0, false, QString(), true, false, qobject_cast<FenPrincipale *>(scrollArea->parentWidget()->parentWidget())->getAdaptationTailleEcran(), qobject_cast<FenPrincipale *>(scrollArea->parentWidget()->parentWidget())->getAdaptationTaillePapier(), false);
+            enregistrer(data, false, 0, false, QString(), true, false, qobject_cast<MainWindow *>(scrollArea->parentWidget()->parentWidget())->getAdaptationTailleEcran(), qobject_cast<MainWindow *>(scrollArea->parentWidget()->parentWidget())->getAdaptationTaillePapier(), false);
 
             data << modesAleatoires;
             data << affichageAleatoire;
@@ -4072,21 +4085,21 @@ void QLabyrinth::joueurDeplace(int dx, int dy)
     }
     if (!dx && !dy)
         return;
-    if (!enResolution && effacerChemin && labyrinthe[emplacementYJoueur+dy][emplacementXJoueur+dx])
-        labyrinthe[emplacementYJoueur][emplacementXJoueur] = 0;
+    if (!enResolution && getEffacerChemin() && labyrinth->grid().at(getEmplacementYJoueur() + dy, getEmplacementXJoueur() + dx))
+        labyrinth->grid().reset(getEmplacementYJoueur(), getEmplacementXJoueur());/*
     emplacementXJoueur += dx;
     emplacementYJoueur += dy;
-    labyrinthe[emplacementYJoueur][emplacementXJoueur] = 2;
+    labyrinthe[emplacementYJoueur][emplacementXJoueur] = 2;*/
     nombreDeplacement++;
     emit deplacementChange();
-    if (!enResolution && emplacementXJoueur == xSortie && emplacementYJoueur == ySortie)
+    if (!enResolution && getEmplacementXJoueur() == getXSortie() && getEmplacementYJoueur() == getYSortie())
     {
         QPalette p = scrollArea->palette();
         p.setColor(QPalette::Window, textures[0].couleur);
         scrollArea->setPalette(p);
         emit partieTerminee();
     }
-    glLabyrinth->updateGL();
+    glLabyrinth->update();
 }
 
 void QLabyrinth::activer()
@@ -4103,7 +4116,7 @@ void QLabyrinth::rafraichir()
     {
         glLabyrinth->update();
         if (glLabyrinth->isVisible())
-            glLabyrinth->updateGL();
+            glLabyrinth->update();
     }
 }
 
@@ -4118,14 +4131,4 @@ void QLabyrinth::arreterResolution()
 bool QLabyrinth::getArretResolution() const
 {
     return arretResolution;
-}
-
-bool QLabyrinth::getEffacerChemin() const
-{
-    return !labyrinth->keptFullTrace();
-}
-
-void QLabyrinth::setEffacerChemin(bool effacerChemin)
-{
-    return labyrinth->keepFullTrace(!effacerChemin);
 }

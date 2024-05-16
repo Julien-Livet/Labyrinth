@@ -1,26 +1,26 @@
 #ifndef GLLABYRINTH_H
 #define GLLABYRINTH_H
 
-#include <QGLWidget>
 #include <QKeyEvent>
+#include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <GL/gl.h>
 
 #include "Labyrinth2d/Labyrinth.h"
 
-class GLLabyrinth : public QGLWidget
+class GLLabyrinth : public QOpenGLWidget
 {
     Q_OBJECT
 
     public:
-        GLLabyrinth(QWidget *parent = 0, const QGLWidget *shareWidget = 0, Qt::WindowFlags f = 0);
+        GLLabyrinth(QWidget *parent = 0, Qt::WindowFlags f = Qt::WindowFlags());
         ~GLLabyrinth();
         void setLabyrinth(Labyrinth2d::Labyrinth *l);
         void tailleCaseChangee();
         void rechargerTextures();
         void arreterResolution();
-        void resoudreLabyrinthe();
+        void solveLabyrinth();
         void setCamera(GLdouble x, GLdouble y, GLdouble z, GLdouble angleRotationZ);
         GLdouble getXCamera() const;
         GLdouble getYCamera() const;

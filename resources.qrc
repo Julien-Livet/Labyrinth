@@ -1,0 +1,24 @@
+<RCC>
+  <qresource prefix="Images" >
+    <file>./resources/background_image.png</file>
+    <file>./resources/wall_image.png</file>
+    <file>./resources/way_image.png</file>
+    <file>./resources/background_pattern.png</file>
+    <file>./resources/wall_pattern.png</file>
+    <file>./resources/way_pattern.png</file>
+    <file>./resources/Labyrinth.ico</file>
+  </qresource>
+  <qresource prefix="Musiques" >
+    <file>./resources/Animation.mid</file>
+  </qresource>
+  <qresource prefix="Traductions" >
+    <file>./qt_de.qm</file>
+    <file>./qt_fr.qm</file>
+    <file>./qt_es.qm</file>
+    <file>./qt_it.qm</file>
+    <file>./Labyrinth_de.qm</file>
+    <file>./Labyrinth_it.qm</file>
+    <file>./Labyrinth_es.qm</file>
+    <file>./Labyrinth_en.qm</file>
+  </qresource>
+</RCC>

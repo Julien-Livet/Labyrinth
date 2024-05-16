@@ -1,33 +1,29 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QTranslator>
-#include <QLocale>
-#include <QLibraryInfo>
-#include <QMainWindow>
-#include <QMenu>
 #include <QAction>
-#include <QLabel>
+#include <QAudioOutput>
 #include <QCheckBox>
+#include <QElapsedTimer>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLibraryInfo>
+#include <QLineEdit>
+#include <QLocale>
+#include <QMainWindow>
+#include <QMediaPlayer>
+#include <QPrinter>
+#include <QPushButton>
+#include <QMenu>
 #include <QTime>
 #include <QTimer>
-#include <QScrollArea>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QSpinBox>
-#include <QGroupBox>
-#include <QComboBox>
-#include <QPrinter>
-#include <QRadioButton>
 #include <QTranslator>
-#include <phonon/audiooutput.h>
-#include <phonon/seekslider.h>
-#include <phonon/mediaobject.h>
-#include <phonon/volumeslider.h>
-#include <phonon/backendcapabilities.h>
-#include <fmod.h>
+#include <QRadioButton>
+#include <QScrollArea>
+#include <QSpinBox>
 
-class Labyrinth;
+class QLabyrinth;
 
 #define NOMBRESCORES 10
 #define MUSIQUE QString("./Animation.mid")
@@ -118,6 +114,7 @@ class MainWindow : public QMainWindow
         QLabel *deplacement;
         QCheckBox *chronometre;
         QTime temps;
+        QElapsedTimer elapsedTimer;
         QTimer *timer;
         QScrollArea *scrollArea;
         QList<QList<Score> > scores2D;
@@ -155,11 +152,8 @@ class MainWindow : public QMainWindow
         int ms;
         QPrinter *printer;
         QString emplacementMusique;
-        Phonon::AudioOutput *audioOutput;
-        Phonon::MediaObject *mediaObject;
-        Phonon::Path path;
-        FMOD_SYSTEM *system;
-        FMOD_SOUND *m;
+        QAudioOutput *audioOutput;
+        QMediaPlayer *mediaPlayer;
         QLineEdit *lineEditMusique;
         QCheckBox *checkBoxMuet;
         QString fichierEnregistrement;

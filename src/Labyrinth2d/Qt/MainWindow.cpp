@@ -1,32 +1,29 @@
-#include <QIcon>
-#include <QFile>
-#include <QMenuBar>
-#include <QHBoxLayout>
+#include <QActionGroup>
 #include <QApplication>
-#include <QDesktopWidget>
-#include <QScrollBar>
-#include <QInputDialog>
-#include <QMessageBox>
+#include <QButtonGroup>
+#include <QColorDialog>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QFormLayout>
-#include <QVBoxLayout>
-#include <QButtonGroup>
-#include <QMouseEvent>
-#include <QColorDialog>
+#include <QFile>
 #include <QFileDialog>
-#include <QHBoxLayout>
+#include <QFormLayout>
 #include <QGridLayout>
+#include <QHBoxLayout>
+#include <QIcon>
+#include <QInputDialog>
+#include <QMenuBar>
+#include <QScrollBar>
+#include <QMessageBox>
+#include <QMouseEvent>
+#include <QPageSetupDialog>
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
-#include <QPageSetupDialog>
-#include <QFileDialog>
 #include <QTabBar>
-#include <QActionGroup>
+#include <QVBoxLayout>
 
 #include "Labyrinth2d/Qt/MainWindow.h"
-#include "Labyrinth2d/Labyrinth.h"
-#include "constantes.h"
+#include "Labyrinth2d/Qt/QLabyrinth.h"
+#include "Labyrinth2d/Qt/constants.h"
 
 class ScrollArea : public QScrollArea
 {
@@ -45,7 +42,7 @@ class ScrollArea : public QScrollArea
         {
             QScrollArea::scrollContentsBy(dx, dy);
 
-            qobject_cast<Labyrinthe *>(widget())->rafraichir();
+            qobject_cast<QLabyrinth *>(widget())->rafraichir();
         }
         void mousePressEvent(QMouseEvent *event)
         {
@@ -71,7 +68,7 @@ MainWindow::MainWindow()
     bool muet = MUET;
 
     printer = new QPrinter;
-    printer->setOrientation(QPrinter::Landscape);
+    printer->setPageOrientation(QPageLayout::Landscape);
     timer = new QTimer(this);
     timer->setInterval(10);
     timer->setSingleShot(false);
@@ -83,13 +80,9 @@ MainWindow::MainWindow()
 
     connect(timer, SIGNAL(timeout()), this, SLOT(actualiserChronometre()));
 
-    audioOutput = new Phonon::AudioOutput(Phonon::MusicCategory, this);
-    mediaObject = new Phonon::MediaObject(this);
-
-    path = Phonon::createPath(mediaObject, audioOutput);
-
-    FMOD_System_Create(&system);
-    FMOD_System_Init(system, 1, FMOD_INIT_NORMAL, NULL);
+    audioOutput = new QAudioOutput();
+    mediaPlayer = new QMediaPlayer(this);
+    mediaPlayer->setAudioOutput(audioOutput);
 
     for (int i = 0; i < 3; i++)
     {
@@ -98,7 +91,7 @@ MainWindow::MainWindow()
     }
 
     scrollArea = new ScrollArea(this);
-    labyrinth = new QLabyrinth(scrollArea, Labyrinthe::Personnalise, 5, 5);
+    labyrinth = new QLabyrinth(scrollArea, QLabyrinth::Personnalise, 5, 5);
 
     bool chrono, labySeulement, ouvertureReussie = false;
     QString mus = MUSIQUE;
@@ -314,7 +307,7 @@ MainWindow::MainWindow()
     //scrollArea->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     niveau = new QLabel(this);
     deplacement = new QLabel(this);
-    chronometre = new QCheckBox(tr("&Chronomètre : ")+temps.toString(QString("hh:mm:ss")), this);
+    chronometre = new QCheckBox(tr("&Chronomètre : ") + temps.toString(QString("hh:mm:ss")), this);
 
     groupBoxNiveau = new QGroupBox;
     QHBoxLayout *hBoxLayoutNiveau = new QHBoxLayout;
@@ -351,8 +344,8 @@ MainWindow::MainWindow()
     scrollArea->addAction(menuPartie->menuAction());
     scrollArea->addAction(menuOptions->menuAction());
     scrollArea->addAction(menuAide->menuAction());
-    scrollArea->setWidget(labyrinthe);
-    scrollArea->setFocusProxy(labyrinthe);
+    scrollArea->setWidget(labyrinth);
+    scrollArea->setFocusProxy(labyrinth);
 
     setCentralWidget(widget);
 
@@ -389,49 +382,37 @@ MainWindow::MainWindow()
     connect(actionAPropos, SIGNAL(triggered()), this, SLOT(aPropos()));
     connect(actionAProposQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(chronometre, SIGNAL(stateChanged(int)), this, SLOT(stateChanged(int)));
-    connect(labyrinthe, SIGNAL(partieCommencee()), this, SLOT(commencer()));
-    connect(labyrinthe, SIGNAL(partieTerminee()), this, SLOT(arreter()));
-    connect(labyrinthe, SIGNAL(enregistrementChange()), this, SLOT(changerEnregistrement()));
-    connect(labyrinthe, SIGNAL(deplacementChange()), this, SLOT(actualiserDeplacement()));
-
-    FMOD_CHANNELGROUP *canal;
-    FMOD_System_GetMasterChannelGroup(system, &canal);
+    connect(labyrinth, SIGNAL(partieCommencee()), this, SLOT(commencer()));
+    connect(labyrinth, SIGNAL(partieTerminee()), this, SLOT(arreter()));
+    connect(labyrinth, SIGNAL(enregistrementChange()), this, SLOT(changerEnregistrement()));
+    connect(labyrinth, SIGNAL(deplacementChange()), this, SLOT(actualiserDeplacement()));
 
     emplacementMusique = mus;
-    mediaObject->setCurrentSource(Phonon::MediaSource(emplacementMusique));
-
-    FMOD_System_CreateSound(system, emplacementMusique.toStdString().c_str(), FMOD_SOFTWARE | FMOD_2D | FMOD_CREATESTREAM | FMOD_LOOP_NORMAL, 0, &m);
-    FMOD_Sound_SetLoopCount(m, -1);
+    mediaPlayer->setSource(emplacementMusique);
 
     audioOutput->setMuted(muet);
-    FMOD_ChannelGroup_SetMute(canal, muet);
 
     if (QFileInfo(emplacementMusique).exists())
-    {
-        if (emplacementMusique.right(4) == QString(".mid"))
-            FMOD_System_PlaySound(system, FMOD_CHANNEL_FREE, m, 0, NULL);
-        else
-            mediaObject->play();
-    }
+        mediaPlayer->play();
 
     if (ouvertureReussie)
     {
-        chronometre->setText(tr("&Chronomètre : ")+temps.addMSecs(ms).toString(QString("hh:mm:ss")));
+        chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
         nouveau = false;
 
         QString n;
 
-        if (labyrinth->getNiveau() == Labyrinthe::Facile)
+        if (labyrinth->getNiveau() == QLabyrinth::Facile)
         {
             n = tr("Facile");
             actionFacile->setChecked(true);
         }
-        else if (labyrinth->getNiveau() == Labyrinthe::Moyen)
+        else if (labyrinth->getNiveau() == QLabyrinth::Moyen)
         {
             n = tr("Moyen");
             actionMoyen->setChecked(true);
         }
-        else if (labyrinth->getNiveau() == Labyrinthe::Difficile)
+        else if (labyrinth->getNiveau() == QLabyrinth::Difficile)
         {
             n = tr("Difficile");
             actionDifficile->setChecked(true);
@@ -442,7 +423,7 @@ MainWindow::MainWindow()
             actionPersonnalise->setChecked(true);
         }
 
-        niveau->setText(tr("Niveau : ")+n+tr(" (")+QString::number(labyrinth->getLongueur())+tr("x")+QString::number(labyrinth->getLargeur())+tr(")"));
+        niveau->setText(tr("Niveau : ") + n + tr(" (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
 
         chronometre->setDisabled(labyrinth->getPartieEnCours());
         chronometre->setChecked(chrono);
@@ -455,9 +436,9 @@ MainWindow::MainWindow()
         actionResolutionProgressive->setChecked(labyrinth->getResolutionProgressive());
         actionAfficherTrace->setChecked(labyrinth->getAfficherTrace());
         actionLabyrintheSeulement->setChecked(labySeulement);
-        if (labyrinth->getTypeLabyrinthe() == Labyrinthe::Labyrinthe2D)
+        if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2D)
             actionLabyrinthe2D->setChecked(true);
-        else// if (labyrinth->getTypeLabyrinthe() == Labyrinthe::Labyrinthe2Den3D)
+        else// if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2Den3D)
             actionLabyrinthe2Den3D->setChecked(true);
         if (int(labyrinth->getAlgorithme()) < actionsAlgorithmes.size())
             actionsAlgorithmes[int(labyrinth->getAlgorithme())]->setChecked(true);
@@ -467,7 +448,7 @@ MainWindow::MainWindow()
         if (chronometre->isChecked() && labyrinth->getPartieEnCours() && !pauseImposee)
         {
             timer->start();
-            temps.start();
+            elapsedTimer.start();
         }
 
         nouvellePartie();
@@ -476,9 +457,9 @@ MainWindow::MainWindow()
     }
     else
     {
-        labyrinth->nouveau(Labyrinthe::Facile, 10001, 10001, labyrinth->getAlgorithme(), Labyrinthe::Labyrinthe2D, Labyrinthe::Rectangle, 0);
+        labyrinth->nouveau(QLabyrinth::Facile, 10001, 10001, labyrinth->getAlgorithme(), QLabyrinth::Labyrinthe2D, QLabyrinth::Rectangle, 0);
 
-        if (labyrinth->getLongueur()*labyrinth->getLargeur() > LONGUEURDIFFICILE*LARGEURDIFFICILE)
+        if (labyrinth->getLongueur() * labyrinth->getLargeur() > LONGUEURDIFFICILE * LARGEURDIFFICILE)
         {
             actionResolutionProgressive->setChecked(false);
             labyrinth->setResolutionProgressive(false);
@@ -491,17 +472,17 @@ MainWindow::MainWindow()
 
         QString n = tr("Personnalisé");
 
-        if (labyrinth->getNiveau() == Labyrinthe::Facile)
+        if (labyrinth->getNiveau() == QLabyrinth::Facile)
         {
             n = tr("Facile");
             actionFacile->setChecked(true);
         }
-        else if (labyrinth->getNiveau() == Labyrinthe::Moyen)
+        else if (labyrinth->getNiveau() == QLabyrinth::Moyen)
         {
             n = tr("Moyen");
             actionMoyen->setChecked(true);
         }
-        else if (labyrinth->getNiveau() == Labyrinthe::Difficile)
+        else if (labyrinth->getNiveau() == QLabyrinth::Difficile)
         {
             n = tr("Difficile");
             actionDifficile->setChecked(true);
@@ -514,22 +495,17 @@ MainWindow::MainWindow()
         actionEffacerChemin->setChecked(labyrinth->getEffacerChemin());
 
         if (QFileInfo(emplacementMusique).exists())
-        {
-            if (emplacementMusique.right(4) == QString(".mid"))
-                FMOD_System_PlaySound(system, FMOD_CHANNEL_FREE, m, 0, NULL);
-            else
-                mediaObject->play();
-        }
+            mediaPlayer->play();
 
         actionLabyrinthe2D->setChecked(true);
         actionsAlgorithmes.first()->setChecked(true);
     }
 
-    deplacement->setText(tr("Déplacement : ")+QString::number(labyrinth->getNombreDeplacement()));
+    deplacement->setText(tr("Déplacement : ") + QString::number(labyrinth->getNombreDeplacement()));
 
     QPalette p = scrollArea->palette();
 
-    if (labyrinth->getModeLabyrinthe().mode & Labyrinthe::Obscurite)
+    if (labyrinth->getModeLabyrinthe().mode & QLabyrinth::Obscurite)
         p.setColor(QPalette::Window, labyrinth->getModeLabyrinthe().couleurObscurite);
     else
         p.setColor(QPalette::Window, labyrinth->getTextureFond().couleur);
@@ -541,12 +517,9 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-    FMOD_Sound_Release(m);
-    //FMOD_System_Close(system);
-    //FMOD_System_Release(system);
 }
 
-void FenPrincipale::commencer()
+void MainWindow::commencer()
 {
     chronometre->setDisabled(true);
     actionEffacerChemin->setDisabled(true);
@@ -555,16 +528,16 @@ void FenPrincipale::commencer()
     if (chronometre->isChecked())
     {
         timer->start();
-        temps.start();
+        elapsedTimer.start();
     }
 }
 
-void FenPrincipale::actualiserChronometre()
+void MainWindow::actualiserChronometre()
 {
-    chronometre->setText(tr("&Chronomètre : ") + QTime().addMSecs(temps.elapsed() + ms).toString(QString("hh:mm:ss")));
+    chronometre->setText(tr("&Chronomètre : ") + QTime().addMSecs(elapsedTimer.elapsed() + ms).toString(QString("hh:mm:ss")));
 }
 
-void FenPrincipale::nouvellePartie()
+void MainWindow::nouvellePartie()
 {
     if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !labyrinth->getPartieTerminee())
     {
@@ -600,7 +573,7 @@ void FenPrincipale::nouvellePartie()
     actionMettreEnPause->setDisabled(false);
 }
 
-void FenPrincipale::recommencer()
+void MainWindow::recommencer()
 {
     if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !labyrinth->getPartieTerminee())
     {
@@ -630,11 +603,11 @@ void FenPrincipale::recommencer()
     labyrinth->recommencer();
 }
 
-void FenPrincipale::arreter()
+void MainWindow::arreter()
 {
     if (chronometre->isChecked())
     {
-        temps = QTime().addMSecs(temps.elapsed()+ms);
+        temps = QTime().addMSecs(elapsedTimer.elapsed()+ms);
         timer->stop();
     }
 
@@ -646,10 +619,10 @@ void FenPrincipale::arreter()
 
     QList<QList<Score> > *scores = &scores2D;
 
-    if (labyrinth->getTypeLabyrinthe() == Labyrinthe::Labyrinthe2Den3D)
+    if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2Den3D)
         scores = &scores2Den3D;
 
-    if (chronometre->isChecked() && labyrinth->getNiveau() != Labyrinthe::Personnalise && labyrinth->getModeLabyrinthe().mode == Labyrinthe::Aucun)
+    if (chronometre->isChecked() && labyrinth->getNiveau() != QLabyrinth::Personnalise && labyrinth->getModeLabyrinthe().mode == QLabyrinth::Aucun)
     {
         for (int i = 0; i < (*scores)[int(labyrinth->getNiveau())].size(); i++)
         {
@@ -684,7 +657,7 @@ void FenPrincipale::arreter()
         QMessageBox::information(this, tr("Partie terminée"), tr("Félicitations ! Vous avez terminé le labyrinthe !"), QMessageBox::Ok);
 }
 
-void FenPrincipale::mettreEnPause()
+void MainWindow::mettreEnPause()
 {
     labyrinth->mettreEnPauseRedemarrer();
 
@@ -692,37 +665,37 @@ void FenPrincipale::mettreEnPause()
     {
         if (labyrinth->getPartieEnPause())
         {
-            ms += temps.elapsed();
-            temps = QTime().addMSecs(temps.elapsed());
+            ms += elapsedTimer.elapsed();
+            temps = QTime().addMSecs(elapsedTimer.elapsed());
             timer->stop();
         }
         else
         {
             timer->start();
-            temps.start();
+            elapsedTimer.start();
         }
     }
 }
 
-void FenPrincipale::resoudre()
+void MainWindow::resoudre()
 {
     actionResoudre->setDisabled(true);
     actionMettreEnPause->setDisabled(true);
     chronometre->setDisabled(true);
     actionEffacerChemin->setDisabled(true);
 
-    temps = QTime().addMSecs(temps.elapsed());
+    temps = QTime().addMSecs(elapsedTimer.elapsed());
     timer->stop();
 
     labyrinth->resoudre();
 }
 
-void FenPrincipale::resolutionProgressive()
+void MainWindow::resolutionProgressive()
 {
     labyrinth->setResolutionProgressive(actionResolutionProgressive->isChecked());
 }
 
-void FenPrincipale::ouvrir()
+void MainWindow::ouvrir()
 {
     if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !labyrinth->getPartieTerminee())
     {
@@ -746,7 +719,7 @@ void FenPrincipale::ouvrir()
         chargerPartie(fichier);
 }
 
-void FenPrincipale::enregistrer()
+void MainWindow::enregistrer()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -787,7 +760,7 @@ void FenPrincipale::enregistrer()
         mettreEnPause();
 }
 
-void FenPrincipale::enregistrerSous()
+void MainWindow::enregistrerSous()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -820,9 +793,9 @@ void FenPrincipale::enregistrerSous()
         mettreEnPause();
 }
 
-void FenPrincipale::facile()
+void MainWindow::facile()
 {
-    if (labyrinth->getNiveau() == Labyrinthe::Facile)
+    if (labyrinth->getNiveau() == QLabyrinth::Facile)
         return;
 
     if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !labyrinth->getPartieTerminee())
@@ -853,7 +826,7 @@ void FenPrincipale::facile()
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    labyrinth->nouveau(Labyrinthe::Facile, 0, 0, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(QLabyrinth::Facile, 0, 0, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
     niveau->setText(tr("Niveau : Facile (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
 
@@ -863,9 +836,9 @@ void FenPrincipale::facile()
     adaptationFormats = false;
 }
 
-void FenPrincipale::moyen()
+void MainWindow::moyen()
 {
-    if (labyrinth->getNiveau() == Labyrinthe::Moyen)
+    if (labyrinth->getNiveau() == QLabyrinth::Moyen)
         return;
 
     if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !labyrinth->getPartieTerminee())
@@ -896,7 +869,7 @@ void FenPrincipale::moyen()
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    labyrinth->nouveau(Labyrinthe::Moyen, 0, 0, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(QLabyrinth::Moyen, 0, 0, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
     niveau->setText(tr("Niveau : Moyen (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
 
@@ -906,9 +879,9 @@ void FenPrincipale::moyen()
     adaptationFormats = false;
 }
 
-void FenPrincipale::difficile()
+void MainWindow::difficile()
 {
-    if (labyrinth->getNiveau() == Labyrinthe::Difficile)
+    if (labyrinth->getNiveau() == QLabyrinth::Difficile)
         return;
 
     if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !labyrinth->getPartieTerminee())
@@ -939,7 +912,7 @@ void FenPrincipale::difficile()
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    labyrinth->nouveau(Labyrinthe::Difficile, 0, 0, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(QLabyrinth::Difficile, 0, 0, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
     niveau->setText(tr("Niveau : Difficile (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
 
@@ -949,7 +922,7 @@ void FenPrincipale::difficile()
     adaptationFormats = false;
 }
 
-void FenPrincipale::personnalise()
+void MainWindow::personnalise()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -1021,11 +994,11 @@ void FenPrincipale::personnalise()
 
     if (dialog->exec() == QDialog::Rejected)
     {
-        if (labyrinth->getNiveau() == Labyrinthe::Facile)
+        if (labyrinth->getNiveau() == QLabyrinth::Facile)
             actionFacile->setChecked(true);
-        else if (labyrinth->getNiveau() == Labyrinthe::Moyen)
+        else if (labyrinth->getNiveau() == QLabyrinth::Moyen)
             actionMoyen->setChecked(true);
-        else if (labyrinth->getNiveau() == Labyrinthe::Difficile)
+        else if (labyrinth->getNiveau() == QLabyrinth::Difficile)
             actionDifficile->setChecked(true);
 
         dialog->deleteLater();
@@ -1060,21 +1033,21 @@ void FenPrincipale::personnalise()
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    labyrinth->nouveau(Labyrinthe::Personnalise, spinBoxLongueur->value(), spinBoxLargeur->value(), labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(QLabyrinth::Personnalise, spinBoxLongueur->value(), spinBoxLargeur->value(), labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
     QString n = tr("Personnalisé");
 
-    if (labyrinth->getNiveau() == Labyrinthe::Facile)
+    if (labyrinth->getNiveau() == QLabyrinth::Facile)
     {
         n = tr("Facile");
         actionFacile->setChecked(true);
     }
-    else if (labyrinth->getNiveau() == Labyrinthe::Moyen)
+    else if (labyrinth->getNiveau() == QLabyrinth::Moyen)
     {
         n = tr("Moyen");
         actionMoyen->setChecked(true);
     }
-    else if (labyrinth->getNiveau() == Labyrinthe::Difficile)
+    else if (labyrinth->getNiveau() == QLabyrinth::Difficile)
     {
         n = tr("Difficile");
         actionDifficile->setChecked(true);
@@ -1098,7 +1071,7 @@ void FenPrincipale::personnalise()
     labyrinth->activer();
 }
 
-void FenPrincipale::apercu()
+void MainWindow::apercu()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -1113,7 +1086,7 @@ void FenPrincipale::apercu()
         mettreEnPause();
 }
 
-void FenPrincipale::imprimer()
+void MainWindow::imprimer()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -1128,7 +1101,7 @@ void FenPrincipale::imprimer()
         mettreEnPause();
 }
 
-void FenPrincipale::meilleursTemps()
+void MainWindow::meilleursTemps()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -1145,7 +1118,7 @@ void FenPrincipale::meilleursTemps()
     buttonGroup->addButton(radioButtonScores2D);
     buttonGroup->addButton(radioButtonScores2Den3D);
 
-    if (labyrinth->getTypeLabyrinthe() == Labyrinthe::Labyrinthe2D)
+    if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2D)
         radioButtonScores2D->setChecked(true);
     else
         radioButtonScores2Den3D->setChecked(true);
@@ -1267,7 +1240,7 @@ void FenPrincipale::meilleursTemps()
     labyrinth->activer();
 }
 
-void FenPrincipale::quitter()
+void MainWindow::quitter()
 {
     if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !labyrinth->getPartieTerminee())
     {
@@ -1322,7 +1295,7 @@ void FenPrincipale::quitter()
     qApp->quit();
 }
 
-void FenPrincipale::affichage()
+void MainWindow::affichage()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -1400,13 +1373,13 @@ void FenPrincipale::affichage()
     groupBoxFond->setLayout(layoutGroupBoxFond);
     switch (labyrinth->getTextureFond().typeTexture)
     {
-        case Labyrinthe::TextureCouleur:
+        case QLabyrinth::TextureCouleur:
             couleurFond->setChecked(true);
             break;
-        case Labyrinthe::TextureMotif:
+        case QLabyrinth::TextureMotif:
             motifFond->setChecked(true);
             break;
-        case Labyrinthe::TextureImage:
+        case QLabyrinth::TextureImage:
             imageFond->setChecked(true);
             break;
         default:
@@ -1456,13 +1429,13 @@ void FenPrincipale::affichage()
     groupBoxMur->setLayout(layoutGroupBoxMur);
     switch (labyrinth->getTextureMur().typeTexture)
     {
-        case Labyrinthe::TextureCouleur:
+        case QLabyrinth::TextureCouleur:
             couleurMur->setChecked(true);
             break;
-        case Labyrinthe::TextureMotif:
+        case QLabyrinth::TextureMotif:
             motifMur->setChecked(true);
             break;
-        case Labyrinthe::TextureImage:
+        case QLabyrinth::TextureImage:
             imageMur->setChecked(true);
             break;
         default:
@@ -1512,13 +1485,13 @@ void FenPrincipale::affichage()
     groupBoxParcours->setLayout(layoutGroupBoxParcours);
     switch (labyrinth->getTextureParcours().typeTexture)
     {
-        case Labyrinthe::TextureCouleur:
+        case QLabyrinth::TextureCouleur:
             couleurParcours->setChecked(true);
             break;
-        case Labyrinthe::TextureMotif:
+        case QLabyrinth::TextureMotif:
             motifParcours->setChecked(true);
             break;
-        case Labyrinthe::TextureImage:
+        case QLabyrinth::TextureImage:
             imageParcours->setChecked(true);
             break;
         default:
@@ -1549,40 +1522,40 @@ void FenPrincipale::affichage()
 
     labyrinth->setTailleCase(QSize(spinBoxLongueur->value(), spinBoxLargeur->value()));
 
-    Labyrinthe::Texture textureFond;
+    QLabyrinth::Texture textureFond;
     textureFond.couleur = QColor(boutonCouleurFond->property("Couleur").toString().toUInt());
     textureFond.motif = lineEditMotifFond->text();
     textureFond.image = lineEditImageFond->text();
     if (couleurFond->isChecked())
-        textureFond.typeTexture = Labyrinthe::TextureCouleur;
+        textureFond.typeTexture = QLabyrinth::TextureCouleur;
     else if (motifFond->isChecked())
-        textureFond.typeTexture = Labyrinthe::TextureMotif;
+        textureFond.typeTexture = QLabyrinth::TextureMotif;
     else
-        textureFond.typeTexture = Labyrinthe::TextureImage;
+        textureFond.typeTexture = QLabyrinth::TextureImage;
     labyrinth->setTextureFond(textureFond);
 
-    Labyrinthe::Texture textureMur;
+    QLabyrinth::Texture textureMur;
     textureMur.couleur = QColor(boutonCouleurMur->property("Couleur").toString().toUInt());
     textureMur.motif = lineEditMotifMur->text();
     textureMur.image = lineEditImageMur->text();
     if (couleurMur->isChecked())
-        textureMur.typeTexture = Labyrinthe::TextureCouleur;
+        textureMur.typeTexture = QLabyrinth::TextureCouleur;
     else if (motifMur->isChecked())
-        textureMur.typeTexture = Labyrinthe::TextureMotif;
+        textureMur.typeTexture = QLabyrinth::TextureMotif;
     else
-        textureMur.typeTexture = Labyrinthe::TextureImage;
+        textureMur.typeTexture = QLabyrinth::TextureImage;
     labyrinth->setTextureMur(textureMur);
 
-    Labyrinthe::Texture textureParcours;
+    QLabyrinth::Texture textureParcours;
     textureParcours.couleur = QColor(boutonCouleurParcours->property("Couleur").toString().toUInt());
     textureParcours.motif = lineEditMotifParcours->text();
     textureParcours.image = lineEditImageParcours->text();
     if (couleurParcours->isChecked())
-        textureParcours.typeTexture = Labyrinthe::TextureCouleur;
+        textureParcours.typeTexture = QLabyrinth::TextureCouleur;
     else if (motifParcours->isChecked())
-        textureParcours.typeTexture = Labyrinthe::TextureMotif;
+        textureParcours.typeTexture = QLabyrinth::TextureMotif;
     else
-        textureParcours.typeTexture = Labyrinthe::TextureImage;
+        textureParcours.typeTexture = QLabyrinth::TextureImage;
     labyrinth->setTextureParcours(textureParcours);
 
     dialog->deleteLater();
@@ -1593,7 +1566,7 @@ void FenPrincipale::affichage()
     labyrinth->activer();
 }
 
-void FenPrincipale::musique()
+void MainWindow::musique()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -1636,32 +1609,18 @@ void FenPrincipale::musique()
         return;
     }
 
-    FMOD_CHANNELGROUP *canal;
-    FMOD_System_GetMasterChannelGroup(system, &canal);
-
     if (emplacementMusique != lineEditMusique->text())
     {
         emplacementMusique = lineEditMusique->text();
-        mediaObject->setCurrentSource(Phonon::MediaSource(emplacementMusique));
+        mediaPlayer->setSource(emplacementMusique);
 
-        FMOD_Sound_Release(m);
-        FMOD_System_CreateSound(system, emplacementMusique.toStdString().c_str(), FMOD_SOFTWARE | FMOD_2D | FMOD_CREATESTREAM | FMOD_LOOP_NORMAL, 0, &m);
-        FMOD_Sound_SetLoopCount(m, -1);
-
-        mediaObject->stop();
-        FMOD_ChannelGroup_Stop(canal);
+        mediaPlayer->stop();
 
         if (QFileInfo(emplacementMusique).exists())
-        {
-            if (emplacementMusique.right(4) == QString(".mid"))
-                FMOD_System_PlaySound(system, FMOD_CHANNEL_FREE, m, 0, NULL);
-            else
-                mediaObject->play();
-        }
+            mediaPlayer->play();
     }
 
     audioOutput->setMuted(checkBoxMuet->isChecked());
-    FMOD_ChannelGroup_SetMute(canal, checkBoxMuet->isChecked());
 
     dialog->deleteLater();
 
@@ -1669,7 +1628,7 @@ void FenPrincipale::musique()
         mettreEnPause();
 }
 
-void FenPrincipale::butDuJeu()
+void MainWindow::butDuJeu()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -1695,7 +1654,7 @@ void FenPrincipale::butDuJeu()
         mettreEnPause();
 }
 
-void FenPrincipale::commandes()
+void MainWindow::commandes()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -1721,7 +1680,7 @@ void FenPrincipale::commandes()
         mettreEnPause();
 }
 
-void FenPrincipale::aPropos()
+void MainWindow::aPropos()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -1747,12 +1706,12 @@ void FenPrincipale::aPropos()
         mettreEnPause();
 }
 
-void FenPrincipale::stateChanged(int)
+void MainWindow::stateChanged(int)
 {
     labyrinth->activer();
 }
 
-void FenPrincipale::choisirCouleurFond()
+void MainWindow::choisirCouleurFond()
 {
     QColor couleur = QColorDialog::getColor(QColor(boutonCouleurFond->property("Couleur").toString().toUInt()), boutonCouleurFond, tr("Choisir une couleur de fond"));
 
@@ -1765,7 +1724,7 @@ void FenPrincipale::choisirCouleurFond()
     boutonCouleurFond->setProperty("Couleur", QString::number(couleur.rgba()));
 }
 
-void FenPrincipale::reinitialiserCouleurFond()
+void MainWindow::reinitialiserCouleurFond()
 {
     QPixmap pixmapFond(32, 32);
     pixmapFond.fill(COULEURFOND);
@@ -1773,7 +1732,7 @@ void FenPrincipale::reinitialiserCouleurFond()
     boutonCouleurFond->setProperty("Couleur", QString::number(COULEURFOND.rgba()));
 }
 
-void FenPrincipale::choisirMotifFond()
+void MainWindow::choisirMotifFond()
 {
     QString s = lineEditMotifFond->text();
     if (!QFileInfo(s).exists())
@@ -1786,16 +1745,16 @@ void FenPrincipale::choisirMotifFond()
     lineEditMotifFond->setText(image);
 }
 
-void FenPrincipale::reinitialiserMotifFond()
+void MainWindow::reinitialiserMotifFond()
 {
     lineEditMotifFond->setText(MOTIFFOND);
 }
 
-void FenPrincipale::choisirImageFond()
+void MainWindow::choisirImageFond()
 {
     QString s = lineEditImageFond->text();
     if (!QFileInfo(s).exists() || s.startsWith(QString(":/")))
-        s = QApplication::applicationDirPath()  QString("/Images");
+        s = QApplication::applicationDirPath() + QString("/Images");
     QString image = QFileDialog::getOpenFileName(lineEditImageFond, tr("Choisir une image de fond"), s, tr("Images (*.jpg *.png *.bmp *.gif)"));
 
     if (image.isEmpty())
@@ -1804,12 +1763,12 @@ void FenPrincipale::choisirImageFond()
     lineEditImageFond->setText(image);
 }
 
-void FenPrincipale::reinitialiserImageFond()
+void MainWindow::reinitialiserImageFond()
 {
     lineEditImageFond->setText(IMAGEFOND);
 }
 
-void FenPrincipale::choisirCouleurMur()
+void MainWindow::choisirCouleurMur()
 {
     QColor couleur = QColorDialog::getColor(QColor(boutonCouleurMur->property("Couleur").toString().toUInt()), boutonCouleurMur, tr("Choisir une couleur de mur"));
 
@@ -1822,7 +1781,7 @@ void FenPrincipale::choisirCouleurMur()
     boutonCouleurMur->setProperty("Couleur", QString::number(couleur.rgba()));
 }
 
-void FenPrincipale::reinitialiserCouleurMur()
+void MainWindow::reinitialiserCouleurMur()
 {
     QPixmap pixmapMur(32, 32);
     pixmapMur.fill(COULEURMUR);
@@ -1830,7 +1789,7 @@ void FenPrincipale::reinitialiserCouleurMur()
     boutonCouleurMur->setProperty("Couleur", QString::number(COULEURMUR.rgba()));
 }
 
-void FenPrincipale::choisirMotifMur()
+void MainWindow::choisirMotifMur()
 {
     QString s = lineEditMotifMur->text();
     if (!QFileInfo(s).exists() || s.startsWith(QString(":/")))
@@ -1843,12 +1802,12 @@ void FenPrincipale::choisirMotifMur()
     lineEditMotifMur->setText(image);
 }
 
-void FenPrincipale::reinitialiserMotifMur()
+void MainWindow::reinitialiserMotifMur()
 {
     lineEditMotifMur->setText(MOTIFMUR);
 }
 
-void FenPrincipale::choisirImageMur()
+void MainWindow::choisirImageMur()
 {
     QString s = lineEditImageMur->text();
     if (!QFileInfo(s).exists() || s.startsWith(QString(":/")))
@@ -1861,12 +1820,12 @@ void FenPrincipale::choisirImageMur()
     lineEditImageMur->setText(image);
 }
 
-void FenPrincipale::reinitialiserImageMur()
+void MainWindow::reinitialiserImageMur()
 {
     lineEditImageMur->setText(IMAGEMUR);
 }
 
-void FenPrincipale::choisirCouleurParcours()
+void MainWindow::choisirCouleurParcours()
 {
     QColor couleur = QColorDialog::getColor(QColor(boutonCouleurParcours->property("Couleur").toString().toUInt()), boutonCouleurParcours, tr("Choisir une couleur de parcours"));
 
@@ -1879,7 +1838,7 @@ void FenPrincipale::choisirCouleurParcours()
     boutonCouleurParcours->setProperty("Couleur", QString::number(couleur.rgba()));
 }
 
-void FenPrincipale::reinitialiserCouleurParcours()
+void MainWindow::reinitialiserCouleurParcours()
 {
     QPixmap pixmapParcours(32, 32);
     pixmapParcours.fill(COULEURPARCOURS);
@@ -1887,7 +1846,7 @@ void FenPrincipale::reinitialiserCouleurParcours()
     boutonCouleurParcours->setProperty("Couleur", QString::number(COULEURPARCOURS.rgba()));
 }
 
-void FenPrincipale::choisirMotifParcours()
+void MainWindow::choisirMotifParcours()
 {
     QString s = lineEditMotifParcours->text();
     if (!QFileInfo(s).dir().exists() || s.startsWith(QString(":/")))
@@ -1900,12 +1859,12 @@ void FenPrincipale::choisirMotifParcours()
     lineEditMotifParcours->setText(image);
 }
 
-void FenPrincipale::reinitialiserMotifParcours()
+void MainWindow::reinitialiserMotifParcours()
 {
     lineEditMotifParcours->setText(MOTIFPARCOURS);
 }
 
-void FenPrincipale::choisirImageParcours()
+void MainWindow::choisirImageParcours()
 {
     QString s = lineEditImageParcours->text();
     if (!QFileInfo(s).exists() || s.startsWith(QString(":/")))
@@ -1918,22 +1877,22 @@ void FenPrincipale::choisirImageParcours()
     lineEditImageParcours->setText(image);
 }
 
-void FenPrincipale::reinitialiserImageParcours()
+void MainWindow::reinitialiserImageParcours()
 {
     lineEditImageParcours->setText(IMAGEPARCOURS);
 }
 
-void FenPrincipale::reinitialiserLongueur()
+void MainWindow::reinitialiserLongueur()
 {
     spinBoxLongueur->setValue(TAILLECASE.width());
 }
 
-void FenPrincipale::reinitialiserLargeur()
+void MainWindow::reinitialiserLargeur()
 {
     spinBoxLargeur->setValue(TAILLECASE.height());
 }
 
-void FenPrincipale::reinitialiserAffichage()
+void MainWindow::reinitialiserAffichage()
 {
     reinitialiserCouleurFond();
     reinitialiserMotifFond();
@@ -1952,7 +1911,7 @@ void FenPrincipale::reinitialiserAffichage()
     couleurParcours->setChecked(true);
 }
 
-void FenPrincipale::pleinEcran()
+void MainWindow::pleinEcran()
 {
     if (actionPleinEcran->isChecked())
         setWindowState(windowState() | Qt::WindowFullScreen);
@@ -1960,7 +1919,7 @@ void FenPrincipale::pleinEcran()
         setWindowState(windowState() ^ Qt::WindowFullScreen);
 }
 
-void FenPrincipale::labyrintheSeulement()
+void MainWindow::labyrintheSeulement()
 {
     if (actionLabyrintheSeulement->isChecked())
     {
@@ -1978,7 +1937,7 @@ void FenPrincipale::labyrintheSeulement()
     }
 }
 
-void FenPrincipale::stateChangedAdapation(int state)
+void MainWindow::stateChangedAdapation(int state)
 {
     groupBoxTailleLabyrinthe->setDisabled(state == Qt::Checked);
     checkBoxFormats->setDisabled(state == Qt::Checked);
@@ -1986,18 +1945,18 @@ void FenPrincipale::stateChangedAdapation(int state)
 
     adaptationEcran = (state == Qt::Checked);
 
-    int longueur = QApplication::desktop()->size().width() / labyrinth->getTailleCase().width();
+    int longueur = QGuiApplication::screenAt(pos())->size().width() / labyrinth->getTailleCase().width();
     if (!(longueur % 2))
     {
         longueur++;
-        if (longueur*labyrinth->getTailleCase().width() > QApplication::desktop()->size().width())
+        if (longueur * labyrinth->getTailleCase().width() > QGuiApplication::screenAt(pos())->size().width())
             longueur -= 2;
     }
-    int largeur = QApplication::desktop()->size().height() / labyrinth->getTailleCase().height();
+    int largeur = QGuiApplication::screenAt(pos())->size().height() / labyrinth->getTailleCase().height();
     if (!(largeur % 2))
     {
         largeur++;
-        if (largeur*labyrinth->getTailleCase().height() > QApplication::desktop()->size().height())
+        if (largeur * labyrinth->getTailleCase().height() > QGuiApplication::screenAt(pos())->size().height())
             largeur -= 2;
     }
 
@@ -2005,7 +1964,7 @@ void FenPrincipale::stateChangedAdapation(int state)
     spinBoxLargeur->setValue(largeur);
 }
 
-void FenPrincipale::stateChangedFormats(int state)
+void MainWindow::stateChangedFormats(int state)
 {
     groupBoxTailleLabyrinthe->setDisabled(state == Qt::Checked);
     checkBoxAdaptation->setDisabled(state == Qt::Checked);
@@ -2015,15 +1974,15 @@ void FenPrincipale::stateChangedFormats(int state)
     int longueurOrigine = 0;
     int largeurOrigine = 0;
 
-    if (printer->pageRect().width() > printer->pageRect().height())
+    if (printer->pageRect(QPrinter::Millimeter).width() > printer->pageRect(QPrinter::Millimeter).height())
     {
-        longueurOrigine = printer->pageRect().width();
-        largeurOrigine = printer->pageRect().height();
+        longueurOrigine = printer->pageRect(QPrinter::Millimeter).width();
+        largeurOrigine = printer->pageRect(QPrinter::Millimeter).height();
     }
     else
     {
-        longueurOrigine = printer->pageRect().height();
-        largeurOrigine = printer->pageRect().width();
+        longueurOrigine = printer->pageRect(QPrinter::Millimeter).height();
+        largeurOrigine = printer->pageRect(QPrinter::Millimeter).width();
     }
 
     int longueur = longueurOrigine / labyrinth->getTailleCase().width();
@@ -2046,7 +2005,7 @@ void FenPrincipale::stateChangedFormats(int state)
     spinBoxLargeur->setValue(largeur);
 }
 
-void FenPrincipale::modes()
+void MainWindow::modes()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -2088,7 +2047,7 @@ void FenPrincipale::modes()
     obscurite->setLayout(gridLayoutObscurite);
     tabWidgetModes->addTab(obscurite, tr("&Obscurité"));
     QCheckBox *checkBoxObscurite = new QCheckBox(obscurite);
-    checkBoxObscurite->setChecked(labyrinth->getModeLabyrinthe().mode & Labyrinthe::Obscurite);
+    checkBoxObscurite->setChecked(labyrinth->getModeLabyrinthe().mode & QLabyrinth::Obscurite);
     tabWidgetModes->tabBar()->setTabButton(0, QTabBar::LeftSide, checkBoxObscurite);
 
     //Mode rotation
@@ -2134,8 +2093,8 @@ void FenPrincipale::modes()
     gridLayoutRotation->addWidget(checkBoxRotationFixe, 3, 0, 1, 4);
     rotation->setLayout(gridLayoutRotation);
     QCheckBox *checkBoxRotation = new QCheckBox(rotation);
-    checkBoxRotation->setChecked(labyrinth->getModeLabyrinthe().mode & Labyrinthe::Rotation);
-    if (labyrinth->getTypeLabyrinthe() == Labyrinthe::Labyrinthe2Den3D)
+    checkBoxRotation->setChecked(labyrinth->getModeLabyrinthe().mode & QLabyrinth::Rotation);
+    if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2Den3D)
         rotation->hide();
     else
     {
@@ -2225,8 +2184,8 @@ void FenPrincipale::modes()
     gridLayoutDistorsion->addWidget(boutonReinitialiserDistorsionSynchronisee, 2, 2);
     distorsion->setLayout(gridLayoutDistorsion);
     QCheckBox *checkBoxDistorsion = new QCheckBox(distorsion);
-    checkBoxDistorsion->setChecked(labyrinth->getModeLabyrinthe().mode & Labyrinthe::Distorsion);
-    if (labyrinth->getTypeLabyrinthe() == Labyrinthe::Labyrinthe2Den3D)
+    checkBoxDistorsion->setChecked(labyrinth->getModeLabyrinthe().mode & QLabyrinth::Distorsion);
+    if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2Den3D)
         distorsion->hide();
     else
     {
@@ -2316,8 +2275,8 @@ void FenPrincipale::modes()
     gridLayoutCisaillement->addWidget(boutonReinitialiserCisaillementSynchronise, 2, 2);
     cisaillement->setLayout(gridLayoutCisaillement);
     QCheckBox *checkBoxCisaillement = new QCheckBox(cisaillement);
-    checkBoxCisaillement->setChecked(labyrinth->getModeLabyrinthe().mode & Labyrinthe::Cisaillement);
-    if (labyrinth->getTypeLabyrinthe() == Labyrinthe::Labyrinthe2Den3D)
+    checkBoxCisaillement->setChecked(labyrinth->getModeLabyrinthe().mode & QLabyrinth::Cisaillement);
+    if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2Den3D)
         cisaillement->hide();
     else
     {
@@ -2339,14 +2298,14 @@ void FenPrincipale::modes()
         return;
     }
 
-    Labyrinthe::ModeLabyrinthe mode;
-    mode.mode = Labyrinthe::Aucun;
+    QLabyrinth::ModeLabyrinthe mode;
+    mode.mode = QLabyrinth::Aucun;
     if (checkBoxObscurite->isChecked())
-        mode.mode |= Labyrinthe::Obscurite;
+        mode.mode |= QLabyrinth::Obscurite;
     mode.couleurObscurite = QColor(boutonCouleurObscurite->property("Couleur").toString().toUInt());
     mode.rayonObscurite = spinBoxRayonObscurite->value();
     if (checkBoxRotation->isChecked())
-        mode.mode |= Labyrinthe::Rotation;
+        mode.mode |= QLabyrinth::Rotation;
     mode.angleRotation = spinBoxAngleRotation->value();
     mode.angleRotationAuHasard = checkBoxAngleRotationAuHasard->isChecked();
     mode.intervalleRotation = spinBoxIntervalleRotation->value();
@@ -2355,7 +2314,7 @@ void FenPrincipale::modes()
     mode.sensRotationAuHasard = checkBoxSensRotationAuHasard->isChecked();
     mode.rotationFixe = checkBoxRotationFixe->isChecked();
     if (checkBoxDistorsion->isChecked())
-        mode.mode |= Labyrinthe::Distorsion;
+        mode.mode |= QLabyrinth::Distorsion;
     mode.pourcentageDistorsionVerticale = spinBoxPourcentageDistorsionVerticale->value();
     mode.pourcentageDistorsionHorizontale = spinBoxPourcentageDistorsionHorizontale->value();
     mode.pourcentageDistorsionVerticaleAuHasard = checkBoxPourcentageDistorsionVerticaleAuHasard->isChecked();
@@ -2369,7 +2328,7 @@ void FenPrincipale::modes()
     mode.distorsionSynchronisee = checkBoxDistorsionSynchronisee->isChecked();
     mode.distorsionSynchroniseeAuHasard = checkBoxDistorsionSynchroniseeAuHasard->isChecked();
     if (checkBoxCisaillement->isChecked())
-        mode.mode |= Labyrinthe::Cisaillement;
+        mode.mode |= QLabyrinth::Cisaillement;
     mode.pourcentageCisaillementVertical = spinBoxPourcentageCisaillementVertical->value();
     mode.pourcentageCisaillementHorizontal = spinBoxPourcentageCisaillementHorizontal->value();
     mode.pourcentageCisaillementVerticalAuHasard = checkBoxPourcentageCisaillementVerticalAuHasard->isChecked();
@@ -2411,7 +2370,7 @@ void FenPrincipale::modes()
     actionMettreEnPause->setDisabled(false);
 }
 
-void FenPrincipale::changementCategorieScores()
+void MainWindow::changementCategorieScores()
 {
     QList<QList<Score> > *scores = &scores2D;
 
@@ -2450,7 +2409,7 @@ void FenPrincipale::changementCategorieScores()
     }
 }
 
-void FenPrincipale::reinitialiserScores()
+void MainWindow::reinitialiserScores()
 {
     QList<QList<Score> > *scores = &scores2D;
 
@@ -2488,7 +2447,7 @@ void FenPrincipale::reinitialiserScores()
     }
 }
 
-void FenPrincipale::miseEnPage()
+void MainWindow::miseEnPage()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -2500,7 +2459,7 @@ void FenPrincipale::miseEnPage()
     if (!pauseImposee)
         mettreEnPause();
 }
-void FenPrincipale::configurerFormats()
+void MainWindow::configurerFormats()
 {
     QPageSetupDialog pageSetup(printer, this);
 
@@ -2510,18 +2469,18 @@ void FenPrincipale::configurerFormats()
         stateChangedFormats(Qt::Checked);
 }
 
-void FenPrincipale::apercuLabyrinthe(QPrinter *p)
+void MainWindow::apercuLabyrinthe(QPrinter *p)
 {
     labyrinth->apercu(p);
 }
 
-void FenPrincipale::reinitialiserMusique()
+void MainWindow::reinitialiserMusique()
 {
     lineEditMusique->setText(MUSIQUE);
     checkBoxMuet->setChecked(MUET);
 }
 
-void FenPrincipale::parcourirMusique()
+void MainWindow::parcourirMusique()
 {
     QString s = lineEditMusique->text();
     if (!QFileInfo(s).exists())
@@ -2534,24 +2493,24 @@ void FenPrincipale::parcourirMusique()
     lineEditMusique->setText(texte);
 }
 
-void FenPrincipale::afficherTrace()
+void MainWindow::afficherTrace()
 {
     labyrinth->setAfficherTrace(actionAfficherTrace->isChecked());
 }
 
-void FenPrincipale::effacerChemin()
+void MainWindow::effacerChemin()
 {
     labyrinth->setEffacerChemin(actionEffacerChemin->isChecked());
 }
 
-void FenPrincipale::changerEnregistrement()
+void MainWindow::changerEnregistrement()
 {
     setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
 
     actionEnregistrer->setDisabled(labyrinth->getEnregistre());
 }
 
-void FenPrincipale::pause()
+void MainWindow::pause()
 {
     pauseImposee = actionMettreEnPause->isChecked();
 
@@ -2563,7 +2522,7 @@ void FenPrincipale::pause()
     mettreEnPause();
 }
 
-void FenPrincipale::changeEvent(QEvent *event)
+void MainWindow::changeEvent(QEvent *event)
 {
     QMainWindow::changeEvent(event);
 
@@ -2577,14 +2536,14 @@ void FenPrincipale::changeEvent(QEvent *event)
     }
 }
 
-void FenPrincipale::closeEvent(QCloseEvent *event)
+void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->setAccepted(false);
 
     quitter();
 }
 
-void FenPrincipale::type()
+void MainWindow::type()
 {
     if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !labyrinth->getPartieTerminee())
     {
@@ -2595,9 +2554,9 @@ void FenPrincipale::type()
         {
             if (!pauseImposee)
                 mettreEnPause();
-            if (labyrinth->getTypeLabyrinthe() == Labyrinthe::Labyrinthe2D)
+            if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2D)
                 actionLabyrinthe2D->setChecked(true);
-            else// if (labyrinth->getTypeLabyrinthe() == Labyrinthe::Labyrinthe2Den3D)
+            else// if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2Den3D)
                 actionLabyrinthe2Den3D->setChecked(true);
             return;
         }
@@ -2614,10 +2573,10 @@ void FenPrincipale::type()
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    Labyrinthe::TypeLabyrinthe type = Labyrinthe::Labyrinthe2D;
+    QLabyrinth::TypeLabyrinthe type = QLabyrinth::Labyrinthe2D;
 
     if (actionLabyrinthe2Den3D->isChecked())
-        type = Labyrinthe::Labyrinthe2Den3D;
+        type = QLabyrinth::Labyrinthe2Den3D;
 
     labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(), labyrinth->getLargeur(), labyrinth->getAlgorithme(), type, labyrinth->getFormeLabyrinthe(), 0);
 
@@ -2625,7 +2584,7 @@ void FenPrincipale::type()
     actionMettreEnPause->setDisabled(false);
 }
 
-void FenPrincipale::algorithme()
+void MainWindow::algorithme()
 {
     if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !labyrinth->getPartieTerminee())
     {
@@ -2652,13 +2611,13 @@ void FenPrincipale::algorithme()
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(), labyrinth->getLargeur(), Labyrinthe::Algorithme(actionsAlgorithmes.indexOf(qobject_cast<QAction *>(sender()))), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(), labyrinth->getLargeur(), QLabyrinth::Algorithme(actionsAlgorithmes.indexOf(qobject_cast<QAction *>(sender()))), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
 }
 
-void FenPrincipale::reinitialiserModes()
+void MainWindow::reinitialiserModes()
 {
     switch (tabWidgetModes->currentIndex())
     {
@@ -2695,7 +2654,7 @@ void FenPrincipale::reinitialiserModes()
     }
 }
 
-void FenPrincipale::choisirCouleurObscurite()
+void MainWindow::choisirCouleurObscurite()
 {
     QColor couleur = QColorDialog::getColor(QColor(boutonCouleurObscurite->property("Couleur").toString().toUInt()), boutonCouleurObscurite, tr("Choisir une couleur de fond"));
 
@@ -2708,7 +2667,7 @@ void FenPrincipale::choisirCouleurObscurite()
     boutonCouleurObscurite->setProperty("Couleur", QString::number(couleur.rgba()));
 }
 
-void FenPrincipale::reinitialiserCouleurObscurite()
+void MainWindow::reinitialiserCouleurObscurite()
 {
     QPixmap pixmapObscurite(32, 32);
     pixmapObscurite.fill(COULEUROBSCURITE);
@@ -2716,90 +2675,90 @@ void FenPrincipale::reinitialiserCouleurObscurite()
     boutonCouleurObscurite->setProperty("Couleur", QString::number(COULEUROBSCURITE.rgba()));
 }
 
-void FenPrincipale::reinitialiserRayonObscurite()
+void MainWindow::reinitialiserRayonObscurite()
 {
     spinBoxRayonObscurite->setValue(RAYONOBSCURITE);
 }
 
-void FenPrincipale::reinitialiserAngleRotation()
+void MainWindow::reinitialiserAngleRotation()
 {
     spinBoxAngleRotation->setValue(ANGLEROTATION);
     checkBoxAngleRotationAuHasard->setChecked(ANGLEROTATIONAUHASARD);
 }
 
-void FenPrincipale::reinitialiserIntervalleRotation()
+void MainWindow::reinitialiserIntervalleRotation()
 {
     spinBoxIntervalleRotation->setValue(INTERVALLEROTATION);
     checkBoxIntervalleRotationAuHasard->setChecked(INTERVALLEROTATIONAUHASARD);
 }
 
-void FenPrincipale::reinitialiserSensRotation()
+void MainWindow::reinitialiserSensRotation()
 {
     checkBoxSensRotation->setChecked(SENSROTATION == 1);
     checkBoxSensRotationAuHasard->setChecked(SENSROTATIONAUHASARD);
 }
 
-void FenPrincipale::reinitialiserPourcentageDistorsionVerticale()
+void MainWindow::reinitialiserPourcentageDistorsionVerticale()
 {
     spinBoxPourcentageDistorsionVerticale->setValue(POURCENTAGEDISTORSIONVERTICALE);
     checkBoxPourcentageDistorsionVerticaleAuHasard->setChecked(INTERVALLEDISTORSIONVERTICALEAUHASARD);
 }
 
-void FenPrincipale::reinitialiserPourcentageDistorsionHorizontale()
+void MainWindow::reinitialiserPourcentageDistorsionHorizontale()
 {
     spinBoxPourcentageDistorsionHorizontale->setValue(POURCENTAGEDISTORSIONHORIZONTALE);
     checkBoxPourcentageDistorsionHorizontaleAuHasard->setChecked(INTERVALLEDISTORSIONHORIZONTALEAUHASARD);
 }
 
-void FenPrincipale::reinitialiserIntervalleDistorsionVerticale()
+void MainWindow::reinitialiserIntervalleDistorsionVerticale()
 {
     spinBoxIntervalleDistorsionVerticale->setValue(INTERVALLEDISTORSIONVERTICALE);
     checkBoxIntervalleDistorsionVerticaleAuHasard->setChecked(INTERVALLEDISTORSIONVERTICALEAUHASARD);
 }
 
-void FenPrincipale::reinitialiserIntervalleDistorsionHorizontale()
+void MainWindow::reinitialiserIntervalleDistorsionHorizontale()
 {
     spinBoxIntervalleDistorsionHorizontale->setValue(INTERVALLEDISTORSIONHORIZONTALE);
     checkBoxIntervalleDistorsionHorizontaleAuHasard->setChecked(INTERVALLEDISTORSIONHORIZONTALEAUHASARD);
 }
 
-void FenPrincipale::reinitialiserDistorsionSynchronisee()
+void MainWindow::reinitialiserDistorsionSynchronisee()
 {
     checkBoxDistorsionSynchronisee->setChecked(DISTORSIONSYNCHRONISEE);
     checkBoxDistorsionSynchroniseeAuHasard->setChecked(DISTORSIONSYNCHRONISEEAUHASARD);
 }
 
-void FenPrincipale::reinitialiserPourcentageCisaillementVertical()
+void MainWindow::reinitialiserPourcentageCisaillementVertical()
 {
     spinBoxPourcentageCisaillementVertical->setValue(POURCENTAGECISAILLEMENTVERTICAL);
     checkBoxPourcentageCisaillementVerticalAuHasard->setChecked(INTERVALLECISAILLEMENTVERTICALAUHASARD);
 }
 
-void FenPrincipale::reinitialiserPourcentageCisaillementHorizontal()
+void MainWindow::reinitialiserPourcentageCisaillementHorizontal()
 {
     spinBoxPourcentageCisaillementHorizontal->setValue(POURCENTAGECISAILLEMENTHORIZONTAL);
     checkBoxPourcentageCisaillementHorizontalAuHasard->setChecked(INTERVALLECISAILLEMENTHORIZONTALAUHASARD);
 }
 
-void FenPrincipale::reinitialiserIntervalleCisaillementVertical()
+void MainWindow::reinitialiserIntervalleCisaillementVertical()
 {
     spinBoxIntervalleCisaillementVertical->setValue(INTERVALLECISAILLEMENTVERTICAL);
     checkBoxIntervalleCisaillementVerticalAuHasard->setChecked(INTERVALLECISAILLEMENTVERTICALAUHASARD);
 }
 
-void FenPrincipale::reinitialiserIntervalleCisaillementHorizontal()
+void MainWindow::reinitialiserIntervalleCisaillementHorizontal()
 {
     spinBoxIntervalleCisaillementHorizontal->setValue(INTERVALLECISAILLEMENTHORIZONTAL);
     checkBoxIntervalleCisaillementHorizontalAuHasard->setChecked(INTERVALLECISAILLEMENTHORIZONTALAUHASARD);
 }
 
-void FenPrincipale::reinitialiserCisaillementSynchronise()
+void MainWindow::reinitialiserCisaillementSynchronise()
 {
     checkBoxCisaillementSynchronise->setChecked(CISAILLEMENTSYNCHRONISE);
     checkBoxCisaillementSynchroniseAuHasard->setChecked(CISAILLEMENTSYNCHRONISEAUHASARD);
 }
 
-bool FenPrincipale::eventFilter(QObject *obj, QEvent *event)
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     if(event->type() == QEvent::FileOpen)
     {
@@ -2810,14 +2769,11 @@ bool FenPrincipale::eventFilter(QObject *obj, QEvent *event)
         return QObject::eventFilter(obj, event);
 }
 
-void FenPrincipale::chargerPartie(const QString &fichier)
+void MainWindow::chargerPartie(const QString &fichier)
 {
     if (fichier == QString("/S") || fichier == QString("/s"))//Lancement de l'écran de veille
     {
-        FMOD_CHANNELGROUP *canal;
-        FMOD_System_GetMasterChannelGroup(system, &canal);
         audioOutput->setMuted(true);
-        FMOD_ChannelGroup_SetMute(canal, true);
         actionPleinEcran->setChecked(false);
         actionLabyrintheSeulement->setChecked(false);
         actionResolutionProgressive->setChecked(false);
@@ -2870,17 +2826,17 @@ void FenPrincipale::chargerPartie(const QString &fichier)
 
         QString n;
 
-        if (labyrinth->getNiveau() == Labyrinthe::Facile)
+        if (labyrinth->getNiveau() == QLabyrinth::Facile)
         {
             n = tr("Facile");
             actionFacile->setChecked(true);
         }
-        else if (labyrinth->getNiveau() == Labyrinthe::Moyen)
+        else if (labyrinth->getNiveau() == QLabyrinth::Moyen)
         {
             n = tr("Moyen");
             actionMoyen->setChecked(true);
         }
-        else if (labyrinth->getNiveau() == Labyrinthe::Difficile)
+        else if (labyrinth->getNiveau() == QLabyrinth::Difficile)
         {
             n = tr("Difficile");
             actionDifficile->setChecked(true);
@@ -2904,44 +2860,30 @@ void FenPrincipale::chargerPartie(const QString &fichier)
         actionEffacerChemin->setChecked(labyrinth->getEffacerChemin());
         actionResolutionProgressive->setChecked(labyrinth->getResolutionProgressive());
         actionLabyrintheSeulement->setChecked(labySeulement);
-        if (labyrinth->getTypeLabyrinthe() == Labyrinthe::Labyrinthe2D)
+        if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2D)
             actionLabyrinthe2D->setChecked(true);
-        else// if (labyrinth->getTypeLabyrinthe() == Labyrinthe::Labyrinthe2Den3D)
+        else// if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2Den3D)
             actionLabyrinthe2Den3D->setChecked(true);
         if (labySeulement)
             labyrintheSeulement();
 
-        FMOD_CHANNELGROUP *canal;
-        FMOD_System_GetMasterChannelGroup(system, &canal);
-
         if (emplacementMusique != s)
         {
             emplacementMusique = s;
-            mediaObject->setCurrentSource(Phonon::MediaSource(emplacementMusique));
+            mediaPlayer->setSource(emplacementMusique);
 
-            FMOD_Sound_Release(m);
-            FMOD_System_CreateSound(system, emplacementMusique.toStdString().c_str(), FMOD_SOFTWARE | FMOD_2D | FMOD_CREATESTREAM | FMOD_LOOP_NORMAL, 0, &m);
-            FMOD_Sound_SetLoopCount(m, -1);
-
-            mediaObject->stop();
-            FMOD_ChannelGroup_Stop(canal);
+            mediaPlayer->stop();
 
             audioOutput->setMuted(muet);
-            FMOD_ChannelGroup_SetMute(canal, muet);
 
             if (QFileInfo(emplacementMusique).exists())
-            {
-                if (emplacementMusique.right(4) == QString(".mid"))
-                    FMOD_System_PlaySound(system, FMOD_CHANNEL_FREE, m, 0, NULL);
-                else
-                    mediaObject->play();
-            }
+                mediaPlayer->play();
         }
 
         if (chronometre->isChecked() && labyrinth->getPartieEnCours() && !pauseImposee)
         {
             timer->start();
-            temps.start();
+            elapsedTimer.start();
         }
 
         labyrinth->activer();
@@ -2955,7 +2897,7 @@ void FenPrincipale::chargerPartie(const QString &fichier)
     }
 }
 
-void FenPrincipale::actualiserLangue()
+void MainWindow::actualiserLangue()
 {
     QString locale;
 
@@ -2992,7 +2934,7 @@ void FenPrincipale::actualiserLangue()
     qApp->installTranslator(translatorQt);
 }
 
-void FenPrincipale::langue()
+void MainWindow::langue()
 {
     if (!pauseImposee)
         mettreEnPause();
@@ -3034,22 +2976,22 @@ void FenPrincipale::langue()
         mettreEnPause();
 }
 
-void FenPrincipale::reinitialiserLangue()
+void MainWindow::reinitialiserLangue()
 {
     comboBoxLangue->setCurrentIndex(0);
 }
 
-void FenPrincipale::actualiserDeplacement()
+void MainWindow::actualiserDeplacement()
 {
     deplacement->setText(tr("Déplacement : ")+QString::number(labyrinth->getNombreDeplacement()));
 }
 
-QString FenPrincipale::getNomPartie() const
+QString MainWindow::getNomPartie() const
 {
     return nomPartie;
 }
 
-void FenPrincipale::synchroniserDistorsion(int state)
+void MainWindow::synchroniserDistorsion(int state)
 {
     if (state == Qt::Checked)
     {
@@ -3079,7 +3021,7 @@ void FenPrincipale::synchroniserDistorsion(int state)
     }
 }
 
-void FenPrincipale::synchroniserCisaillement(int state)
+void MainWindow::synchroniserCisaillement(int state)
 {
     if (state == Qt::Checked)
     {
@@ -3109,48 +3051,48 @@ void FenPrincipale::synchroniserCisaillement(int state)
     }
 }
 
-bool FenPrincipale::getAdaptationTailleEcran() const
+bool MainWindow::getAdaptationTailleEcran() const
 {
     return adaptationEcran;
 }
 
-void FenPrincipale::setAdaptationTailleEcran(bool oui)
+void MainWindow::setAdaptationTailleEcran(bool oui)
 {
     if (adaptationEcran == oui)
         return;
 
     adaptationEcran = oui;
 
-    int longueur = QApplication::desktop()->size().width() / labyrinth->getTailleCase().width();
+    int longueur = QGuiApplication::screenAt(pos())->size().width() / labyrinth->getTailleCase().width();
     if (!(longueur % 2))
     {
         longueur++;
-        if (longueur*labyrinth->getTailleCase().width() > QApplication::desktop()->size().width())
+        if (longueur * labyrinth->getTailleCase().width() > QGuiApplication::screenAt(pos())->size().width())
             longueur -= 2;
     }
-    int largeur = QApplication::desktop()->size().height() / labyrinth->getTailleCase().height();
+    int largeur = QGuiApplication::screenAt(pos())->size().height() / labyrinth->getTailleCase().height();
     if (!(largeur % 2))
     {
         largeur++;
-        if (largeur*labyrinth->getTailleCase().height() > QApplication::desktop()->size().height())
+        if (largeur * labyrinth->getTailleCase().height() > QGuiApplication::screenAt(pos())->size().height())
             largeur -= 2;
     }
 
-    labyrinth->nouveau(Labyrinthe::Personnalise, longueur, largeur, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(QLabyrinth::Personnalise, longueur, largeur, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
     QString n = tr("Personnalisé");
 
-    if (labyrinth->getNiveau() == Labyrinthe::Facile)
+    if (labyrinth->getNiveau() == QLabyrinth::Facile)
     {
         n = tr("Facile");
         actionFacile->setChecked(true);
     }
-    else if (labyrinth->getNiveau() == Labyrinthe::Moyen)
+    else if (labyrinth->getNiveau() == QLabyrinth::Moyen)
     {
         n = tr("Moyen");
         actionMoyen->setChecked(true);
     }
-    else if (labyrinth->getNiveau() == Labyrinthe::Difficile)
+    else if (labyrinth->getNiveau() == QLabyrinth::Difficile)
     {
         n = tr("Difficile");
         actionDifficile->setChecked(true);
@@ -3172,12 +3114,12 @@ void FenPrincipale::setAdaptationTailleEcran(bool oui)
     labyrinth->activer();
 }
 
-bool FenPrincipale::getAdaptationTaillePapier() const
+bool MainWindow::getAdaptationTaillePapier() const
 {
     return adaptationFormats;
 }
 
-void FenPrincipale::setAdaptationTaillePapier(bool oui)
+void MainWindow::setAdaptationTaillePapier(bool oui)
 {
     if (adaptationFormats == oui)
         return;
@@ -3202,15 +3144,15 @@ void FenPrincipale::setAdaptationTaillePapier(bool oui)
     int longueurOrigine = 0;
     int largeurOrigine = 0;
 
-    if (printer->pageRect().width() > printer->pageRect().height())
+    if (printer->pageRect(QPrinter::Millimeter).width() > printer->pageRect(QPrinter::Millimeter).height())
     {
-        longueurOrigine = printer->pageRect().width();
-        largeurOrigine = printer->pageRect().height();
+        longueurOrigine = printer->pageRect(QPrinter::Millimeter).width();
+        largeurOrigine = printer->pageRect(QPrinter::Millimeter).height();
     }
     else
     {
-        longueurOrigine = printer->pageRect().height();
-        largeurOrigine = printer->pageRect().width();
+        longueurOrigine = printer->pageRect(QPrinter::Millimeter).height();
+        largeurOrigine = printer->pageRect(QPrinter::Millimeter).width();
     }
 
     int longueur = longueurOrigine/labyrinth->getTailleCase().width();
@@ -3229,21 +3171,21 @@ void FenPrincipale::setAdaptationTaillePapier(bool oui)
             largeur -= 2;
     }
 
-    labyrinth->nouveau(Labyrinthe::Personnalise, longueur, largeur, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(QLabyrinth::Personnalise, longueur, largeur, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
     QString n = tr("Personnalisé");
 
-    if (labyrinth->getNiveau() == Labyrinthe::Facile)
+    if (labyrinth->getNiveau() == QLabyrinth::Facile)
     {
         n = tr("Facile");
         actionFacile->setChecked(true);
     }
-    else if (labyrinth->getNiveau() == Labyrinthe::Moyen)
+    else if (labyrinth->getNiveau() == QLabyrinth::Moyen)
     {
         n = tr("Moyen");
         actionMoyen->setChecked(true);
     }
-    else if (labyrinth->getNiveau() == Labyrinthe::Difficile)
+    else if (labyrinth->getNiveau() == QLabyrinth::Difficile)
     {
         n = tr("Difficile");
         actionDifficile->setChecked(true);

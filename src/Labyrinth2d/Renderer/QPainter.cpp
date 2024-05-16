@@ -2,6 +2,8 @@
 #include <cassert>
 #include <algorithm>
 
+#include <QPainterPath>
+
 #include "Labyrinth2d/Renderer/QPainter.h"
 
 Labyrinth2d::Renderer::QPainter::Texture::Texture(QBrush const& brush,
@@ -200,8 +202,8 @@ void Labyrinth2d::Renderer::QPainter::renderBackground(::QPainter* painter, QReg
 
                 QPoint const pixmapCenter(QRect(QPoint(), pixmap.size()).center());
 
-                for (auto const& r : adjustedRegion.rects())
-                    pixmapFragments.push_back(::QPainter::PixmapFragment::create(r.center() - pixmapCenter, r));
+                for (auto it{adjustedRegion.begin()}; it != adjustedRegion.end(); ++it)
+                    pixmapFragments.push_back(::QPainter::PixmapFragment::create(it->center() - pixmapCenter, *it));
 
                 painter->drawPixmapFragments(pixmapFragments.data(),
                                              pixmapFragments.size(),
@@ -228,7 +230,7 @@ void Labyrinth2d::Renderer::QPainter::renderWalls(::QPainter* painter,  QRegion 
 {
     assert(painter != 0);
 
-    Grid const& grid(labyrinth.grid());
+    auto const& grid(labyrinth.grid());
     size_t const height(grid.height());
     size_t const width(grid.width());
 
@@ -258,9 +260,9 @@ void Labyrinth2d::Renderer::QPainter::renderWalls(::QPainter* painter,  QRegion 
                 std::vector<QLineF> lines;
                 std::vector<QPointF> points;
 
-                for (auto const& r : adjustedRegion.rects())
+                for (auto it{adjustedRegion.begin()}; it != adjustedRegion.end(); ++it)
                 {
-                    QRect indices(computeIndices(r));
+                    QRect indices(computeIndices(*it));
 
                     indices.setTop(indices.top() - indices.top() % 2);
                     indices.setBottom(indices.bottom() + (indices.bottom() + 1) % 2);
@@ -339,9 +341,9 @@ void Labyrinth2d::Renderer::QPainter::renderWalls(::QPainter* painter,  QRegion 
             {
                 std::vector<std::pair<size_t, size_t> > cells;
 
-                for (auto const& r : adjustedRegion.rects())
+                for (auto it{adjustedRegion.begin()}; it != adjustedRegion.end(); ++it)
                 {
-                    QRect const indices(computeIndices(r));
+                    QRect const indices(computeIndices(*it));
 
                     for (size_t i(static_cast<size_t>(indices.top())); i < static_cast<size_t>(indices.bottom()); ++i)
                         for (size_t j(static_cast<size_t>(indices.left())); j < static_cast<size_t>(indices.right()); ++j)
@@ -356,9 +358,9 @@ void Labyrinth2d::Renderer::QPainter::renderWalls(::QPainter* painter,  QRegion 
         {
             std::vector<std::pair<size_t, size_t> > cells;
 
-            for (auto const& r : adjustedRegion.rects())
+            for (auto it{adjustedRegion.begin()}; it != adjustedRegion.end(); ++it)
             {
-                QRect const indices(computeIndices(r));
+                QRect const indices(computeIndices(*it));
 
                 for (size_t i(static_cast<size_t>(indices.top())); i < static_cast<size_t>(indices.bottom()); ++i)
                     for (size_t j(static_cast<size_t>(indices.left())); j < static_cast<size_t>(indices.right()); ++j)
@@ -384,7 +386,7 @@ void Labyrinth2d::Renderer::QPainter::renderWays(::QPainter* painter,  QRegion c
 {
     assert(painter != 0);
 
-    Grid const& grid(labyrinth.grid());
+    auto const& grid(labyrinth.grid());
     size_t const height(grid.height());
     size_t const width(grid.width());
 
@@ -414,9 +416,9 @@ void Labyrinth2d::Renderer::QPainter::renderWays(::QPainter* painter,  QRegion c
                 std::vector<QLineF> lines;
                 std::vector<QPointF> points;
 
-                for (auto const& r : adjustedRegion.rects())
+                for (auto it{adjustedRegion.begin()}; it != adjustedRegion.end(); ++it)
                 {
-                    QRect indices(computeIndices(r));
+                    QRect indices(computeIndices(*it));
 
                     indices.setTop(indices.top() - indices.top() % 2);
                     indices.setBottom(indices.bottom() + (indices.bottom() + 1) % 2);
@@ -503,9 +505,9 @@ void Labyrinth2d::Renderer::QPainter::renderWays(::QPainter* painter,  QRegion c
             {
                 std::vector<std::pair<size_t, size_t> > cells;
 
-                for (auto const& r : adjustedRegion.rects())
+                for (auto it{adjustedRegion.begin()}; it != adjustedRegion.end(); ++it)
                 {
-                    QRect indices(computeIndices(r));
+                    QRect indices(computeIndices(*it));
 
                     indices.setTop(std::max(1, indices.top()));
                     indices.setBottom(std::min(static_cast<int>(height - 1), indices.bottom()));
@@ -525,9 +527,9 @@ void Labyrinth2d::Renderer::QPainter::renderWays(::QPainter* painter,  QRegion c
         {
             std::vector<std::pair<size_t, size_t> > cells;
 
-            for (auto const& r : adjustedRegion.rects())
+            for (auto it{adjustedRegion.begin()}; it != adjustedRegion.end(); ++it)
             {
-                QRect indices(computeIndices(r));
+                QRect indices(computeIndices(*it));
 
                 indices.setTop(std::max(1, indices.top()));
                 indices.setBottom(std::min(static_cast<int>(height - 1), indices.bottom()));
@@ -582,8 +584,9 @@ void Labyrinth2d::Renderer::QPainter::renderPlayer(size_t playerId, ::QPainter* 
                          std::vector<std::pair<size_t, size_t> >{std::make_pair(player.startI(), player.startJ())});
 
         if (playerRenderer.displayFinish)
-            displayCells(painter, playerRenderer.finishTexture,
-                         std::vector<std::pair<size_t, size_t> >{std::make_pair(player.finishI(), player.finishJ())});
+            for (size_t i{0}; i < player.finishI().size(); ++i)
+                displayCells(painter, playerRenderer.finishTexture,
+                             std::vector<std::pair<size_t, size_t> >{std::make_pair(player.finishI()[i], player.finishJ()[i])});
 
         if (playerRenderer.displayTrace)
         {

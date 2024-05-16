@@ -109,17 +109,17 @@ namespace Labyrinth3d
             /*!
              *  \return The finish row in [0; rows() - 1] in the labyrinth grid
              */
-            std::vector<size_t> finishRow() const;
+            std::vector<size_t> finishRows() const;
 
             /*!
-             *  \return The finish column in [0; column() - 1] in the labyrinth grid
+             *  \return The finish columns in [0; column() - 1] in the labyrinth grid
              */
-            std::vector<size_t> finishColumn() const;
+            std::vector<size_t> finishColumns() const;
 
             /*!
-             *  \return The finish floor in [0; column() - 1] in the labyrinth grid
+             *  \return The finish floors in [0; column() - 1] in the labyrinth grid
              */
-            std::vector<size_t> finishFloor() const;
+            std::vector<size_t> finishFloors() const;
 
             /*!
              *  \return The current position row in [0; rows() - 1] in the labyrinth grid
@@ -260,7 +260,7 @@ namespace Labyrinth3d
 			/*!
 			 *  \brief Return the full trace as a vector of pairs
 			 */
-            std::vector<std::pair<size_t, size_t> > const& fullTrace() const;
+            std::vector<std::tuple<size_t, size_t, size_t> > const& fullTrace() const;
 
         private:
             size_t startI_;
@@ -282,7 +282,7 @@ namespace Labyrinth3d
             std::vector<std::tuple<size_t, size_t, size_t> > traceIntersections_;
             bool blockingFinish_;
 			bool keptFullTrace_;
-            std::vector<std::pair<size_t, size_t> > fullTrace_;
+            std::vector<std::tuple<size_t, size_t, size_t> > fullTrace_;
 
             friend class Labyrinth;
 

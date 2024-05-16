@@ -99,7 +99,7 @@ Labyrinth2d::Renderer::String::String(Labyrinth const& labyrinth_,
 
 std::string Labyrinth2d::Renderer::String::operator()()
 {
-    Grid const& grid(labyrinth.grid());
+    auto const& grid(labyrinth.grid());
     size_t const height(grid.height());
     size_t const width(grid.width());
 

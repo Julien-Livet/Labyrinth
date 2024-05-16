@@ -41,7 +41,7 @@ namespace Labyrinth2d
                  *  \param timeout: time before to abort generation
                  */
                 template <class URNG>
-                void operator()(URNG& g, Grid::SubGrid const& subGrid, size_t /*operationsCycle*/ = 0,
+                void operator()(URNG& g, SubGrid<bool> const& subGrid, size_t /*operationsCycle*/ = 0,
                                 std::chrono::milliseconds const& /*cyclePause*/ = std::chrono::milliseconds(0),
                                 std::chrono::milliseconds const* timeout = nullptr);
 
@@ -54,7 +54,7 @@ namespace Labyrinth2d
 }
 
 template <class URNG>
-void Labyrinth2d::Algorithm::Fractal::operator()(URNG& g, Grid::SubGrid const& subGrid,
+void Labyrinth2d::Algorithm::Fractal::operator()(URNG& g, SubGrid<bool> const& subGrid,
                                                  size_t /*operationsCycle*/, std::chrono::milliseconds const& /*cyclePause*/,
                                                  std::chrono::milliseconds const* timeout)
 {
@@ -88,7 +88,7 @@ void Labyrinth2d::Algorithm::Fractal::operator()(URNG& g, Grid::SubGrid const& s
 
             for (size_t k(0); k < columns.size(); k += 2)
             {
-                auto const a(expandPattern(g, true, rows[i][k], rows[i][k + 1]));
+                auto const a(expandPattern_(g, true, rows[i][k], rows[i][k + 1]));
 
                 rows[i][k] = a[0][0];
                 rows[i][k + 1] = a[1][0];
@@ -113,7 +113,7 @@ void Labyrinth2d::Algorithm::Fractal::operator()(URNG& g, Grid::SubGrid const& s
 
             for (size_t k(0); k < rows.size(); k += 2)
             {
-                auto const a(expandPattern(g, false, columns[j][k], columns[j][k + 1]));
+                auto const a(expandPattern_(g, false, columns[j][k], columns[j][k + 1]));
 
                 columns[j][k] = a[0][0];
                 columns[j][k + 1] = a[2][0];

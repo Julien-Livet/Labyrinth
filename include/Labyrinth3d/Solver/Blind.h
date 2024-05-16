@@ -144,7 +144,7 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player, size_t fini
                                                            std::make_pair(Front, Back),
                                                            std::make_pair(Back, Front)};
 
-    while (!(player.state() & Player::Finished) && player.i() != player.finishI()[finishIndex] && player.j() != player.finishJ()[finishIndex] && player.k() != player.finishK()[finishIndex] && (movements || (!movements && operations)))
+    while (!(player.state() & Player::Finished) && !(player.i() == player.finishI()[finishIndex] && player.j() == player.finishJ()[finishIndex] && player.k() == player.finishK()[finishIndex]) && (movements || (!movements && operations)))
     {
         if (player.state() & Player::StoppedSolving)
             return;

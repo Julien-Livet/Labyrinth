@@ -73,7 +73,7 @@ void Labyrinth2d::Solver::WallHand::operator()(URNG& g, Player& player, size_t f
 {
     auto const t(std::chrono::steady_clock::now());
 
-    Grid const& grid(player.labyrinth().grid());
+    auto const& grid(player.labyrinth().grid());
 
     if (player.state() & Player::Finished)
         return;
@@ -131,7 +131,7 @@ void Labyrinth2d::Solver::WallHand::operator()(URNG& g, Player& player, size_t f
 
     size_t operations(1);
 
-    while (!(player.state() & Player::Finished) && player.i() != player.finishI()[finishIndex] && player.j() != player.finishJ()[finishIndex] && (!movements || (operations < movements)))
+    while (!(player.state() & Player::Finished) && !(player.i() == player.finishI()[finishIndex] && player.j() == player.finishJ()[finishIndex]) && (!movements || (operations < movements)))
     {
         if (player.state() & Player::StoppedSolving)
             return;

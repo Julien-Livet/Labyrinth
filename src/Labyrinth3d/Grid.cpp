@@ -1,7 +1,7 @@
 #include <cassert>
 #include <stdexcept>
 
-#include "Grid.h"
+#include "Labyrinth3d/Grid.h"
 
 Labyrinth3d::Grid::SubGrid::SubGrid(SubGrid const& subGrid, size_t rowShift, size_t columnShift, size_t floorShift,
                                     size_t rows, size_t columns, size_t floors) : grid_(subGrid.grid_),

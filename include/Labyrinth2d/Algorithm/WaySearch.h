@@ -60,7 +60,7 @@ namespace Labyrinth2d
              *  \param timeout: time before to abort generation
              */
             template <class URNG>
-            void operator()(URNG& g, Grid::SubGrid const& subGrid, size_t operationsCycle = 0,
+            void operator()(URNG& g, SubGrid<bool> const& subGrid, size_t operationsCycle = 0,
                             std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                             std::chrono::milliseconds const* timeout = nullptr);
         };
@@ -68,7 +68,7 @@ namespace Labyrinth2d
 }
 
 template <class URNG>
-void Labyrinth2d::Algorithm::WaySearch::operator()(URNG& g, Grid::SubGrid const& subGrid,
+void Labyrinth2d::Algorithm::WaySearch::operator()(URNG& g, SubGrid<bool> const& subGrid,
                                                    size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
                                                    std::chrono::milliseconds const* timeout)
 {

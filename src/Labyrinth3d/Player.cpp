@@ -7,13 +7,14 @@
 Labyrinth3d::Player::Player(Labyrinth const& labyrinth,
                             size_t startI, size_t startJ, size_t startK,
                             std::vector<size_t> const& finishI, std::vector<size_t> const&finishJ, std::vector<size_t> const&finishK,
-                            bool enabledTrace, bool blockingFinish, bool keptFullTrace) : startI_{startI}, startJ_{startJ}, startK__(startK),
-                                                                      finishI_{finishI}, finishJ_{finishJ}, finishK_{finishK},
-                                                                      i_{startI_}, j_{startJ_}, k_{startK__},
-                                                                      labyrinth_{labyrinth}, movements_{0},
-                                                                      state_{0},
-                                                                      enabledTrace_{enabledTrace},
-                                                                      blockingFinish_{blockingFinish}, keptFullTrace_{keptFullTrace}
+                            bool enabledTrace, bool blockingFinish,
+                            bool keptFullTrace) : startI_{startI}, startJ_{startJ}, startK__(startK),
+                                                  finishI_{finishI}, finishJ_{finishJ}, finishK_{finishK},
+                                                  i_{startI_}, j_{startJ_}, k_{startK__},
+                                                  labyrinth_{labyrinth}, movements_{0},
+                                                  state_{0},
+                                                  enabledTrace_{enabledTrace},
+                                                  blockingFinish_{blockingFinish}, keptFullTrace_{keptFullTrace}
 {
     enableTrace(enabledTrace);
 	
@@ -101,7 +102,7 @@ size_t Labyrinth3d::Player::startFloor() const
     return (startK__ - 1) / 2;
 }
 
-std::vector<size_t> Labyrinth3d::Player::finishRow() const
+std::vector<size_t> Labyrinth3d::Player::finishRows() const
 {
 	std::vector<size_t> rows;
 	rows.reserve(finishI_.size());
@@ -225,16 +226,16 @@ size_t Labyrinth3d::Player::move(Direction direction, size_t movements, size_t o
         else
         {
 			if (keptFullTrace_)
-				fullTrace_.emplace_back(std::make_tupple(iTmp, jTmp, kTmp));
+                fullTrace_.emplace_back(std::make_tuple(iTmp, jTmp, kTmp));
 
             ++realizedMovements;
             --movements;
 
 			bool finished{false};
 
-			for (std::size_t i{0}; i < finishI_.size(); ++i)
+            for (std::size_t n{0}; n < finishI_.size(); ++n)
 			{
-				if (i_ == finishI_[i] && j_ == finishJ_[i] && k_ == finishK_[i])
+                if (i_ == finishI_[n] && j_ == finishJ_[n] && k_ == finishK_[n])
 				{
 					finished = true;
 					break;
@@ -257,9 +258,9 @@ size_t Labyrinth3d::Player::move(Direction direction, size_t movements, size_t o
 	{
 		bool finished{false};
 
-		for (std::size_t i{0}; i < finishI_.size(); ++i)
+        for (std::size_t n{0}; n < finishI_.size(); ++n)
 		{
-			if (i_ == finishI_[i] && j_ == finishJ_[i] && k_ == finishK_[i])
+            if (i_ == finishI_[n] && j_ == finishJ_[n] && k_ == finishK_[n])
 			{
 				finished = true;
 				break;
@@ -324,7 +325,7 @@ void Labyrinth3d::Player::keepFullTrace(bool keptFullTrace)
 {
     keptFullTrace_ = keptFullTrace;
 	
-	if (!keepFullTrace_)
+    if (!keptFullTrace_)
 		fullTrace_.clear();
 }
 
@@ -451,7 +452,7 @@ void Labyrinth3d::Player::stopSolving()
     state_ |= StoppedSolving;
 }
 
-std::vector<std::tuple<size_t, size_t, size_t> > const& Labyrinth3d::fullTrace() const
+std::vector<std::tuple<size_t, size_t, size_t> > const& Labyrinth3d::Player::fullTrace() const
 {
 	return fullTrace_;
 }

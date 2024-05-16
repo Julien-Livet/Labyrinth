@@ -9,10 +9,10 @@
  *  \date 20/01/2016
  */
 
+#include <chrono>
+#include <thread>
 #include <tuple>
 #include <vector>
-#include <thread>
-#include <chrono>
 
 #include "../Grid.h"
 #include "../Labyrinth.h"
@@ -40,7 +40,7 @@ namespace Labyrinth2d
              *  \param timeout: time before to abort generation
              */
             template <class URNG>
-            void operator()(URNG& g, Grid::SubGrid const& subGrid, size_t operationsCycle = 0,
+            void operator()(URNG& g, SubGrid<bool> const& subGrid, size_t operationsCycle = 0,
                             std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                             std::chrono::milliseconds const* timeout = nullptr);
         };
@@ -48,7 +48,7 @@ namespace Labyrinth2d
 }
 
 template <class URNG>
-void Labyrinth2d::Algorithm::RecursiveDivision::operator()(URNG& g, Grid::SubGrid const& subGrid,
+void Labyrinth2d::Algorithm::RecursiveDivision::operator()(URNG& g, SubGrid<bool> const& subGrid,
                                                            size_t operationsCycle,
                                                            std::chrono::milliseconds const& cyclePause,
                                                            std::chrono::milliseconds const* timeout)
@@ -64,7 +64,7 @@ void Labyrinth2d::Algorithm::RecursiveDivision::operator()(URNG& g, Grid::SubGri
     {
         size_t const l(history.size() - 1);//g() % history.size());
 
-        auto const& t(history[l]);
+        auto const t(history[l]);
         size_t const h(std::get<2>(t) - std::get<0>(t) + 1);
         size_t const w(std::get<3>(t) - std::get<1>(t) + 1);
         size_t const i(h > 3 ? (g() % (std::get<2>(t) - std::get<0>(t) - 2) / 2 + 1) * 2 + std::get<0>(t) : std::get<0>(t));

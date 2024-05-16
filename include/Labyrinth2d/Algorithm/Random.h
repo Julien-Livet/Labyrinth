@@ -43,7 +43,7 @@ namespace Labyrinth2d
                  *  \param timeout: time before to abort generation
                  */
                 template <class URNG>
-                void operator()(URNG& g, Grid::SubGrid const& subGrid, size_t operationsCycle = 0,
+                void operator()(URNG& g, SubGrid<bool> const& subGrid, size_t operationsCycle = 0,
                                 std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                                 std::chrono::milliseconds const* timeout = nullptr);
 
@@ -63,7 +63,7 @@ Labyrinth2d::Algorithm::Random<Algorithm1, Algorithm2>::Random(Algorithm1& algor
 
 template <class Algorithm1, class Algorithm2>
 template <class URNG>
-void Labyrinth2d::Algorithm::Random<Algorithm1, Algorithm2>::operator()(URNG& g, Grid::SubGrid const& subGrid,
+void Labyrinth2d::Algorithm::Random<Algorithm1, Algorithm2>::operator()(URNG& g, SubGrid<bool> const& subGrid,
                                                                         size_t operationsCycle,
                                                                         std::chrono::milliseconds const& cyclePause,
                                                                         std::chrono::milliseconds const* timeout)

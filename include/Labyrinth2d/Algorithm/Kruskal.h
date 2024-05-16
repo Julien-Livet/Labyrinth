@@ -9,9 +9,9 @@
  *  \date 20/01/2016
  */
 
-#include <vector>
-#include <thread>
 #include <chrono>
+#include <thread>
+#include <vector>
 
 #include <boost/pending/disjoint_sets.hpp>
 
@@ -63,18 +63,18 @@ namespace Labyrinth2d
                  *  \param timeout: time before to abort generation
                  */
                 template <class URNG>
-                void operator()(URNG& g, Grid::SubGrid const& subGrid, size_t operationsCycle = 0,
+                void operator()(URNG& g, SubGrid<bool> const& subGrid, size_t operationsCycle = 0,
                                 std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                                 std::chrono::milliseconds const* timeout = nullptr);
 
             private:
                 template <class URNG>
-                void recursiveGeneration_(URNG& g, Grid::SubGrid const& subGrid, size_t operationsCycle = 0,
+                void recursiveGeneration_(URNG& g, SubGrid<bool> const& subGrid, size_t operationsCycle = 0,
                                           std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                                           std::chrono::milliseconds const* timeout = nullptr);
 
                 template <class URNG>
-                void loopGeneration_(URNG& g, Grid::SubGrid const& subGrid, size_t operationsCycle = 0,
+                void loopGeneration_(URNG& g, SubGrid<bool> const& subGrid, size_t operationsCycle = 0,
                                      std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                                      std::chrono::milliseconds const* timeout = nullptr);
 
@@ -85,7 +85,7 @@ namespace Labyrinth2d
 }
 
 template <class URNG>
-void Labyrinth2d::Algorithm::Kruskal::operator()(URNG& g, Grid::SubGrid const& subGrid,
+void Labyrinth2d::Algorithm::Kruskal::operator()(URNG& g, SubGrid<bool> const& subGrid,
                                                  size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
                                                  std::chrono::milliseconds const* timeout)
 {
@@ -114,7 +114,7 @@ void Labyrinth2d::Algorithm::Kruskal::operator()(URNG& g, Grid::SubGrid const& s
 }
 
 template <class URNG>
-void Labyrinth2d::Algorithm::Kruskal::recursiveGeneration_(URNG &g, Grid::SubGrid const& subGrid,
+void Labyrinth2d::Algorithm::Kruskal::recursiveGeneration_(URNG &g, SubGrid<bool> const& subGrid,
                                                            size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
                                                            std::chrono::milliseconds const* timeout)
 {
@@ -205,7 +205,7 @@ void Labyrinth2d::Algorithm::Kruskal::recursiveGeneration_(URNG &g, Grid::SubGri
 }
 
 template <class URNG>
-void Labyrinth2d::Algorithm::Kruskal::loopGeneration_(URNG &g, Grid::SubGrid const& subGrid,
+void Labyrinth2d::Algorithm::Kruskal::loopGeneration_(URNG &g, SubGrid<bool> const& subGrid,
                                                       size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
                                                       std::chrono::milliseconds const* timeout)
 {

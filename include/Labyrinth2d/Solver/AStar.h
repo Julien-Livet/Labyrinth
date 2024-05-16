@@ -53,7 +53,7 @@ namespace Labyrinth2d
 }
 
 template <class URNG>
-void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player, size_t finishIndex = 0, size_t movements,
+void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player, size_t finishIndex, size_t movements,
                                             size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
                                             std::chrono::milliseconds const* timeout)
 {
@@ -119,7 +119,7 @@ void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player, size_t finish
     size_t operations(0);
 
     auto const finish(std::make_pair(player.finishI()[finishIndex], player.finishJ()[finishIndex]));
-    Grid const& grid(player.labyrinth().grid());
+    auto const& grid(player.labyrinth().grid());
 
     std::vector<Node> closedList;
     std::vector<Node> openedList{Node(player.i(), player.j(), 0.0,

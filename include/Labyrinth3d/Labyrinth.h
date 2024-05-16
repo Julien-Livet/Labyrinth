@@ -104,7 +104,7 @@ namespace Labyrinth3d
              */
             size_t addPlayer(size_t startRow, size_t startColumn, size_t startFloor,
                              std::vector<size_t> const& finishRows, std::vector<size_t> const& finishColumns, std::vector<size_t> const& finishFloors,
-                             bool enabledTrace = false, bool blockingFinish = true, bool keptFullTrace);
+                             bool enabledTrace = false, bool blockingFinish = true, bool keptFullTrace = false);
 
             /*!
              *  \brief Remove a player in the labyrinth

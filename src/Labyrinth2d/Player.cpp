@@ -7,13 +7,14 @@
 Labyrinth2d::Player::Player(Labyrinth const& labyrinth,
                             size_t startI, size_t startJ,
                             std::vector<size_t> const& finishI, std::vector<size_t> const& finishJ,
-                            bool enabledTrace, bool blockingFinish) : startI_{startI}, startJ_{startJ},
-                                                                      finishI_{finishI}, finishJ_{finishJ},
-                                                                      i_{startI_}, j_{startJ_},
-                                                                      labyrinth_{labyrinth}, movements_{0},
-                                                                      state_{0},
-                                                                      enabledTrace_{enabledTrace},
-                                                                      blockingFinish_{blockingFinish}, keptFullTrace_{keptFullTrace}
+                            bool enabledTrace, bool blockingFinish,
+                            bool keptFullTrace) : startI_{startI}, startJ_{startJ},
+                                                  finishI_{finishI}, finishJ_{finishJ},
+                                                  i_{startI_}, j_{startJ_},
+                                                  labyrinth_{labyrinth}, movements_{0},
+                                                  state_{0},
+                                                  enabledTrace_{enabledTrace},
+                                                  blockingFinish_{blockingFinish}, keptFullTrace_{keptFullTrace}
 {
     enableTrace(enabledTrace);
 	
@@ -185,9 +186,9 @@ size_t Labyrinth2d::Player::move(Direction direction, size_t movements, size_t o
 
 			bool finished{false};
 
-			for (std::size_t i{0}; i < finishI_.size(); ++i)
+            for (std::size_t n{0}; n < finishI_.size(); ++n)
 			{
-				if (i_ == finishI_[i] && j_ == finishJ_[i])
+                if (i_ == finishI_[n] && j_ == finishJ_[n])
 				{
 					finished = true;
 					break;
@@ -210,9 +211,9 @@ size_t Labyrinth2d::Player::move(Direction direction, size_t movements, size_t o
 	{
 		bool finished{false};
 		
-		for (std::size_t i{0}; i < finishI_.size(); ++i)
+        for (std::size_t n{0}; n < finishI_.size(); ++n)
 		{
-			if (i_ == finishI_[i] && j_ == finishJ_[i])
+            if (i_ == finishI_[n] && j_ == finishJ_[n])
 			{
 				finished = true;
 				break;
@@ -276,7 +277,7 @@ void Labyrinth2d::Player::keepFullTrace(bool keptFullTrace)
 {
     keptFullTrace_ = keptFullTrace;
 	
-	if (!keepFullTrace_)
+    if (!keptFullTrace_)
 		fullTrace_.clear();
 }
 
@@ -373,7 +374,7 @@ void Labyrinth2d::Player::stopSolving()
     state_ |= StoppedSolving;
 }
 
-std::vector<std::pair<size_t, size_t> > const& Labyrinth3d::fullTrace() const
+std::vector<std::pair<size_t, size_t> > const& Labyrinth2d::Player::fullTrace() const
 {
 	return fullTrace_;
 }

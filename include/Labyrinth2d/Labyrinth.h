@@ -80,12 +80,12 @@ namespace Labyrinth2d
             /*!
              *  \return A constant reference to the grid representing the cells
              */
-            Grid const& grid() const;
+            Grid<bool> const& grid() const;
 
             /*!
              *  \return A reference to the grid representing the cells
              */
-            Grid& grid();
+            Grid<bool>& grid();
 			
             /*!
              *  \brief Add a player in the labyrinth
@@ -159,7 +159,7 @@ namespace Labyrinth2d
             void stopPlayerSolving();
 
         private:
-            Grid grid_;
+            Grid<bool> grid_;
             unsigned int state_;
             std::chrono::milliseconds generationDuration_;
             std::map<size_t, std::unique_ptr<Player> > players_;
@@ -186,11 +186,11 @@ void Labyrinth2d::Labyrinth::generate(URG& g, Algorithm& algorithm, size_t opera
     if (!(state_ & Initialized))
     {
         state_ |= Initialized;
-        grid_ = Grid(*this, grid_.rows(), grid_.columns());
+        grid_ = Grid<bool>(*this, grid_.rows(), grid_.columns());
         generationDuration_ = std::chrono::milliseconds();
     }
 
-    Grid::SubGrid subGrid(grid_, Grid::SubGrid::SetAndReset);
+    SubGrid<bool> subGrid(grid_, SubGrid<bool>::SetAndReset);
 
     auto const t(std::chrono::steady_clock::now());
 
@@ -201,7 +201,7 @@ void Labyrinth2d::Labyrinth::generate(URG& g, Algorithm& algorithm, size_t opera
     catch (Labyrinth2d::Algorithm::TimeoutException const&)
     {
         state_ = Initialized;
-        grid_ = Grid(*this, grid_.rows(), grid_.columns());
+        grid_ = Grid<bool>(*this, grid_.rows(), grid_.columns());
 
         for (auto& p : players_)
             p.second->restart();
@@ -236,11 +236,11 @@ void Labyrinth2d::Labyrinth::generate(URG1& g1, URG2& g2, PerfectAlgorithm& perf
     if (!(state_ & Initialized))
     {
         state_ |= Initialized;
-        grid_ = Grid(*this, grid_.rows(), grid_.columns());
+        grid_ = Grid<bool>(*this, grid_.rows(), grid_.columns());
         generationDuration_ = std::chrono::milliseconds();
     }
 
-    Grid::SubGrid perfectSubGrid(grid_, Grid::SubGrid::SetAndReset);
+    SubGrid<bool> perfectSubGrid(grid_, SubGrid<bool>::SetAndReset);
 
     auto const t(std::chrono::steady_clock::now());
 
@@ -251,7 +251,7 @@ void Labyrinth2d::Labyrinth::generate(URG1& g1, URG2& g2, PerfectAlgorithm& perf
     catch (Labyrinth2d::Algorithm::TimeoutException const&)
     {
         state_ = Initialized;
-        grid_ = Grid(*this, grid_.rows(), grid_.columns());
+        grid_ = Grid<bool>(*this, grid_.rows(), grid_.columns());
 
         for (auto& p : players_)
             p.second->restart();
@@ -259,7 +259,7 @@ void Labyrinth2d::Labyrinth::generate(URG1& g1, URG2& g2, PerfectAlgorithm& perf
         throw;
     }
 
-    Grid::SubGrid degenerativeSubGrid(grid_, Grid::SubGrid::Reset);
+    SubGrid<bool> degenerativeSubGrid(grid_, SubGrid<bool>::Reset);
 
     if (timeout != nullptr)
     {
@@ -273,7 +273,7 @@ void Labyrinth2d::Labyrinth::generate(URG1& g1, URG2& g2, PerfectAlgorithm& perf
         catch (Labyrinth2d::Algorithm::TimeoutException const&)
         {
             state_ = Initialized;
-            grid_ = Grid(*this, grid_.rows(), grid_.columns());
+            grid_ = Grid<bool>(*this, grid_.rows(), grid_.columns());
 
             for (auto& p : players_)
                 p.second->restart();

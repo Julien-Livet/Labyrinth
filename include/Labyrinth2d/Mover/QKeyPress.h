@@ -32,6 +32,7 @@ namespace Labyrinth2d
                                                                  Qt::Key_Left, Qt::Key_Down,
                                                                  Qt::Key_Backspace},
                           QObject* parent = 0);
+                bool filter(QEvent* event);
 
             protected:
                 virtual bool eventFilter(QObject* object, QEvent* event);

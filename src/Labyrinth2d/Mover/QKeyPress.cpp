@@ -14,9 +14,8 @@ Labyrinth2d::Mover::QKeyPress::QKeyPress(Labyrinth& labyrinth_, size_t playerId_
 {
 }
 
-bool Labyrinth2d::Mover::QKeyPress::eventFilter(QObject* object, QEvent* event)
+bool Labyrinth2d::Mover::QKeyPress::filter(QEvent* event)
 {
-    assert(object != 0);
     assert(event != 0);
 
     if (event->type() == QEvent::KeyPress)
@@ -40,6 +39,19 @@ bool Labyrinth2d::Mover::QKeyPress::eventFilter(QObject* object, QEvent* event)
             return true;
         }
     }
+
+    return false;
+}
+
+bool Labyrinth2d::Mover::QKeyPress::eventFilter(QObject* object, QEvent* event)
+{
+    assert(object != 0);
+    assert(event != 0);
+
+    bool const result{filter(event)};
+
+    if (result)
+        return true;
 
     return QObject::eventFilter(object, event);
 }

@@ -56,18 +56,20 @@ Labyrinth2d::Player& Labyrinth2d::Labyrinth::player(size_t id)
     return *players_.at(id);
 }
 
-Labyrinth2d::Grid const& Labyrinth2d::Labyrinth::grid() const
+Labyrinth2d::Grid<bool> const& Labyrinth2d::Labyrinth::grid() const
 {
     return grid_;
 }
 
-Labyrinth2d::Grid& Labyrinth2d::Labyrinth::grid()
+Labyrinth2d::Grid<bool>& Labyrinth2d::Labyrinth::grid()
 {
     return grid_;
 }
 
 size_t Labyrinth2d::Labyrinth::addPlayer(size_t startRow, size_t startColumn,
-                                         std::vector<size_t> const& finishRows, std::vector<size_t> const& finishColumns, bool enabledTrace, bool blockingFinish, bool keptFullTrace = false)
+                                         std::vector<size_t> const& finishRows,
+                                         std::vector<size_t> const& finishColumns,
+                                         bool enabledTrace, bool blockingFinish, bool keptFullTrace)
 {
     if (startRow >= grid_.rows() || startColumn >= grid_.columns())
         throw std::invalid_argument("Invalid start");

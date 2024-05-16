@@ -106,7 +106,7 @@ Labyrinth3d::Algorithm::Recursive<Algorithm>::Recursive(Algorithm& algorithm,
 template <class Algorithm>
 size_t Labyrinth3d::Algorithm::Recursive<Algorithm>::divisionProbabilityPercentage() const
 {
-    return divisionProbabilityPercentage_();
+    return divisionProbabilityPercentage_;
 }
 
 template <class Algorithm>

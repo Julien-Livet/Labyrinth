@@ -60,7 +60,7 @@ void Labyrinth2d::Solver::Blind::operator()(URNG& g, Player& player, size_t fini
 {
     auto const t(std::chrono::steady_clock::now());
 
-    Grid const& grid(player.labyrinth().grid());
+    auto const& grid(player.labyrinth().grid());
 
     enum CellState
     {
@@ -132,7 +132,7 @@ void Labyrinth2d::Solver::Blind::operator()(URNG& g, Player& player, size_t fini
                                                            std::make_pair(Down, Up),
                                                            std::make_pair(Left, Right)};
 
-    while (!(player.state() & Player::Finished) && player.i() != player.finishI()[finishIndex] && player.j() != player.finishJ()[finishIndex] && (!movements || (operations < movements)))
+    while (!(player.state() & Player::Finished) && !(player.i() == player.finishI()[finishIndex] && player.j() == player.finishJ()[finishIndex]) && (!movements || (operations < movements)))
     {
         if (player.state() & Player::StoppedSolving)
             return;
