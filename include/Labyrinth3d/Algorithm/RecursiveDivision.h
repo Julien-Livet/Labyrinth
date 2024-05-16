@@ -63,7 +63,7 @@ void Labyrinth3d::Algorithm::RecursiveDivision::operator()(URNG& g, Grid::SubGri
     {
         size_t const l(history.size() - 1);//g() % history.size());
 
-        auto const& t(history[l]);
+        auto const t(history[l]);
         size_t const h(std::get<3>(t) - std::get<0>(t) + 1);
         size_t const w(std::get<4>(t) - std::get<1>(t) + 1);
         size_t const d(std::get<5>(t) - std::get<2>(t) + 1);
