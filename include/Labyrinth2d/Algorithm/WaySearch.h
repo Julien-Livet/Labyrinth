@@ -9,9 +9,8 @@
  *  \date 20/01/2016
  */
 
-#include <vector>
-#include <thread>
 #include <chrono>
+#include <vector>
 
 #include "../Grid.h"
 #include "../Labyrinth.h"
@@ -55,12 +54,15 @@ namespace Labyrinth2d
              *
              *  \param g: uniform random number generator
              *  \param subGrid: sub-grid of labyrinth grid
+             *  \param sleep: sleep function
              *  \param operationsCycle: number of operations in each cycle
              *  \param cyclePause: pause time between each cycle
              *  \param timeout: time before to abort generation
              */
             template <class URNG>
-            void operator()(URNG& g, SubGrid<bool> const& subGrid, size_t operationsCycle = 0,
+            void operator()(URNG& g, SubGrid<bool> const& subGrid,
+                            std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
+                            size_t operationsCycle = 0,
                             std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                             std::chrono::milliseconds const* timeout = nullptr);
         };
@@ -69,6 +71,7 @@ namespace Labyrinth2d
 
 template <class URNG>
 void Labyrinth2d::Algorithm::WaySearch::operator()(URNG& g, SubGrid<bool> const& subGrid,
+                                                   std::function<void(std::chrono::milliseconds)> const& sleep,
                                                    size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
                                                    std::chrono::milliseconds const* timeout)
 {
@@ -217,10 +220,8 @@ void Labyrinth2d::Algorithm::WaySearch::operator()(URNG& g, SubGrid<bool> const&
         if (subGrid.grid().labyrinth().state() & Labyrinth::StopGenerating)
             return;
 
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
         if (operationsCycle && cyclePause.count() && !(openedWalls % operationsCycle))
-            std::this_thread::sleep_for(cyclePause);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
+            sleep(cyclePause);
 
         if (timeout != nullptr)
             if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) > *timeout)

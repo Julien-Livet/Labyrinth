@@ -9,10 +9,9 @@
  *  \date 20/01/2016
  */
 
-#include <vector>
-#include <stdexcept>
-#include <thread>
 #include <chrono>
+#include <stdexcept>
+#include <vector>
 
 #include "../Grid.h"
 #include "../Labyrinth.h"

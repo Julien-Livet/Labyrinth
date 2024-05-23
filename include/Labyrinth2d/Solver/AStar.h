@@ -9,15 +9,15 @@
  *  \date 20/01/2016
  */
 
-#include <vector>
-#include <thread>
 #include <chrono>
+#include <functional>
 #include <set>
 #include <stack>
 #include <stdexcept>
+#include <vector>
 
-#include "../Player.h"
 #include "../Labyrinth.h"
+#include "../Player.h"
 #include "FailureException.h"
 #include "TimeoutException.h"
 
@@ -38,6 +38,7 @@ namespace Labyrinth2d
              *
              *  \param g: uniform random number generator
              *  \param player: player to solve
+             *  \param sleep: sleep function
              *  \param finishIndex: finish index to reach
              *  \param movements: movements done by the player (0 for a complete resolution if possible)
              *  \param operationsCycle: number of operations in each cycle
@@ -45,7 +46,9 @@ namespace Labyrinth2d
              *  \param timeout: time before to abort solving
              */
             template <class URNG>
-            void operator()(URNG& g, Player& player, size_t finishIndex = 0, size_t movements = 0, size_t operationsCycle = 0,
+            void operator()(URNG& g, Player& player,
+                            std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
+                            size_t finishIndex = 0, size_t movements = 0, size_t operationsCycle = 0,
                             std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                             std::chrono::milliseconds const* timeout = nullptr);
         };
@@ -53,7 +56,9 @@ namespace Labyrinth2d
 }
 
 template <class URNG>
-void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player, size_t finishIndex, size_t movements,
+void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player,
+                                            std::function<void(std::chrono::milliseconds)> const& sleep,
+                                            size_t finishIndex, size_t movements,
                                             size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
                                             std::chrono::milliseconds const* timeout)
 {
@@ -159,10 +164,8 @@ void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player, size_t finish
                 if (player.state() & Player::StoppedSolving)
                     return;
 
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
                 if (operationsCycle && cyclePause.count() && !(operations % operationsCycle))
-                    std::this_thread::sleep_for(cyclePause);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
+                    sleep(cyclePause);
 
                 if (timeout != nullptr)
                     if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) > *timeout)
@@ -177,18 +180,18 @@ void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player, size_t finish
                 if (closedList[i].first == player.i())
                 {
                     if (closedList[i].second > player.j())
-                        player.move(Right);
+                        player.move(Right, sleep);
                     else if (closedList[i].second < player.j())
-                        player.move(Left);
+                        player.move(Left, sleep);
                     else
                         --operations;
                 }
                 else
                 {
                     if (closedList[i].first > player.i())
-                        player.move(Down);
+                        player.move(Down, sleep);
                     else if (closedList[i].first < player.i())
-                        player.move(Up);
+                        player.move(Up, sleep);
                     else
                         --operations;
                 }

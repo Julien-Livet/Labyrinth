@@ -10,6 +10,7 @@
   </qresource>
   <qresource prefix="Musiques" >
     <file>./resources/Animation.mid</file>
+    <file>./resources/Animation.mp3</file>
   </qresource>
   <qresource prefix="Traductions" >
     <file>./qt_de.qm</file>

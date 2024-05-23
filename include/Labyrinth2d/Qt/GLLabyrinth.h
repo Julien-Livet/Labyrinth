@@ -3,13 +3,14 @@
 
 #include <QKeyEvent>
 #include <QtOpenGLWidgets/QOpenGLWidget>
+#include <QOpenGLFunctions>
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <GL/gl.h>
 
 #include "Labyrinth2d/Labyrinth.h"
 
-class GLLabyrinth : public QOpenGLWidget
+class GLLabyrinth : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 
@@ -26,6 +27,8 @@ class GLLabyrinth : public QOpenGLWidget
         GLdouble getYCamera() const;
         GLdouble getZCamera() const;
         GLdouble getAngleRotationZCamera() const;
+        void setTypeResolution(unsigned int type);
+        unsigned getTypeResolution() const;
 
     signals:
         void deplacementJoueur(int dx, int dy);
@@ -58,23 +61,25 @@ class GLLabyrinth : public QOpenGLWidget
         QTimer* timerResolution;
         double pasAngle;
         double pasDistance;
+        unsigned int typeResolution_;
         void dessinerMurEntreeSortie(int x, int y);
         void libererTextures();
         bool routineDeplacement();
+        void loadTexture(QImage const& image, GLuint& id);
 
     private slots:
         void toucheAppuyee();
         void resolutionLabyrinthe();
 
     protected:
-        void initializeGL();
-        void paintGL();
-        void resizeGL(int width, int height);
-        void keyPressEvent(QKeyEvent* event);
-        void keyReleaseEvent(QKeyEvent* event);
-        void mousePressEvent(QMouseEvent* event);
-        void mouseMoveEvent(QMouseEvent* event);
-        void wheelEvent(QWheelEvent* event);
+        void initializeGL() override;
+        void paintGL() override;
+        void resizeGL(int width, int height) override;
+        void keyPressEvent(QKeyEvent* event) override;
+        void keyReleaseEvent(QKeyEvent* event) override;
+        void mousePressEvent(QMouseEvent* event) override;
+        void mouseMoveEvent(QMouseEvent* event) override;
+        void wheelEvent(QWheelEvent* event) override;
 };
 
 #endif // GLLABYRINTH_H

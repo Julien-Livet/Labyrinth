@@ -9,9 +9,9 @@
  *  \date 20/01/2016
  */
 
-#include <vector>
 #include <chrono>
-#include <thread>
+#include <functional>
+#include <vector>
 
 #include "Grid.h"
 #include "utility.h"
@@ -124,13 +124,16 @@ namespace Labyrinth2d
              *  \brief Move in a direction
              *
              *  \param direction: the movement direction
+             *  \param sleep: sleep function
              *  \param movements: the number of movements in this direction
              *  \param operationsCycle: number of operations in each cycle
              *  \param cyclePause: pause time between each cycle
              *
              *  \return The accomplished movements in the considered direction
              */
-            size_t move(Direction direction, size_t movements = 1, size_t operationsCycle = 0,
+            size_t move(Direction direction,
+                        std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
+                        size_t movements = 1, size_t operationsCycle = 0,
                         std::chrono::milliseconds cyclePause = std::chrono::milliseconds(0));
 
             /*!
@@ -194,20 +197,23 @@ namespace Labyrinth2d
             /*!
              *  \brief Step back the player if trace is enabled
              *
+             *  \param sleep: sleep function
              *  \param movements: the number of movements executed
              *  \param operationsCycle: number of operations in each cycle
              *  \param cyclePause: pause time between each cycle
              *
              *  \return Effective step back movements
              */
-            size_t stepBack(size_t movements = 1, size_t operationsCycle = 0,
-                            std::chrono::milliseconds cyclePause = std::chrono::milliseconds(0));
+            size_t stepBack(std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
+                            size_t movements = 1, size_t operationsCycle = 0,
+                            std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0));
 
             /*!
              *  \brief Solve the player in his labyrinth by finding his finish
              *
              *  \param g: uniform random number generator
              *  \param solver: solver which moves the player to reach his finish
+             *  \param sleep: sleep function
              *  \param finishIndex: finish index to reach
              *  \param movements: the number of movements executed by the solver
              *  \param operationsCycle: number of operations in each cycle
@@ -217,7 +223,9 @@ namespace Labyrinth2d
              *  \return A boolean which is true if the player has reached his finish
              */
             template <class URG, class Solver>
-            bool solve(URG& g, Solver& solver, size_t finishIndex = 0, size_t movements = 0,
+            bool solve(URG& g, Solver& solver,
+                       std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
+                       size_t finishIndex = 0, size_t movements = 0,
                        size_t operationsCycle = 0, std::chrono::milliseconds cyclePause = std::chrono::milliseconds(0),
                        std::chrono::milliseconds const* timeout = nullptr);
 
@@ -266,7 +274,9 @@ namespace Labyrinth2d
 #include "Solver/TimeoutException.h"
 
 template <class URG, class Solver>
-bool Labyrinth2d::Player::solve(URG& g, Solver& solver, size_t finishIndex, size_t movements,
+bool Labyrinth2d::Player::solve(URG& g, Solver& solver,
+                                std::function<void(std::chrono::milliseconds)> const& sleep,
+                                size_t finishIndex, size_t movements,
                                 size_t operationsCycle, std::chrono::milliseconds cyclePause,
                                 std::chrono::milliseconds const* timeout)
 {
@@ -289,9 +299,7 @@ bool Labyrinth2d::Player::solve(URG& g, Solver& solver, size_t finishIndex, size
             return false;
         }
 
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
-        std::this_thread::sleep_for(dummyThreadSpleepingDuration);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
+        sleep(dummyThreadSpleepingDuration);
     }
 
     if (state_ & StoppedSolving)
@@ -305,7 +313,7 @@ bool Labyrinth2d::Player::solve(URG& g, Solver& solver, size_t finishIndex, size
 
     try
     {
-        solver(g, *this, finishIndex, movements, operationsCycle, cyclePause, timeout);
+        solver(g, *this, sleep, finishIndex, movements, operationsCycle, cyclePause, timeout);
     }
     catch (Labyrinth2d::Solver::FailureException const& e)
     {

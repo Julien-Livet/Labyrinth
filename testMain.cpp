@@ -151,6 +151,15 @@ int main(int argc, char** argv)
     //std::default_random_engine g(156320);
     std::random_device g;*/
 
+    auto const sleep{
+        [] (std::chrono::milliseconds const& ms) -> void
+        {
+#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
+            std::this_thread::sleep_for(ms);
+#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
+        }
+    };
+
     //Labyrinth l(3, 9);
     //Labyrinth l(10, 50);
     Labyrinth l(40, 100);
@@ -177,28 +186,28 @@ int main(int argc, char** argv)
     //l.generate(g, ka, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine,
                                                 Algorithm::Kruskal>,
-                           &l, std::ref(g), std::ref(ka), cycleOperations, cyclePause, nullptr);
+                           &l, std::ref(g), std::ref(ka), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
 */
     //l.generate(g, g, ka, rda, cycleOperations, cyclePause);
 /*
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, std::default_random_engine,
                                                 Algorithm::Kruskal, Algorithm::RandomDegenerative>,
-                           &l, std::ref(g), std::ref(g), std::ref(ka), std::ref(rda), cycleOperations, cyclePause, nullptr);
+                           &l, std::ref(g), std::ref(g), std::ref(ka), std::ref(rda), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
 *//*
     Algorithm::CellFusion cfa;
 
     //l.generate(g, cfa, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::CellFusion>,
-                           &l, std::ref(g), std::ref(cfa), cycleOperations, cyclePause, nullptr);
+                           &l, std::ref(g), std::ref(cfa), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
 *//*
     Algorithm::RecursiveDivision rda;
 
     //l.generate(g, rda, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::RecursiveDivision>,
-                           &l, std::ref(g), std::ref(rda), cycleOperations, cyclePause, nullptr);
+                           &l, std::ref(g), std::ref(rda), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
 */
     Algorithm::WaySearch wsa(Algorithm::WaySearch::DepthFirstSearch);
@@ -207,14 +216,16 @@ int main(int argc, char** argv)
 
     //l.generate(g, wsa, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::WaySearch>,
-                           &l, std::ref(g), std::ref(wsa), cycleOperations, cyclePause, nullptr);
+        &l, std::ref(g), std::ref(wsa),
+        [] (std::chrono::milliseconds const& ms) -> void { std::this_thread::sleep_for(ms); },
+        cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
 /*
     Algorithm::Fractal fa;
 
     //l.generate(g, fa, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::Fractal>,
-                           &l, std::ref(g), std::ref(fa), cycleOperations, cyclePause, nullptr);
+                           &l, std::ref(g), std::ref(fa), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
 *//*
     Algorithm::Kruskal ka;
@@ -225,7 +236,7 @@ int main(int argc, char** argv)
 
     //l.generate(g, r, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::Recursive<Algorithm::Random<Algorithm::Kruskal, Algorithm::Fractal> > >,
-                           &l, std::ref(g), std::ref(r), cycleOperations, cyclePause, nullptr);
+                           &l, std::ref(g), std::ref(r), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
 */
     //th1.join();
@@ -310,12 +321,20 @@ int main(int argc, char** argv)
     Solver::WallHand whsl(Solver::WallHand::Left);
     //Solver::WallHand whsr(Solver::WallHand::Right);
 
-    //l.player(id).solve(g, ass, 0, 0, cycleOperationsSolving, cyclePauseSolving);
+    //l.player(id).solve(g, ass, sleep, 0, 0, cycleOperationsSolving, cyclePauseSolving);
 
-    //std::thread thSolvePlayer1(&Player::solve<std::default_random_engine, Solver::WallHand>, &l.player(player1Id), std::ref(g), std::ref(whsr), 0, cycleOperationsSolving, cyclePauseSolving, nullptr);
-    std::thread thSolvePlayer2(&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player2Id), std::ref(g), std::ref(ass), 0, 0, cycleOperationsSolving, cyclePauseSolving, nullptr);
-    std::thread thSolvePlayer3(&Player::solve<std::default_random_engine, Solver::Blind>, &l.player(player3Id), std::ref(g), std::ref(bs), 0, 0, cycleOperationsSolving, cyclePauseSolving, nullptr);
-    std::thread thSolvePlayer4(&Player::solve<std::default_random_engine, Solver::WallHand>, &l.player(player4Id), std::ref(g), std::ref(whsl), 0, 0, cycleOperationsSolving, cyclePauseSolving, nullptr);
+    /*std::thread thSolvePlayer1(&Player::solve<std::default_random_engine, Solver::WallHand>, &l.player(player1Id),
+                                 std::ref(g), std::ref(whsr), sleep, 0, 0,
+                                 cycleOperationsSolving, cyclePauseSolving, nullptr);*/
+    std::thread thSolvePlayer2(&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player2Id),
+                               std::ref(g), std::ref(ass), sleep, 0, 0,
+                               cycleOperationsSolving, cyclePauseSolving, nullptr);
+    std::thread thSolvePlayer3(&Player::solve<std::default_random_engine, Solver::Blind>, &l.player(player3Id),
+                               std::ref(g), std::ref(bs), sleep, 0, 0,
+                               cycleOperationsSolving, cyclePauseSolving, nullptr);
+    std::thread thSolvePlayer4(&Player::solve<std::default_random_engine, Solver::WallHand>, &l.player(player4Id),
+                               std::ref(g), std::ref(whsl), sleep, 0, 0,
+                               cycleOperationsSolving, cyclePauseSolving, nullptr);
 
     //thSolvePlayer1.detach();
     thSolvePlayer2.detach();
@@ -329,11 +348,11 @@ int main(int argc, char** argv)
     //Solver::WallHand whs(Solver::WallHand::Right);
     Solver::WallHandwhs(Solver::WallHand::Left);
 
-    l.player(id).solve(g, whs, 0, 0, cycleOperationsSolving, cyclePauseSolving);
+    l.player(id).solve(g, whs, 0, 0, sleep, cycleOperationsSolving, cyclePauseSolving);
 *//*
     Solver::Blind bs;
 
-    l.player(id).solve(g, bs, 0, 0, cycleOperationsSolving, cyclePauseSolving);
+    l.player(id).solve(g, bs, 0, 0, sleep, cycleOperationsSolving, cyclePauseSolving);
 */
     //th2.join();
 /*

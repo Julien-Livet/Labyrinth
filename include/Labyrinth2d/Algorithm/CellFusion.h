@@ -11,7 +11,6 @@
 
 #include <chrono>
 #include <functional>
-#include <thread>
 #include <vector>
 
 #include "../Grid.h"
@@ -41,12 +40,15 @@ namespace Labyrinth2d
              *
              *  \param g: uniform random number generator
              *  \param subGrid: sub-grid of labyrinth grid
+             *  \param sleep: sleep function
              *  \param operationsCycle: number of operations in each cycle
              *  \param cyclePause: pause time between each cycle
              *  \param timeout: time before to abort generation
              */
             template <class URNG>
-            void operator()(URNG& g, SubGrid<bool> const& subGrid, size_t operationsCycle = 0,
+            void operator()(URNG& g, SubGrid<bool> const& subGrid,
+                            std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
+                            size_t operationsCycle = 0,
                             std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                             std::chrono::milliseconds const* timeout = nullptr);
         };
@@ -55,40 +57,17 @@ namespace Labyrinth2d
 
 template <class URNG>
 void Labyrinth2d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const& subGrid,
+                                                    std::function<void(std::chrono::milliseconds)> const& sleep,
                                                     size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
                                                     std::chrono::milliseconds const* timeout)
 {
     Grid<std::size_t> grid{subGrid.grid().labyrinth(), subGrid.rows(), subGrid.columns()};
-	
+
     auto const t(std::chrono::steady_clock::now());
 
     size_t const height(subGrid.height());
     size_t const width(subGrid.width());
-/**
-    for (size_t i(0); i < height; ++i)
-    {
-        for (size_t j(0); j < width; ++j)
-            grid.reset(i, j);
-    }
 
-    for (size_t y = 0; y < height; y += 2)
-    {
-        for (size_t x = 0; x < width; x++)
-        {
-            grid.change(y, x, 1);
-            //subGrid.set(y, x);
-        }
-    }
-
-    for (size_t x = 0; x < width; x += 2)
-    {
-        for (size_t y = 0; y < height; y++)
-        {
-            grid.change(y, x, 1);
-            //subGrid.set(y, x);
-        }
-    }
-**/
     for (size_t i(1); i < height - 3; i += 2)
     {
         for (size_t j(2); j < width - 1; j += 2)
@@ -145,10 +124,8 @@ void Labyrinth2d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
         if (grid.labyrinth().state() & Labyrinth::StopGenerating)
             return;
 
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
         if (operationsCycle && cyclePause.count() && !(openedDoorNumber % operationsCycle))
-            std::this_thread::sleep_for(cyclePause);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
+            sleep(cyclePause);
 
         if (timeout != nullptr)
             if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) > *timeout)
@@ -165,7 +142,7 @@ void Labyrinth2d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
                 d = -4 * (g() % 2) + 2;
                 if (x + d >= 0 && x + d < static_cast<int>(width))
                 {
-                    if (subGrid.at(y, x) != subGrid.at(y, x + d))
+                    if (grid.at(y, x) != grid.at(y, x + d))
                     {
                         fill(x, y, d, 0);
                         ++openedDoorNumber;
@@ -194,10 +171,8 @@ void Labyrinth2d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
 				if (grid.labyrinth().state() & Labyrinth::StopGenerating)
 					return;
 
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
                 if (operationsCycle && cyclePause.count() && !(openedDoorNumber % operationsCycle))
-					std::this_thread::sleep_for(cyclePause);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
+                    sleep(cyclePause);
 
                 if (timeout != nullptr)
                     if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) > *timeout)
@@ -223,10 +198,8 @@ void Labyrinth2d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
 					if (grid.labyrinth().state() & Labyrinth::StopGenerating)
 						return;
 
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
                     if (operationsCycle && cyclePause.count() && !(openedDoorNumber % operationsCycle))
-						std::this_thread::sleep_for(cyclePause);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
+                        sleep(cyclePause);
 
                     if (timeout != nullptr)
                         if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) > *timeout)

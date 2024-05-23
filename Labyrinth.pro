@@ -8,7 +8,7 @@ QMAKE_CXXFLAGS += -std=c++17 -pipe
 
 QT += core gui
 
-greaterThan(QT_MAJOR_VERSION, 5): QT += widgets printsupport multimedia opengl
+greaterThan(QT_MAJOR_VERSION, 5): QT += widgets printsupport multimedia opengl openglwidgets testlib
 
 CONFIG(debug, debug|release) {
     TARGET = Labyrinthd
@@ -34,6 +34,7 @@ INCLUDEPATH += include \
 
 SOURCES += \
     main.cpp \
+    src/Labyrinth2d/Algorithm/CellFusion.cpp \
     src/Labyrinth2d/Algorithm/Kruskal.cpp \
     src/Labyrinth2d/Algorithm/RandomDegenerative.cpp \
     src/Labyrinth2d/Algorithm/TimeoutException.cpp \

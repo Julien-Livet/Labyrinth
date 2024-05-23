@@ -14,6 +14,7 @@
 
 #include "Labyrinth2D/Labyrinth.h"
 #include "Labyrinth2d/Mover/QKeyPress.h"
+#include "Labyrinth2d/Renderer/QPainter.h"
 
 class GLLabyrinth;
 
@@ -132,8 +133,12 @@ class QLabyrinth : public QWidget
         void setTextureFond(const Texture &texture);
         bool getPartieEnCours() const;
         bool getPartieEnPause() const;
-        QSize getTailleCase() const;
+        QSize const& getTailleCase() const;
         void setTailleCase(const QSize &taille);
+        QSize const& waysSize() const;
+        void setWaysSize(const QSize &waysSize);
+        QSize const& wallsSize() const;
+        void setWallsSize(const QSize &wallsSize);
         Niveau getNiveau() const;
         void nouveau(Niveau n, int longueurLabyrinthe = 5, int largeurLabyrinthe = 5, Algorithme a = FirstDepthSearch, TypeLabyrinthe type = Labyrinthe2D, FormeLabyrinthe forme = Rectangle, ModeLabyrinthe *mode = 0);
         void recommencer();
@@ -161,6 +166,8 @@ class QLabyrinth : public QWidget
         void rafraichir();
         void arreterResolution();
         bool getArretResolution() const;
+        void setTypeResolution(unsigned int type);
+        unsigned getTypeResolution() const;
 
     signals:
         void partieCommencee();
@@ -195,6 +202,8 @@ class QLabyrinth : public QWidget
         bool partieEnPause;
         bool enConstruction;
         QSize tailleCase;
+        QSize wallsSize_;
+        QSize waysSize_;
         QScrollArea *scrollArea;
         QMenu *menu;
         bool full;
@@ -254,6 +263,9 @@ class QLabyrinth : public QWidget
         bool quitter;
         bool arretResolution;
         GLLabyrinth *glLabyrinth;
+        Labyrinth2d::Renderer::QPainter* qPainterRenderer_;
+        QSize previousSize_;
+        unsigned int typeResolution_;
         bool resoudre(int nombreFois);
         void construireAncienBis();
         void construireAncien();

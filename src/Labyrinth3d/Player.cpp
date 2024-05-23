@@ -1,4 +1,3 @@
-#include <thread>
 #include <cassert>
 
 #include "Labyrinth3d/Player.h"
@@ -33,13 +32,7 @@ Labyrinth3d::Player::Player(Labyrinth const& labyrinth,
 Labyrinth3d::Player::~Player()
 {
     while (state_ & Solving)
-    {
         stopSolving();
-
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
-        std::this_thread::sleep_for(dummyThreadSpleepingDuration);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
-    }
 }
 
 size_t Labyrinth3d::Player::startI() const
@@ -165,139 +158,6 @@ std::chrono::milliseconds const& Labyrinth3d::Player::solvingDuration() const
     return solvingDuration_;
 }
 
-size_t Labyrinth3d::Player::move(Direction direction, size_t movements, size_t operationsCycle, std::chrono::milliseconds cyclePause)
-{
-    if ((labyrinth_.state() & Labyrinth::Generating) || (blockingFinish_ && (state_ & Finished)) || (state_ & Moving))
-        return 0;
-
-    state_ |= Moving;
-
-    size_t const i(i_);
-    size_t const j(j_);
-    size_t const k(k_);
-
-    size_t realizedMovements(0);
-
-    while (movements)
-    {
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
-        if (operationsCycle && cyclePause.count() && !(realizedMovements % operationsCycle))
-            std::this_thread::sleep_for(cyclePause);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
-
-        size_t const iTmp(i_);
-        size_t const jTmp(j_);
-        size_t const kTmp(k_);
-
-        switch (direction)
-        {
-            case Front:
-                --i_;
-                break;
-
-            case Right:
-                ++j_;
-                break;
-
-            case Back:
-                ++i_;
-                break;
-
-            case Left:
-                --j_;
-                break;
-
-            case Up:
-                --k_;
-                break;
-
-            case Down:
-                ++k_;
-                break;
-        }
-
-        if (labyrinth_.grid()(i_, j_, k_))
-        {
-            i_ = iTmp;
-            j_ = jTmp;
-            k_ = kTmp;
-            break;
-        }
-        else
-        {
-			if (keptFullTrace_)
-                fullTrace_.emplace_back(std::make_tuple(iTmp, jTmp, kTmp));
-
-            ++realizedMovements;
-            --movements;
-
-			bool finished{false};
-
-            for (std::size_t n{0}; n < finishI_.size(); ++n)
-			{
-                if (i_ == finishI_[n] && j_ == finishJ_[n] && k_ == finishK_[n])
-				{
-					finished = true;
-					break;
-				}
-			}
-                
-			if (finished)
-				break;
-        }
-    }
-
-    if (!(state_ & Started))
-    {
-        startTime_ = std::chrono::steady_clock::now();
-
-        state_ |= Started;
-    }
-
-	if (!(state_ & Finished))
-	{
-		bool finished{false};
-
-        for (std::size_t n{0}; n < finishI_.size(); ++n)
-		{
-            if (i_ == finishI_[n] && j_ == finishJ_[n] && k_ == finishK_[n])
-			{
-				finished = true;
-				break;
-			}
-		}
-	
-		if (finished)
-		{
-			state_ |= Finished;
-			finishingDuration_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime_);
-		}
-    }
-
-    movements_ += realizedMovements;
-
-    if (!traceIntersections_.empty())
-    {
-        if (std::get<0>(traceIntersections_.back()) == i_
-            && std::get<1>(traceIntersections_.back()) == j_
-            && std::get<2>(traceIntersections_.back()) == k_)
-            traceIntersections_.pop_back();
-        else
-        {
-            if ((std::get<0>(traceIntersections_.back()) == i && i != i_)
-                || (std::get<1>(traceIntersections_.back()) == j && j != j_)
-                || (std::get<2>(traceIntersections_.back()) == k && k != k_))
-                traceIntersections_.push_back(std::make_tuple(i, j, k));
-        }
-    }
-    else
-        traceIntersections_.push_back(std::make_tuple(i, j, k));
-
-    state_ &= ~Moving;
-
-    return realizedMovements;
-}
-
 size_t Labyrinth3d::Player::state() const
 {
     return state_;
@@ -369,17 +229,160 @@ void Labyrinth3d::Player::changeBlockingFinish(bool blockingFinish)
     blockingFinish_ = blockingFinish;
 }
 
-size_t Labyrinth3d::Player::stepBack(size_t movements, size_t operationsCycle, std::chrono::milliseconds cyclePause)
+void Labyrinth3d::Player::stopSolving()
+{
+    state_ |= StoppedSolving;
+}
+
+std::vector<std::tuple<size_t, size_t, size_t> > const& Labyrinth3d::Player::fullTrace() const
+{
+	return fullTrace_;
+}
+
+size_t Labyrinth3d::Player::move(Direction direction,
+                                 std::function<void(std::chrono::milliseconds)> const& sleep,
+                                 size_t movements, size_t operationsCycle, std::chrono::milliseconds cyclePause)
+{
+    if ((labyrinth_.state() & Labyrinth::Generating) || (blockingFinish_ && (state_ & Finished)) || (state_ & Moving))
+        return 0;
+
+    state_ |= Moving;
+
+    size_t const i(i_);
+    size_t const j(j_);
+    size_t const k(k_);
+
+    size_t realizedMovements(0);
+
+    while (movements)
+    {
+        if (operationsCycle && cyclePause.count() && !(realizedMovements % operationsCycle))
+            sleep(cyclePause);
+
+        size_t const iTmp(i_);
+        size_t const jTmp(j_);
+        size_t const kTmp(k_);
+
+        switch (direction)
+        {
+        case Front:
+            --i_;
+            break;
+
+        case Right:
+            ++j_;
+            break;
+
+        case Back:
+            ++i_;
+            break;
+
+        case Left:
+            --j_;
+            break;
+
+        case Up:
+            --k_;
+            break;
+
+        case Down:
+            ++k_;
+            break;
+        }
+
+        if (labyrinth_.grid()(i_, j_, k_))
+        {
+            i_ = iTmp;
+            j_ = jTmp;
+            k_ = kTmp;
+            break;
+        }
+        else
+        {
+            if (keptFullTrace_)
+                fullTrace_.emplace_back(std::make_tuple(iTmp, jTmp, kTmp));
+
+            ++realizedMovements;
+            --movements;
+
+            bool finished{false};
+
+            for (std::size_t n{0}; n < finishI_.size(); ++n)
+            {
+                if (i_ == finishI_[n] && j_ == finishJ_[n] && k_ == finishK_[n])
+                {
+                    finished = true;
+                    break;
+                }
+            }
+
+            if (finished)
+                break;
+        }
+    }
+
+    if (!(state_ & Started))
+    {
+        startTime_ = std::chrono::steady_clock::now();
+
+        state_ |= Started;
+    }
+
+    if (!(state_ & Finished))
+    {
+        bool finished{false};
+
+        for (std::size_t n{0}; n < finishI_.size(); ++n)
+        {
+            if (i_ == finishI_[n] && j_ == finishJ_[n] && k_ == finishK_[n])
+            {
+                finished = true;
+                break;
+            }
+        }
+
+        if (finished)
+        {
+            state_ |= Finished;
+            finishingDuration_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime_);
+        }
+    }
+
+    movements_ += realizedMovements;
+
+    if (!traceIntersections_.empty())
+    {
+        if (std::get<0>(traceIntersections_.back()) == i_
+            && std::get<1>(traceIntersections_.back()) == j_
+            && std::get<2>(traceIntersections_.back()) == k_)
+            traceIntersections_.pop_back();
+        else
+        {
+            if ((std::get<0>(traceIntersections_.back()) == i && i != i_)
+                || (std::get<1>(traceIntersections_.back()) == j && j != j_)
+                || (std::get<2>(traceIntersections_.back()) == k && k != k_))
+                traceIntersections_.push_back(std::make_tuple(i, j, k));
+        }
+    }
+    else
+        traceIntersections_.push_back(std::make_tuple(i, j, k));
+
+    state_ &= ~Moving;
+
+    return realizedMovements;
+}
+
+size_t Labyrinth3d::Player::stepBack(std::function<void(std::chrono::milliseconds)> const& sleep,
+                                     size_t movements, size_t operationsCycle,
+                                     std::chrono::milliseconds const& cyclePause)
 {
     size_t operations(0);
 
     while ((!(state_ & Player::Finished) || !blockingFinish_)
            && !traceIntersections_.empty() && (!movements || (operations < movements)))
     {
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
-                if (operationsCycle && cyclePause.count() && !(operations % operationsCycle))
-                    std::this_thread::sleep_for(cyclePause);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
+        if (operationsCycle && cyclePause.count() && !(operations % operationsCycle))
+            sleep(cyclePause);
 
         if (i_ == std::get<0>(traceIntersections_.back())
             && j_ == std::get<1>(traceIntersections_.back())
@@ -440,19 +443,9 @@ size_t Labyrinth3d::Player::stepBack(size_t movements, size_t operationsCycle, s
         else
             assert(0);
 
-        if (move(direction))
+        if (move(direction, sleep))
             ++operations;
     }
 
     return operations;
-}
-
-void Labyrinth3d::Player::stopSolving()
-{
-    state_ |= StoppedSolving;
-}
-
-std::vector<std::tuple<size_t, size_t, size_t> > const& Labyrinth3d::Player::fullTrace() const
-{
-	return fullTrace_;
 }

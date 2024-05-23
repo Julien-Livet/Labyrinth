@@ -10,10 +10,10 @@
  */
 
 #include <array>
-#include <deque>
-#include <vector>
-#include <thread>
 #include <chrono>
+#include <deque>
+#include <functional>
+#include <vector>
 
 #include "../Grid.h"
 #include "../Labyrinth.h"
@@ -36,10 +36,15 @@ namespace Labyrinth3d
                  *
                  *  \param g: uniform random number generator
                  *  \param subGrid: sub-grid of labyrinth grid
+                 *  \param sleep: sleep function
+                 *  \param operationsCycle: number of operations in each cycle
+                 *  \param cyclePause: pause time between each cycle
                  *  \param timeout: time before to abort generation
                  */
                 template <class URNG>
-                void operator()(URNG& g, Grid::SubGrid const& subGrid, size_t /*operationsCycle*/ = 0,
+                void operator()(URNG& g, Grid::SubGrid const& subGrid,
+                                std::function<void(std::chrono::milliseconds)> const& /*sleep*/ = [] (std::chrono::milliseconds const&) -> void {},
+                                size_t /*operationsCycle*/ = 0,
                                 std::chrono::milliseconds const& /*cyclePause*/ = std::chrono::milliseconds(0),
                                 std::chrono::milliseconds const* timeout = nullptr);
 
@@ -53,6 +58,7 @@ namespace Labyrinth3d
 /**
 template <class URNG>
 void Labyrinth3d::Algorithm::Fractal::operator()(URNG& g, Grid::SubGrid const& subGrid,
+                                                 std::function<void(std::chrono::milliseconds)> const& sleep,
                                                  size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
                                                  std::chrono::milliseconds const* timeout)
 {
@@ -134,12 +140,16 @@ void Labyrinth3d::Algorithm::Fractal::operator()(URNG& g, Grid::SubGrid const& s
     }
 
     for (size_t i(0); i < rows.size(); ++i)
+    {
         for (size_t j(1); j < rows[i].size() - 1; ++j)
             subGrid.change(2 * i + 1, 2 * j, rows[i][j]);
+    }
 
     for (size_t j(0); j < columns.size(); ++j)
+    {
         for (size_t i(1); i < columns[j].size() - 1; ++i)
             subGrid.change(2 * i, 2 * j + 1, columns[j][i]);
+    }
 }
 
 template <class URNG>

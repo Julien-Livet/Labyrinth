@@ -44,6 +44,7 @@ class ScrollArea : public QScrollArea
 
             qobject_cast<QLabyrinth *>(widget())->rafraichir();
         }
+
         void mousePressEvent(QMouseEvent *event)
         {
             QWidget::mousePressEvent(event);
@@ -96,7 +97,7 @@ MainWindow::MainWindow()
     bool chrono, labySeulement, ouvertureReussie = false;
     QString mus = MUSIQUE;
 
-    QFile f("Labyrinthe.ini");
+    QFile f("Labyrinth.ini");
 
     if (f.open(QFile::ReadOnly))
     {
@@ -164,6 +165,26 @@ MainWindow::MainWindow()
     actionMettreEnPause->setShortcut(tr("P"));
     actionMettreEnPause->setAutoRepeat(false);
     actionMettreEnPause->setCheckable(true);
+
+    menuAlgorithmesResolution = new QMenu(tr("Algorithme de résol&ution"), this);
+
+    actionsAlgorithmesResolution << new QAction(tr("&A-Star"), this);
+    actionsAlgorithmesResolution << new QAction(tr("Main &droite au mur"), this);
+    actionsAlgorithmesResolution << new QAction(tr("Main &gauche au mur"), this);
+    actionsAlgorithmesResolution << new QAction(tr("A&veugle"), this);
+
+    QActionGroup *actionGroupAlgorithmesResolution = new QActionGroup(this);
+
+    for (int i = 0; i < actionsAlgorithmesResolution.size(); i++)
+    {
+        actionsAlgorithmesResolution[i]->setCheckable(true);
+        actionGroupAlgorithmesResolution->addAction(actionsAlgorithmesResolution[i]);
+        menuAlgorithmesResolution->addAction(actionsAlgorithmesResolution[i]);
+        connect(actionsAlgorithmesResolution[i], SIGNAL(triggered()), this, SLOT(algorithmeResolution()));
+    }
+
+    actionsAlgorithmesResolution[0]->setChecked(true);
+
     actionResoudre = new QAction(tr("&Résoudre"), this);
     actionResoudre->setShortcut(tr("Ctrl+R"));
     actionResolutionProgressive = new QAction(tr("Réso&lution progressive"), this);
@@ -225,32 +246,33 @@ MainWindow::MainWindow()
     menuTypeLabyrinthe->addAction(actionLabyrinthe2D);
     menuTypeLabyrinthe->addAction(actionLabyrinthe2Den3D);
 
-    menuAlgorithmes = new QMenu(tr("&Algorithme"), this);
+    menuAlgorithmesGeneration = new QMenu(tr("&Algorithme de génération"), this);
 
-    actionsAlgorithmes << new QAction(tr("&Recherche en première profondeur"), this);
-    actionsAlgorithmes << new QAction(tr("&Fusion de cellules"), this);
-    actionsAlgorithmes << new QAction(tr("&Division récursive"), this);
-    actionsAlgorithmes << new QAction(tr("Algorithme de &Prim"), this);
-    actionsAlgorithmes << new QAction(tr("Algorithme de &chasse et de tuerie"), this);
-    actionsAlgorithmes << new QAction(tr("Algorithme de l'&arbre croissant"), this);
-    actionsAlgorithmes << new QAction(tr("Algorithme des &fractales"), this);
-    actionsAlgorithmes << new QAction(tr("Algorithme fait-maison n°&1"), this);
-    actionsAlgorithmes << new QAction(tr("Algorithme fait-maison n°&2"), this);
-    actionsAlgorithmes << new QAction(tr("Algorithme fait-maison n°&3"), this);
+    actionsAlgorithmesGeneration << new QAction(tr("&Recherche en première profondeur"), this);
+    actionsAlgorithmesGeneration << new QAction(tr("&Fusion de cellules"), this);
+    actionsAlgorithmesGeneration << new QAction(tr("&Division récursive"), this);
+    actionsAlgorithmesGeneration << new QAction(tr("Algorithme de &Prim"), this);
+    actionsAlgorithmesGeneration << new QAction(tr("Algorithme de &chasse et de tuerie"), this);
+    actionsAlgorithmesGeneration << new QAction(tr("Algorithme de l'&arbre croissant"), this);
+    actionsAlgorithmesGeneration << new QAction(tr("Algorithme des &fractales"), this);/*
+    actionsAlgorithmesGeneration << new QAction(tr("Algorithme fait-maison n°&1"), this);
+    actionsAlgorithmesGeneration << new QAction(tr("Algorithme fait-maison n°&2"), this);
+    actionsAlgorithmesGeneration << new QAction(tr("Algorithme fait-maison n°&3"), this);*/
 
-    QActionGroup *actionGroupAlgorithmes = new QActionGroup(this);
+    QActionGroup *actionGroupAlgorithmesGeneration = new QActionGroup(this);
 
-    for (int i = 0; i < actionsAlgorithmes.size(); i++)
+    for (int i = 0; i < actionsAlgorithmesGeneration.size(); i++)
     {
-        actionsAlgorithmes[i]->setCheckable(true);
-        actionGroupAlgorithmes->addAction(actionsAlgorithmes[i]);
-        menuAlgorithmes->addAction(actionsAlgorithmes[i]);
-        connect(actionsAlgorithmes[i], SIGNAL(triggered()), this, SLOT(algorithme()));
+        actionsAlgorithmesGeneration[i]->setCheckable(true);
+        actionGroupAlgorithmesGeneration->addAction(actionsAlgorithmesGeneration[i]);
+        menuAlgorithmesGeneration->addAction(actionsAlgorithmesGeneration[i]);
+        connect(actionsAlgorithmesGeneration[i], SIGNAL(triggered()), this, SLOT(algorithmeGeneration()));
     }
 
     menuPartie->addAction(actionNouvellePartie);
     menuPartie->addAction(actionRecommencer);
     menuPartie->addAction(actionMettreEnPause);
+    menuPartie->addMenu(menuAlgorithmesResolution);
     menuPartie->addAction(actionResoudre);
     menuPartie->addAction(actionResolutionProgressive);
     menuPartie->addSeparator();
@@ -272,7 +294,7 @@ MainWindow::MainWindow()
     menuPartie->addAction(actionQuitter);
 
     menuOptions->addMenu(menuTypeLabyrinthe);
-    menuOptions->addMenu(menuAlgorithmes);
+    menuOptions->addMenu(menuAlgorithmesResolution);
     menuOptions->addAction(actionModes);
     menuOptions->addSeparator();
     menuOptions->addAction(actionEffacerChemin);
@@ -349,7 +371,7 @@ MainWindow::MainWindow()
 
     setCentralWidget(widget);
 
-    setWindowIcon(QIcon(":/Images/Images/Labyrinthe.ico"));
+    setWindowIcon(QIcon(":/Images/resources/Labyrinthe.ico"));
     setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
 
     connect(actionNouvellePartie, SIGNAL(triggered()), this, SLOT(nouvellePartie()));
@@ -400,6 +422,34 @@ MainWindow::MainWindow()
         chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
         nouveau = false;
 
+        chronometre->setDisabled(labyrinth->getPartieEnCours());
+        chronometre->setChecked(chrono);
+        actionResoudre->setDisabled(labyrinth->getEnResolution());
+        actionMettreEnPause->setDisabled(labyrinth->getPartieTerminee());
+        actionMettreEnPause->setChecked(labyrinth->getPartieEnPause());
+        pauseImposee = labyrinth->getPartieEnPause();
+        actionEffacerChemin->setDisabled(labyrinth->getPartieEnCours());
+        actionEffacerChemin->setChecked(labyrinth->getEffacerChemin());
+        actionResolutionProgressive->setChecked(labyrinth->getResolutionProgressive());
+        actionAfficherTrace->setChecked(labyrinth->getAfficherTrace());
+        actionLabyrintheSeulement->setChecked(labySeulement);
+        if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2D)
+            actionLabyrinthe2D->setChecked(true);
+        else// if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2Den3D)
+            actionLabyrinthe2Den3D->setChecked(true);
+        if (int(labyrinth->getAlgorithme()) < actionsAlgorithmesGeneration.size())
+            actionsAlgorithmesGeneration[int(labyrinth->getAlgorithme())]->setChecked(true);
+        if (labySeulement)
+            labyrintheSeulement();
+
+        if (chronometre->isChecked() && labyrinth->getPartieEnCours() && !pauseImposee)
+        {
+            timer->start();
+            elapsedTimer.start();
+        }
+
+        nouvellePartie();
+
         QString n;
 
         if (labyrinth->getNiveau() == QLabyrinth::Facile)
@@ -424,34 +474,6 @@ MainWindow::MainWindow()
         }
 
         niveau->setText(tr("Niveau : ") + n + tr(" (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
-
-        chronometre->setDisabled(labyrinth->getPartieEnCours());
-        chronometre->setChecked(chrono);
-        actionResoudre->setDisabled(labyrinth->getEnResolution());
-        actionMettreEnPause->setDisabled(labyrinth->getPartieTerminee());
-        actionMettreEnPause->setChecked(labyrinth->getPartieEnPause());
-        pauseImposee = labyrinth->getPartieEnPause();
-        actionEffacerChemin->setDisabled(labyrinth->getPartieEnCours());
-        actionEffacerChemin->setChecked(labyrinth->getEffacerChemin());
-        actionResolutionProgressive->setChecked(labyrinth->getResolutionProgressive());
-        actionAfficherTrace->setChecked(labyrinth->getAfficherTrace());
-        actionLabyrintheSeulement->setChecked(labySeulement);
-        if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2D)
-            actionLabyrinthe2D->setChecked(true);
-        else// if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2Den3D)
-            actionLabyrinthe2Den3D->setChecked(true);
-        if (int(labyrinth->getAlgorithme()) < actionsAlgorithmes.size())
-            actionsAlgorithmes[int(labyrinth->getAlgorithme())]->setChecked(true);
-        if (labySeulement)
-            labyrintheSeulement();
-
-        if (chronometre->isChecked() && labyrinth->getPartieEnCours() && !pauseImposee)
-        {
-            timer->start();
-            elapsedTimer.start();
-        }
-
-        nouvellePartie();
 
         labyrinth->activer();
     }
@@ -498,7 +520,7 @@ MainWindow::MainWindow()
             mediaPlayer->play();
 
         actionLabyrinthe2D->setChecked(true);
-        actionsAlgorithmes.first()->setChecked(true);
+        actionsAlgorithmesGeneration.first()->setChecked(true);
     }
 
     deplacement->setText(tr("Déplacement : ") + QString::number(labyrinth->getNombreDeplacement()));
@@ -563,12 +585,17 @@ void MainWindow::nouvellePartie()
     setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
 
     chronometre->setDisabled(false);
+
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(true);
     actionResoudre->setDisabled(true);
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
     labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(), labyrinth->getLargeur(), labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
 }
@@ -596,6 +623,9 @@ void MainWindow::recommencer()
     pauseImposee = false;
 
     chronometre->setDisabled(false);
+
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
     actionEffacerChemin->setDisabled(false);
@@ -611,6 +641,8 @@ void MainWindow::arreter()
         timer->stop();
     }
 
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(true);
     actionResoudre->setDisabled(true);
     actionMettreEnPause->setDisabled(true);
     pauseImposee = false;
@@ -679,6 +711,8 @@ void MainWindow::mettreEnPause()
 
 void MainWindow::resoudre()
 {
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(true);
     actionResoudre->setDisabled(true);
     actionMettreEnPause->setDisabled(true);
     chronometre->setDisabled(true);
@@ -822,6 +856,8 @@ void MainWindow::facile()
     setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
 
     chronometre->setDisabled(false);
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(true);
     actionResoudre->setDisabled(true);
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
@@ -830,6 +866,8 @@ void MainWindow::facile()
 
     niveau->setText(tr("Niveau : Facile (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
 
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
     adaptationEcran = false;
@@ -865,6 +903,8 @@ void MainWindow::moyen()
     setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
 
     chronometre->setDisabled(false);
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(true);
     actionResoudre->setDisabled(true);
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
@@ -873,6 +913,8 @@ void MainWindow::moyen()
 
     niveau->setText(tr("Niveau : Moyen (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
 
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
     adaptationEcran = false;
@@ -908,6 +950,8 @@ void MainWindow::difficile()
     setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
 
     chronometre->setDisabled(false);
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(true);
     actionResoudre->setDisabled(true);
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
@@ -916,6 +960,8 @@ void MainWindow::difficile()
 
     niveau->setText(tr("Niveau : Difficile (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
 
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
     adaptationEcran = false;
@@ -935,11 +981,11 @@ void MainWindow::personnalise()
     connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), dialog, SLOT(reject()));
     spinBoxLargeur = new QSpinBox(dialog);
     spinBoxLargeur->setSingleStep(2);
-    spinBoxLargeur->setRange(5, 100001);
+    spinBoxLargeur->setRange(2, 5000);
     spinBoxLargeur->setValue(labyrinth->getLargeur());
     spinBoxLongueur = new QSpinBox(dialog);
     spinBoxLongueur->setSingleStep(2);
-    spinBoxLongueur->setRange(5, 100001);
+    spinBoxLongueur->setRange(2, 5000);
     spinBoxLongueur->setValue(labyrinth->getLongueur());
 
     QFormLayout *formLayout = new QFormLayout;
@@ -1029,6 +1075,8 @@ void MainWindow::personnalise()
     setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
 
     chronometre->setDisabled(false);
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(true);
     actionResoudre->setDisabled(true);
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
@@ -1057,6 +1105,8 @@ void MainWindow::personnalise()
 
     niveau->setText(tr("Niveau : ") + n + tr(" (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
 
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
 
@@ -1255,7 +1305,7 @@ void MainWindow::quitter()
         }
     }
 
-    QFile f("Labyrinthe.ini");
+    QFile f("Labyrinth.ini");
 
     if (f.open(QFile::WriteOnly))// | QFile::Truncate
     {
@@ -1309,25 +1359,45 @@ void MainWindow::affichage()
     connect(buttonBox->button(QDialogButtonBox::Reset), SIGNAL(clicked()), this, SLOT(reinitialiserAffichage()));
 
     QGroupBox *groupBoxTaille = new QGroupBox(tr("Taille des cases"), dialog);
-    spinBoxLongueur = new QSpinBox(groupBoxTaille);
-    spinBoxLongueur->setRange(1, 100);
-    spinBoxLongueur->setValue(labyrinth->getTailleCase().width());
-    QPushButton *boutonReinitialiserLongueur = new QPushButton(tr("Réinitialiser"), groupBoxTaille);
-    connect(boutonReinitialiserLongueur, SIGNAL(clicked()), this, SLOT(reinitialiserLongueur()));
-    QHBoxLayout *hBoxLayoutLongueur = new QHBoxLayout;
-    hBoxLayoutLongueur->addWidget(spinBoxLongueur);
-    hBoxLayoutLongueur->addWidget(boutonReinitialiserLongueur);
-    spinBoxLargeur = new QSpinBox(groupBoxTaille);
-    spinBoxLargeur->setRange(1, 100);
-    spinBoxLargeur->setValue(labyrinth->getTailleCase().height());
-    QPushButton *boutonReinitialiserLargeur = new QPushButton(tr("Réinitialiser"), groupBoxTaille);
-    connect(boutonReinitialiserLargeur, SIGNAL(clicked()), this, SLOT(reinitialiserLargeur()));
-    QHBoxLayout *hBoxLayoutLargeur = new QHBoxLayout;
-    hBoxLayoutLargeur->addWidget(spinBoxLargeur);
-    hBoxLayoutLargeur->addWidget(boutonReinitialiserLargeur);
+    spinBoxLongueurChemins = new QSpinBox(groupBoxTaille);
+    spinBoxLongueurChemins->setRange(1, 100);
+    spinBoxLongueurChemins->setValue(labyrinth->waysSize().width());
+    QPushButton *boutonReinitialiserLongueurChemins = new QPushButton(tr("Réinitialiser"), groupBoxTaille);
+    connect(boutonReinitialiserLongueurChemins, SIGNAL(clicked()), this, SLOT(reinitialiserLongueurChemins()));
+    QHBoxLayout *hBoxLayoutLongueurChemins = new QHBoxLayout;
+    hBoxLayoutLongueurChemins->addWidget(spinBoxLongueurChemins);
+    hBoxLayoutLongueurChemins->addWidget(boutonReinitialiserLongueurChemins);
+    spinBoxLargeurChemins = new QSpinBox(groupBoxTaille);
+    spinBoxLargeurChemins->setRange(1, 100);
+    spinBoxLargeurChemins->setValue(labyrinth->waysSize().height());
+    QPushButton *boutonReinitialiserLargeurChemins = new QPushButton(tr("Réinitialiser"), groupBoxTaille);
+    connect(boutonReinitialiserLargeurChemins, SIGNAL(clicked()), this, SLOT(reinitialiserLargeurChemins()));
+    QHBoxLayout *hBoxLayoutLargeurChemins = new QHBoxLayout;
+    hBoxLayoutLargeurChemins->addWidget(spinBoxLargeurChemins);
+    hBoxLayoutLargeurChemins->addWidget(boutonReinitialiserLargeurChemins);
+
+    spinBoxLongueurMurs = new QSpinBox(groupBoxTaille);
+    spinBoxLongueurMurs->setRange(1, 100);
+    spinBoxLongueurMurs->setValue(labyrinth->wallsSize().width());
+    QPushButton *boutonReinitialiserLongueurMurs = new QPushButton(tr("Réinitialiser"), groupBoxTaille);
+    connect(boutonReinitialiserLongueurMurs, SIGNAL(clicked()), this, SLOT(reinitialiserLongueurMurs()));
+    QHBoxLayout *hBoxLayoutLongueurMurs = new QHBoxLayout;
+    hBoxLayoutLongueurMurs->addWidget(spinBoxLongueurMurs);
+    hBoxLayoutLongueurMurs->addWidget(boutonReinitialiserLongueurMurs);
+    spinBoxLargeurMurs = new QSpinBox(groupBoxTaille);
+    spinBoxLargeurMurs->setRange(1, 100);
+    spinBoxLargeurMurs->setValue(labyrinth->wallsSize().height());
+    QPushButton *boutonReinitialiserLargeurMurs = new QPushButton(tr("Réinitialiser"), groupBoxTaille);
+    connect(boutonReinitialiserLargeurMurs, SIGNAL(clicked()), this, SLOT(reinitialiserLargeurMurs()));
+    QHBoxLayout *hBoxLayoutLargeurMurs = new QHBoxLayout;
+    hBoxLayoutLargeurMurs->addWidget(spinBoxLargeurMurs);
+    hBoxLayoutLargeurMurs->addWidget(boutonReinitialiserLargeurMurs);
+
     QFormLayout *formLayout = new QFormLayout;
-    formLayout->addRow(tr("Longueur :"), hBoxLayoutLongueur);
-    formLayout->addRow(tr("Largeur :"), hBoxLayoutLargeur);
+    formLayout->addRow(tr("Longueur des chemins :"), hBoxLayoutLongueurChemins);
+    formLayout->addRow(tr("Largeur des chemins:"), hBoxLayoutLargeurChemins);
+    formLayout->addRow(tr("Longueur des murs :"), hBoxLayoutLongueurMurs);
+    formLayout->addRow(tr("Largeur des murs :"), hBoxLayoutLargeurMurs);
     groupBoxTaille->setLayout(formLayout);
 
     QGroupBox *groupBoxFond = new QGroupBox(tr("Fond"), dialog);
@@ -1520,7 +1590,8 @@ void MainWindow::affichage()
         return;
     }
 
-    labyrinth->setTailleCase(QSize(spinBoxLongueur->value(), spinBoxLargeur->value()));
+    labyrinth->setWaysSize(QSize(spinBoxLongueurChemins->value(), spinBoxLargeurChemins->value()));
+    labyrinth->setWallsSize(QSize(spinBoxLongueurMurs->value(), spinBoxLargeurMurs->value()));
 
     QLabyrinth::Texture textureFond;
     textureFond.couleur = QColor(boutonCouleurFond->property("Couleur").toString().toUInt());
@@ -1882,14 +1953,24 @@ void MainWindow::reinitialiserImageParcours()
     lineEditImageParcours->setText(IMAGEPARCOURS);
 }
 
-void MainWindow::reinitialiserLongueur()
+void MainWindow::reinitialiserLongueurChemins()
 {
-    spinBoxLongueur->setValue(TAILLECASE.width());
+    spinBoxLongueurChemins->setValue(WAYSSIZE.width());
 }
 
-void MainWindow::reinitialiserLargeur()
+void MainWindow::reinitialiserLargeurChemins()
 {
-    spinBoxLargeur->setValue(TAILLECASE.height());
+    spinBoxLargeurChemins->setValue(WAYSSIZE.height());
+}
+
+void MainWindow::reinitialiserLongueurMurs()
+{
+    spinBoxLongueurMurs->setValue(WALLSSIZE.width());
+}
+
+void MainWindow::reinitialiserLargeurMurs()
+{
+    spinBoxLargeurMurs->setValue(WALLSSIZE.height());
 }
 
 void MainWindow::reinitialiserAffichage()
@@ -1903,8 +1984,10 @@ void MainWindow::reinitialiserAffichage()
     reinitialiserCouleurParcours();
     reinitialiserMotifParcours();
     reinitialiserImageParcours();
-    reinitialiserLongueur();
-    reinitialiserLargeur();
+    reinitialiserLongueurChemins();
+    reinitialiserLargeurChemins();
+    reinitialiserLongueurMurs();
+    reinitialiserLargeurMurs();
 
     couleurFond->setChecked(true);
     couleurMur->setChecked(true);
@@ -2360,12 +2443,16 @@ void MainWindow::modes()
     pauseImposee = false;
 
     chronometre->setDisabled(false);
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(true);
     actionResoudre->setDisabled(true);
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
     labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(), labyrinth->getLargeur(), labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), &mode);
 
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
 }
@@ -2569,6 +2656,8 @@ void MainWindow::type()
     nouveau = true;
 
     chronometre->setDisabled(false);
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(true);
     actionResoudre->setDisabled(true);
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
@@ -2580,11 +2669,13 @@ void MainWindow::type()
 
     labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(), labyrinth->getLargeur(), labyrinth->getAlgorithme(), type, labyrinth->getFormeLabyrinthe(), 0);
 
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
 }
 
-void MainWindow::algorithme()
+void MainWindow::algorithmeGeneration()
 {
     if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !labyrinth->getPartieTerminee())
     {
@@ -2595,7 +2686,7 @@ void MainWindow::algorithme()
         {
             if (!pauseImposee)
                 mettreEnPause();
-            actionsAlgorithmes[int(labyrinth->getAlgorithme())]->setChecked(true);
+            actionsAlgorithmesGeneration[int(labyrinth->getAlgorithme())]->setChecked(true);
             return;
         }
     }
@@ -2607,14 +2698,32 @@ void MainWindow::algorithme()
     nouveau = true;
 
     chronometre->setDisabled(false);
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(true);
     actionResoudre->setDisabled(true);
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(), labyrinth->getLargeur(), QLabyrinth::Algorithme(actionsAlgorithmes.indexOf(qobject_cast<QAction *>(sender()))), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(), labyrinth->getLargeur(), QLabyrinth::Algorithme(actionsAlgorithmesGeneration.indexOf(qobject_cast<QAction *>(sender()))), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
+}
+
+void MainWindow::algorithmeResolution()
+{
+    if (qobject_cast<QAction*>(sender())->text() == tr("&A-Star"))
+        typeResolution_ = 0;
+    else if (qobject_cast<QAction*>(sender())->text() == tr("Main &droite au mur"))
+        typeResolution_ = 1;
+    else if (qobject_cast<QAction*>(sender())->text() == tr("Main &gauche au mur"))
+        typeResolution_ = 2;
+    else if (qobject_cast<QAction*>(sender())->text() == tr("A&veugle"))
+        typeResolution_ = 3;
+
+    labyrinth->setTypeResolution(typeResolution_);
 }
 
 void MainWindow::reinitialiserModes()
@@ -2852,12 +2961,15 @@ void MainWindow::chargerPartie(const QString &fichier)
 
         chronometre->setDisabled(labyrinth->getPartieEnCours());
         chronometre->setChecked(chrono);
+        for (auto& a : actionsAlgorithmesResolution)
+            a->setDisabled(labyrinth->getEnResolution());
         actionResoudre->setDisabled(labyrinth->getEnResolution());
         actionMettreEnPause->setDisabled(labyrinth->getPartieTerminee());
         actionMettreEnPause->setChecked(labyrinth->getPartieEnPause());
         pauseImposee = labyrinth->getPartieEnPause();
         actionEffacerChemin->setDisabled(labyrinth->getPartieEnCours());
         actionEffacerChemin->setChecked(labyrinth->getEffacerChemin());
+        actionsAlgorithmesResolution[labyrinth->getTypeResolution()]->setChecked(true);
         actionResolutionProgressive->setChecked(labyrinth->getResolutionProgressive());
         actionLabyrintheSeulement->setChecked(labySeulement);
         if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2D)
@@ -2928,7 +3040,7 @@ void MainWindow::actualiserLangue()
 
     qApp->removeTranslator(translatorLabyrinthe);
     qApp->removeTranslator(translatorQt);
-    translatorLabyrinthe->load(QString(":/Traductions/Labyrinthe_") + locale);
+    translatorLabyrinthe->load(QString(":/Traductions/Labyrinth_") + locale);
     translatorQt->load(QString(":/Traductions/qt_") + locale);
     qApp->installTranslator(translatorLabyrinthe);
     qApp->installTranslator(translatorQt);
@@ -3100,6 +3212,8 @@ void MainWindow::setAdaptationTailleEcran(bool oui)
 
     niveau->setText(tr("Niveau : ") + n + tr(" (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
 
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
 
@@ -3137,6 +3251,8 @@ void MainWindow::setAdaptationTaillePapier(bool oui)
     setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
 
     chronometre->setDisabled(false);
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(true);
     actionResoudre->setDisabled(true);
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
@@ -3193,6 +3309,8 @@ void MainWindow::setAdaptationTaillePapier(bool oui)
 
     niveau->setText(tr("Niveau : ") + n + tr(" (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
 
+    for (auto& a : actionsAlgorithmesResolution)
+        a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
 

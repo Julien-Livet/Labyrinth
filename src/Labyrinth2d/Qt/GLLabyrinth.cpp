@@ -7,7 +7,7 @@
 #include "Labyrinth2d/Qt/QLabyrinth.h"
 #include "Labyrinth2d/Qt/constants.h"
 
-GLLabyrinth::GLLabyrinth(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(parent, f)
+GLLabyrinth::GLLabyrinth(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(parent, f), QOpenGLFunctions()
 {
     labyrinth = 0;
     xCamera = 0;
@@ -27,6 +27,7 @@ GLLabyrinth::GLLabyrinth(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(par
     directionAtteinte = false;
     pasAngle = PASANGLEJEU;
     pasDistance = PASDISTANCEJEU;
+    typeResolution_ = 0;
 
     timer = new QTimer(this);
     timer->setInterval(25);
@@ -82,14 +83,14 @@ void GLLabyrinth::setLabyrinth(Labyrinth2d::Labyrinth *l)
         //glEnable(GL_COLOR_MATERIAL);
         glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);*/
-        glEnable(GL_FOG);
+        ///Convert to GL2: glEnable(GL_FOG);
     }
     else
     {/*
         //glDisable(GL_COLOR_MATERIAL);
         glDisable(GL_LIGHTING);
         glDisable(GL_LIGHT0);*/
-        glDisable(GL_FOG);
+        ///Convert to GL2: glDisable(GL_FOG);
     }
 }
 
@@ -111,6 +112,8 @@ void GLLabyrinth::tailleCaseChangee()
 
 void GLLabyrinth::initializeGL()
 {
+    initializeOpenGLFunctions();
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -146,20 +149,20 @@ void GLLabyrinth::paintGL()
     QSize tailleCase = l->getTailleCase();
     int hauteurMur = 2 * qMax(tailleCase.width(), tailleCase.height());
     QLabyrinth::Texture textures[3] = {l->getTextureFond(), l->getTextureMur(), l->getTextureParcours()};
-
+/**Convert into GL2:
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(70, (double)width()/height(), 0.1, qMax((l->getLongueur() + 1) * tailleCase.width(), (l->getLargeur() + 1) * tailleCase.height()));
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+**/
     if (l->getModeLabyrinthe().mode & QLabyrinth::Obscurite)
     {
         QColor c = l->getModeLabyrinthe().couleurObscurite;
-        glClearColor(c.redF(), c.greenF(), c.blueF(), c.alphaF());
+        ///Convert into GL2: glClearColor(c.redF(), c.greenF(), c.blueF(), c.alphaF());
     }
     else
-        glClearColor(textures[0].couleur.redF(), textures[0].couleur.greenF(), textures[0].couleur.blueF(), textures[0].couleur.alphaF());
-
+        ;//Convert into GL2: glClearColor(textures[0].couleur.redF(), textures[0].couleur.greenF(), textures[0].couleur.blueF(), textures[0].couleur.alphaF());
+/**Convert into GL2:
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glScaled(-1, 1, 1);
@@ -168,7 +171,7 @@ void GLLabyrinth::paintGL()
         gluLookAt(l->getLongueur() * tailleCase.width() / 2, l->getLargeur() * tailleCase.height() / 2, qMax(l->getLongueur() * tailleCase.width(), l->getLargeur() * tailleCase.height()) * 2 / 3, l->getLongueur() * tailleCase.width() / 2, l->getLargeur() * tailleCase.height() / 2, 0, 0, -1, 0);
     else
         gluLookAt(xCamera, yCamera, zCamera, xCamera + 10.0 * cos(angleRotationZCamera), yCamera + 10.0 * sin(angleRotationZCamera), zCamera, 0, 0, 1);
-
+**/
     if (l->getModeLabyrinthe().mode & QLabyrinth::Obscurite)
     {/*
         GLint couleurAmbient[] = {255, 0, 0, 255};
@@ -240,17 +243,17 @@ void GLLabyrinth::paintGL()
         GLfloat couleurBlanche[4] = {1.0f, 1.0f, 1.0f, 1.0f};
         //glLightfv(GL_LIGHT0, GL_AMBIENT, couleur);
         glLightfv(GL_LIGHT0, GL_DIFFUSE, couleurBlanche);
-        glLightfv(GL_LIGHT0, GL_SPECULAR, couleurBlanche);*/
+        glLightfv(GL_LIGHT0, GL_SPECULAR, couleurBlanche);*//**Convert into GL2:
         GLfloat rayon = qMax(tailleCase.width(), tailleCase.height()) * l->getModeLabyrinthe().rayonObscurite;
         glFogi(GL_FOG_MODE, GL_LINEAR);
         glFogf(GL_FOG_START, 0);
         glFogf(GL_FOG_END, rayon);
         QColor c = l->getModeLabyrinthe().couleurObscurite;
         GLfloat couleur[4] = {c.redF(), c.greenF(), c.blueF(), 1.0f};
-        glFogfv(GL_FOG_COLOR, couleur);
+        glFogfv(GL_FOG_COLOR, couleur);**/
     }
 
-    glScaled(tailleCase.width(), tailleCase.height(), hauteurMur);
+    //Convert into GL2: glScaled(tailleCase.width(), tailleCase.height(), hauteurMur);
 
     if (!glIDMotifFond && !glIDImageFond && !glIDMotifMur && !glIDImageMur && !glIDMotifParcours && !glIDImageParcours)
         rechargerTextures();
@@ -259,7 +262,7 @@ void GLLabyrinth::paintGL()
     if (textures[0].typeTexture == QLabyrinth::TextureMotif && !pixmapMotifFond.isNull())
     {
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, glIDMotifFond);
+        glBindTexture(GL_TEXTURE_2D, glIDMotifFond);/**Convert into GL2:
         glBegin(GL_QUADS);
 
         //Face inférieure du cube
@@ -272,13 +275,13 @@ void GLLabyrinth::paintGL()
         glTexCoord2i(pixmapMotifFond.width() / tailleCase.width(), 0);
         glVertex3d(0, l->getLargeur(), 0);
 
-        glEnd();
+        glEnd();**/
         glDisable(GL_TEXTURE_2D);
     }
     else if (textures[0].typeTexture == QLabyrinth::TextureImage && !pixmapImageFond.isNull())
     {
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, glIDImageFond);
+        glBindTexture(GL_TEXTURE_2D, glIDImageFond);/**Convert into GL2:
         glBegin(GL_QUADS);
 
         //Face inférieure du cube
@@ -291,11 +294,11 @@ void GLLabyrinth::paintGL()
         glTexCoord2i(pixmapImageFond.width() / tailleCase.width(), 0);
         glVertex3d(0, l->getLargeur(), 0);
 
-        glEnd();
+        glEnd();**/
         glDisable(GL_TEXTURE_2D);
     }
     else// if (textures[0].typeTexture == QLabyrinth::TextureCouleur)
-    {
+    {/**Convert into GL2:
         glBegin(GL_QUADS);
 
         glColor3ub(textures[0].couleur.red(), textures[0].couleur.green(), textures[0].couleur.blue());
@@ -304,7 +307,7 @@ void GLLabyrinth::paintGL()
         glVertex3d(l->getLongueur(), l->getLargeur(), 0);
         glVertex3d(0, l->getLargeur(), 0);
 
-        glEnd();
+        glEnd();**/
     }
 
 	auto const& grid{labyrinth->grid()};
@@ -313,7 +316,7 @@ void GLLabyrinth::paintGL()
     if (textures[1].typeTexture == QLabyrinth::TextureMotif && !pixmapMotifMur.isNull())
     {
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, glIDMotifMur);
+        glBindTexture(GL_TEXTURE_2D, glIDMotifMur);/**Convert into GL2:
         glBegin(GL_QUADS);
         for (int i = 0; i < l->getLargeur(); i++)
         {
@@ -386,13 +389,13 @@ void GLLabyrinth::paintGL()
                 }
             }
         }
-        glEnd();
+        glEnd();**/
         glDisable(GL_TEXTURE_2D);
     }
     else if (textures[1].typeTexture == QLabyrinth::TextureImage && !pixmapImageMur.isNull())
     {
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, glIDImageMur);
+        glBindTexture(GL_TEXTURE_2D, glIDImageMur);/**Convert into GL2:
         glBegin(GL_QUADS);
         for (int i = 0; i < l->getLargeur(); i++)
         {
@@ -465,11 +468,11 @@ void GLLabyrinth::paintGL()
                 }
             }
         }
-        glEnd();
+        glEnd();**/
         glDisable(GL_TEXTURE_2D);
     }
     else// if (textures[1].typeTexture == QLabyrinth::TextureCouleur)
-    {
+    {/**Convert into GL2:
         glBegin(GL_QUADS);
         glColor3ub(textures[1].couleur.red(), textures[1].couleur.green(), textures[1].couleur.blue());
         for (int i = 0; i < l->getLargeur(); i++)
@@ -519,14 +522,14 @@ void GLLabyrinth::paintGL()
                 }
             }
         }
-        glEnd();
+        glEnd();**/
     }
 
     //Dessin du parcours
     if (textures[2].typeTexture == QLabyrinth::TextureMotif && !pixmapMotifParcours.isNull())
     {
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, glIDMotifParcours);
+        glBindTexture(GL_TEXTURE_2D, glIDMotifParcours);/**Convert into GL2:
         glBegin(GL_QUADS);
         if (l->getAfficherTrace())
         {
@@ -578,14 +581,14 @@ void GLLabyrinth::paintGL()
             glTexCoord2i(pixmapMotifParcours.width() / tailleCase.width(), 0);
             glVertex3d(l->getEmplacementXJoueur(), l->getEmplacementYJoueur() + 1, 0.001);
         }
-        glEnd();
+        glEnd();**/
         glDisable(GL_TEXTURE_2D);
     }
     else if (textures[2].typeTexture == QLabyrinth::TextureImage && !pixmapImageParcours.isNull())
     {
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, glIDImageParcours);
-        glBegin(GL_QUADS);
+        ///Convert into GL2: glBegin(GL_QUADS);
         if (l->getAfficherTrace())
         {
 			auto const& player{labyrinth->player(labyrinth->playerIds().front())};
@@ -597,7 +600,7 @@ void GLLabyrinth::paintGL()
 			for (size_t k{0}; k < traceIntersections.size() - 1; ++k)
 			{
 				while (i != traceIntersections[k + 1].first && j != traceIntersections[k + 1].second) 
-				{
+                {/**Convert into GL2:
 					//Face inférieure du cube
                     if (static_cast<int>(i) != l->getEmplacementYJoueur() || static_cast<int>(j) != l->getEmplacementXJoueur())
 						glColor4ub(255, 255, 255, textures[2].couleur.alpha() / 2);
@@ -610,7 +613,7 @@ void GLLabyrinth::paintGL()
 					glTexCoord2i(pixmapImageParcours.width() / tailleCase.width(), pixmapImageParcours.height() / tailleCase.height());
 					glVertex3d(j + 1, i + 1, 0.001);
 					glTexCoord2i(pixmapImageParcours.width() / tailleCase.width(), 0);
-					glVertex3d(j, i + 1, 0.001);
+                    glVertex3d(j, i + 1, 0.001);**/
 					
 					if (i < traceIntersections[k + 1].first)
 						++i;
@@ -624,7 +627,7 @@ void GLLabyrinth::paintGL()
 			}
         }
         else
-        {
+        {/**Convert into GL2:
             //Face inférieure du cube
             glColor4ub(255, 255, 255, textures[2].couleur.alpha());
             glTexCoord2i(0, 0);
@@ -634,14 +637,14 @@ void GLLabyrinth::paintGL()
             glTexCoord2i(pixmapImageParcours.width() / tailleCase.width(), pixmapImageParcours.height() / tailleCase.height());
             glVertex3d(l->getEmplacementXJoueur() + 1, l->getEmplacementYJoueur() + 1, 0.001);
             glTexCoord2i(pixmapImageParcours.width() / tailleCase.width(), 0);
-            glVertex3d(l->getEmplacementXJoueur(), l->getEmplacementYJoueur() + 1, 0.001);
+            glVertex3d(l->getEmplacementXJoueur(), l->getEmplacementYJoueur() + 1, 0.001);**/
         }
-        glEnd();
+        ///Convert into GL2: glEnd();
         glDisable(GL_TEXTURE_2D);
     }
     else// if (textures[2].typeTexture == QLabyrinth::TextureCouleur)
     {
-        glBegin(GL_QUADS);
+        ///Convert into GL2: glBegin(GL_QUADS);
         if (l->getAfficherTrace())
         {
 			auto const& player{labyrinth->player(labyrinth->playerIds().front())};
@@ -653,7 +656,7 @@ void GLLabyrinth::paintGL()
 			for (size_t k{0}; k < traceIntersections.size() - 1; ++k)
 			{
 				while (i != traceIntersections[k + 1].first && j != traceIntersections[k + 1].second) 
-				{
+                {/**Convert into GL2:
 					//Face inférieure du cube
                     if (static_cast<int>(i) != l->getEmplacementYJoueur() || static_cast<int>(j) != l->getEmplacementXJoueur())
 						glColor4ub(textures[2].couleur.red(), textures[2].couleur.green(), textures[2].couleur.blue(), textures[2].couleur.alpha() / 2);
@@ -662,7 +665,7 @@ void GLLabyrinth::paintGL()
 					glVertex3d(j, i, 0.001);
 					glVertex3d(j + 1, i, 0.001);
 					glVertex3d(j + 1, i + 1, 0.001);
-					glVertex3d(j, i + 1, 0.001);
+                    glVertex3d(j, i + 1, 0.001);**/
 					
 					if (i < traceIntersections[k + 1].first)
 						++i;
@@ -676,17 +679,17 @@ void GLLabyrinth::paintGL()
 			}
         }
         else
-        {
+        {/**Convert into GL2:
             //Face inférieure du cube
             glColor4ub(textures[2].couleur.red(), textures[2].couleur.green(), textures[2].couleur.blue(), textures[2].couleur.alpha());
             glVertex3d(l->getEmplacementXJoueur(), l->getEmplacementYJoueur(), 0.001);
             glVertex3d(l->getEmplacementXJoueur() + 1, l->getEmplacementYJoueur(), 0.001);
             glVertex3d(l->getEmplacementXJoueur() + 1, l->getEmplacementYJoueur() + 1, 0.001);
-            glVertex3d(l->getEmplacementXJoueur(), l->getEmplacementYJoueur() + 1, 0.001);
+            glVertex3d(l->getEmplacementXJoueur(), l->getEmplacementYJoueur() + 1, 0.001);**/
         }
-        glEnd();
+        ///Convert into GL2: glEnd();
     }
-
+/**Convert into GL2:
     glBegin(GL_QUADS);
 
     //Face inférieure du cube
@@ -696,9 +699,9 @@ void GLLabyrinth::paintGL()
     glVertex3d(l->getXEntree() + 1, l->getYEntree() + 1, 0.002);
     glVertex3d(l->getXEntree(), l->getYEntree() + 1, 0.002);
 
-    glColor4ub(0, 255, 0, 255);
+    glColor4ub(0, 255, 0, 255);**/
     dessinerMurEntreeSortie(l->getXEntree(), l->getYEntree());
-
+/**Convert into GL2:
     //Face inférieure du cube
     glColor4ub(255, 0, 0, 128);
     glVertex3d(l->getXSortie(), l->getYSortie(), 0.002);
@@ -706,10 +709,10 @@ void GLLabyrinth::paintGL()
     glVertex3d(l->getXSortie() + 1, l->getYSortie() + 1, 0.002);
     glVertex3d(l->getXSortie(), l->getYSortie() + 1, 0.002);
 
-    glColor4ub(255, 0, 0, 255);
+    glColor4ub(255, 0, 0, 255);**/
     dessinerMurEntreeSortie(l->getXSortie(), l->getYSortie());
 
-    glEnd();
+    ///Convert into GL2: glEnd();
 /**
     if (l->getModeLabyrinthe().mode & QLabyrinth::Obscurite)
     {
@@ -729,13 +732,13 @@ void GLLabyrinth::paintGL()
     }
 **/
     //On efface la couleur
-    glColor4ub(255, 255, 255, 255);
+    ///Convert into GL2: glColor4ub(255, 255, 255, 255);
 }
 
 void GLLabyrinth::dessinerMurEntreeSortie(int x, int y)
 {
     QLabyrinth* l = qobject_cast<QLabyrinth*>(parentWidget());
-
+/**Convert into GL2:
     if (!x)
     {
         glVertex3d(0, y + 1, 1);
@@ -763,7 +766,7 @@ void GLLabyrinth::dessinerMurEntreeSortie(int x, int y)
         glVertex3d(x, y + 1, 0);
         glVertex3d(x + 1, y + 1, 0);
         glVertex3d(x + 1, y + 1, 1);
-    }
+    }**/
 }
 
 void GLLabyrinth::resizeGL(int width, int height)
@@ -1004,14 +1007,13 @@ void GLLabyrinth::rechargerTextures()
     pixmapImageParcours = QPixmap(textures[2].image);
 
     libererTextures();
-/*
-    //Correct bindTexture
-    glIDMotifFond = bindTexture(pixmapMotifFond, GL_TEXTURE_2D);
-    glIDImageFond = bindTexture(pixmapImageFond, GL_TEXTURE_2D);
-    glIDMotifMur = bindTexture(pixmapMotifMur, GL_TEXTURE_2D);
-    glIDImageMur = bindTexture(pixmapImageMur, GL_TEXTURE_2D);
-    glIDMotifParcours = bindTexture(pixmapMotifParcours, GL_TEXTURE_2D);
-    glIDImageParcours = bindTexture(pixmapImageParcours, GL_TEXTURE_2D);*/
+
+    loadTexture(pixmapMotifFond.toImage(), glIDMotifFond);
+    loadTexture(pixmapImageFond.toImage(), glIDImageFond);
+    loadTexture(pixmapMotifMur.toImage(), glIDMotifMur);
+    loadTexture(pixmapImageMur.toImage(), glIDImageMur);
+    loadTexture(pixmapMotifParcours.toImage(), glIDMotifParcours);
+    loadTexture(pixmapImageParcours.toImage(), glIDImageParcours);
 }
 
 void GLLabyrinth::libererTextures()
@@ -1395,6 +1397,18 @@ GLdouble GLLabyrinth::getAngleRotationZCamera() const
     return angleRotationZCamera;
 }
 
+void GLLabyrinth::setTypeResolution(unsigned int type)
+{
+    assert(type < 4);
+
+    typeResolution_ = type;
+}
+
+unsigned int GLLabyrinth::getTypeResolution() const
+{
+    return typeResolution_;
+}
+
 void GLLabyrinth::mousePressEvent(QMouseEvent* event)
 {
     QLabyrinth* l = qobject_cast<QLabyrinth*>(parentWidget());
@@ -1432,4 +1446,21 @@ void GLLabyrinth::wheelEvent(QWheelEvent* event)
     }
 
     QOpenGLWidget::wheelEvent(event);
+}
+
+void GLLabyrinth::loadTexture(QImage const& image, GLuint& id)
+{
+    auto const im{image.mirrored()};
+
+    glGenTextures(1, &id);
+
+    glBindTexture(GL_TEXTURE_2D, id);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, im.width(), im.height(),
+                                         0, GL_RGBA, GL_UNSIGNED_BYTE, im.constBits());
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 }

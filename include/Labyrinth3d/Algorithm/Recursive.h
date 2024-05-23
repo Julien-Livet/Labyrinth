@@ -9,10 +9,10 @@
  *  \date 20/01/2016
  */
 
-#include <vector>
-#include <stdexcept>
-#include <thread>
 #include <chrono>
+#include <functional>
+#include <stdexcept>
+#include <vector>
 
 #include "../Grid.h"
 #include "../Labyrinth.h"
@@ -71,7 +71,9 @@ namespace Labyrinth3d
                  *  \param timeout: time before to abort generation
                  */
                 template <class URNG>
-                void operator()(URNG& g, Grid::SubGrid const& subGrid, size_t operationsCycle = 0,
+                void operator()(URNG& g, Grid::SubGrid const& subGrid,
+                    std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
+                                size_t operationsCycle = 0,
                                 std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                                 std::chrono::milliseconds const* timeout = nullptr);
 
@@ -130,6 +132,7 @@ size_t Labyrinth3d::Algorithm::Recursive<Algorithm>::minimumFloors() const
 template <class Algorithm>
 template <class URNG>
 void Labyrinth3d::Algorithm::Recursive<Algorithm>::operator()(URNG& g, Grid::SubGrid const& subGrid,
+                                                              std::function<void(std::chrono::milliseconds)> const& sleep,
                                                               size_t operationsCycle,
                                                               std::chrono::milliseconds const& cyclePause,
                                                               std::chrono::milliseconds const* timeout)
@@ -225,7 +228,7 @@ void Labyrinth3d::Algorithm::Recursive<Algorithm>::operator()(URNG& g, Grid::Sub
         }
     }
     else
-        algorithm_(g, subGrid, operationsCycle, cyclePause, timeout);
+        algorithm_(g, subGrid, sleep, operationsCycle, cyclePause, timeout);
 }
 
 #endif // LABYRINTH3D_ALGORITHM_RECURSIVE_H

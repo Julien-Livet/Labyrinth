@@ -1,4 +1,3 @@
-#include <thread>
 #include <cassert>
 
 #include "Labyrinth2d/Player.h"
@@ -33,13 +32,7 @@ Labyrinth2d::Player::Player(Labyrinth const& labyrinth,
 Labyrinth2d::Player::~Player()
 {
     while (state_ & Solving)
-    {
         stopSolving();
-
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
-        std::this_thread::sleep_for(dummyThreadSpleepingDuration);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
-    }
 }
 
 size_t Labyrinth2d::Player::startI() const
@@ -129,127 +122,6 @@ std::chrono::milliseconds const& Labyrinth2d::Player::solvingDuration() const
     return solvingDuration_;
 }
 
-size_t Labyrinth2d::Player::move(Direction direction, size_t movements, size_t operationsCycle, std::chrono::milliseconds cyclePause)
-{
-    if ((labyrinth_.state() & Labyrinth::Generating) || (blockingFinish_ && (state_ & Finished)) || (state_ & Moving))
-        return 0;
-
-    state_ |= Moving;
-	
-    size_t const i(i_);
-    size_t const j(j_);
-
-    size_t realizedMovements(0);
-
-    while (movements)
-    {
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
-        if (operationsCycle && cyclePause.count() && !(realizedMovements % operationsCycle))
-            std::this_thread::sleep_for(cyclePause);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
-
-        size_t const iTmp(i_);
-        size_t const jTmp(j_);
-
-        switch (direction)
-        {
-            case Up:
-                --i_;
-                break;
-
-            case Right:
-                ++j_;
-                break;
-
-            case Down:
-                ++i_;
-                break;
-
-            case Left:
-                --j_;
-                break;
-        }
-
-        if (labyrinth_.grid()(i_, j_))
-        {
-            i_ = iTmp;
-            j_ = jTmp;
-            break;
-        }
-        else
-        {
-			if (keptFullTrace_)
-				fullTrace_.emplace_back(std::make_pair(iTmp, jTmp));
-
-            ++realizedMovements;
-            --movements;
-
-			bool finished{false};
-
-            for (std::size_t n{0}; n < finishI_.size(); ++n)
-			{
-                if (i_ == finishI_[n] && j_ == finishJ_[n])
-				{
-					finished = true;
-					break;
-				}
-			}
-                
-			if (finished)
-				break;
-        }
-    }
-
-    if (!(state_ & Started))
-    {
-        startTime_ = std::chrono::steady_clock::now();
-
-        state_ |= Started;
-    }
-
-	if (!(state_ & Finished))
-	{
-		bool finished{false};
-		
-        for (std::size_t n{0}; n < finishI_.size(); ++n)
-		{
-            if (i_ == finishI_[n] && j_ == finishJ_[n])
-			{
-				finished = true;
-				break;
-			}
-		}
-		
-		if (finished)
-		{
-			state_ |= Finished;
-			finishingDuration_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime_);
-		}
-	}
-
-    movements_ += realizedMovements;
-
-    if (enabledTrace_)
-    {
-        if (!traceIntersections_.empty())
-        {
-            if (traceIntersections_.back().first == i_ && traceIntersections_.back().second == j_)
-                traceIntersections_.pop_back();
-            else
-            {
-                if ((traceIntersections_.back().first == i && i != i_) || (traceIntersections_.back().second == j && j != j_))
-                    traceIntersections_.push_back(std::make_pair(i, j));
-            }
-        }
-        else
-            traceIntersections_.push_back(std::make_pair(i, j));
-    }
-
-    state_ &= ~Moving;
-
-    return realizedMovements;
-}
-
 size_t Labyrinth2d::Player::state() const
 {
     return state_;
@@ -321,17 +193,149 @@ void Labyrinth2d::Player::changeBlockingFinish(bool blockingFinish)
     blockingFinish_ = blockingFinish;
 }
 
-size_t Labyrinth2d::Player::stepBack(size_t movements, size_t operationsCycle, std::chrono::milliseconds cyclePause)
+void Labyrinth2d::Player::stopSolving()
+{
+    state_ |= StoppedSolving;
+}
+
+std::vector<std::pair<size_t, size_t> > const& Labyrinth2d::Player::fullTrace() const
+{
+	return fullTrace_;
+}
+
+size_t Labyrinth2d::Player::move(Direction direction,
+                                 std::function<void(std::chrono::milliseconds)> const& sleep,
+                                 size_t movements, size_t operationsCycle,
+                                 std::chrono::milliseconds cyclePause)
+{
+    if ((labyrinth_.state() & Labyrinth::Generating) || (blockingFinish_ && (state_ & Finished)) || (state_ & Moving))
+        return 0;
+
+    state_ |= Moving;
+
+    size_t const i(i_);
+    size_t const j(j_);
+
+    size_t realizedMovements(0);
+
+    while (movements)
+    {
+        if (operationsCycle && cyclePause.count() && !(realizedMovements % operationsCycle))
+            sleep(cyclePause);
+
+        size_t const iTmp(i_);
+        size_t const jTmp(j_);
+
+        switch (direction)
+        {
+        case Up:
+            --i_;
+            break;
+
+        case Right:
+            ++j_;
+            break;
+
+        case Down:
+            ++i_;
+            break;
+
+        case Left:
+            --j_;
+            break;
+        }
+
+        if (labyrinth_.grid()(i_, j_))
+        {
+            i_ = iTmp;
+            j_ = jTmp;
+            break;
+        }
+        else
+        {
+            if (keptFullTrace_)
+                fullTrace_.emplace_back(std::make_pair(iTmp, jTmp));
+
+            ++realizedMovements;
+            --movements;
+
+            bool finished{false};
+
+            for (std::size_t n{0}; n < finishI_.size(); ++n)
+            {
+                if (i_ == finishI_[n] && j_ == finishJ_[n])
+                {
+                    finished = true;
+                    break;
+                }
+            }
+
+            if (finished)
+                break;
+        }
+    }
+
+    if (!(state_ & Started))
+    {
+        startTime_ = std::chrono::steady_clock::now();
+
+        state_ |= Started;
+    }
+
+    if (!(state_ & Finished))
+    {
+        bool finished{false};
+
+        for (std::size_t n{0}; n < finishI_.size(); ++n)
+        {
+            if (i_ == finishI_[n] && j_ == finishJ_[n])
+            {
+                finished = true;
+                break;
+            }
+        }
+
+        if (finished)
+        {
+            state_ |= Finished;
+            finishingDuration_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime_);
+        }
+    }
+
+    movements_ += realizedMovements;
+
+    if (enabledTrace_)
+    {
+        if (!traceIntersections_.empty())
+        {
+            if (traceIntersections_.back().first == i_ && traceIntersections_.back().second == j_)
+                traceIntersections_.pop_back();
+            else
+            {
+                if ((traceIntersections_.back().first == i && i != i_) || (traceIntersections_.back().second == j && j != j_))
+                    traceIntersections_.push_back(std::make_pair(i, j));
+            }
+        }
+        else
+            traceIntersections_.push_back(std::make_pair(i, j));
+    }
+
+    state_ &= ~Moving;
+
+    return realizedMovements;
+}
+
+size_t Labyrinth2d::Player::stepBack(std::function<void(std::chrono::milliseconds)> const& sleep,
+                                     size_t movements, size_t operationsCycle,
+                                     std::chrono::milliseconds const& cyclePause)
 {
     size_t operations(0);
 
     while ((!(state_ & Player::Finished) || !blockingFinish_)
            && !traceIntersections_.empty() && (!movements || (operations < movements)))
     {
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
-                if (operationsCycle && cyclePause.count() && !(operations % operationsCycle))
-                    std::this_thread::sleep_for(cyclePause);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
+        if (operationsCycle && cyclePause.count() && !(operations % operationsCycle))
+            sleep(cyclePause);
 
         if (i_ == traceIntersections_.back().first && j_ == traceIntersections_.back().second)
         {
@@ -362,19 +366,9 @@ size_t Labyrinth2d::Player::stepBack(size_t movements, size_t operationsCycle, s
         else
             assert(0);
 
-        if (move(direction))
+        if (move(direction, sleep))
             ++operations;
     }
 
     return operations;
-}
-
-void Labyrinth2d::Player::stopSolving()
-{
-    state_ |= StoppedSolving;
-}
-
-std::vector<std::pair<size_t, size_t> > const& Labyrinth2d::Player::fullTrace() const
-{
-	return fullTrace_;
 }

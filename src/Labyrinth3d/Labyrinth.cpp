@@ -14,13 +14,7 @@ Labyrinth3d::Labyrinth::Labyrinth(size_t rows, size_t columns, size_t floors) : 
 Labyrinth3d::Labyrinth::~Labyrinth()
 {
     while (state_ & Generating)
-    {
         stopGenerating();
-
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
-        std::this_thread::sleep_for(dummyThreadSpleepingDuration);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
-    }
 
     stopPlayerSolving();
 }
@@ -145,13 +139,7 @@ void Labyrinth3d::Labyrinth::stopPlayerSolving()
     for (auto id : playerIds())
     {
         while (players_.at(id)->state() & Player::Solving)
-        {
             players_.at(id)->stopSolving();
-
-#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
-            std::this_thread::sleep_for(dummyThreadSpleepingDuration);
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
-        }
     }
 }
 

@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 
     QApplication app(argc, argv);
     app.setApplicationName("Labyrinth");
-    app.setApplicationVersion(QString("Version ")+VERSION);
+    app.setApplicationVersion(QString("Version ") + VERSION);
 
     MainWindow mainWindow;
 

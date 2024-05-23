@@ -9,7 +9,6 @@
  *  \date 20/01/2016
  */
 
-#include <thread>
 #include <chrono>
 
 #include "../Grid.h"
@@ -43,12 +42,15 @@ namespace Labyrinth3d
                  *
                  *  \param g: uniform random number generator
                  *  \param subGrid: sub-grid of labyrinth grid
+                 *  \param sleep: sleep function
                  *  \param operationsCycle: number of operations in each cycle
                  *  \param cyclePause: pause time between each cycle
                  *  \param timeout: time before to abort generation
                  */
                 template <class URNG>
-                void operator()(URNG& g, Grid::SubGrid const& subGrid, size_t operationsCycle = 0,
+                void operator()(URNG& g, Grid::SubGrid const& subGrid,
+                                std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
+                                size_t operationsCycle = 0,
                                 std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                                 std::chrono::milliseconds const* timeout = nullptr);
 
@@ -69,14 +71,15 @@ Labyrinth3d::Algorithm::Random<Algorithm1, Algorithm2>::Random(Algorithm1& algor
 template <class Algorithm1, class Algorithm2>
 template <class URNG>
 void Labyrinth3d::Algorithm::Random<Algorithm1, Algorithm2>::operator()(URNG& g, Grid::SubGrid const& subGrid,
+                                                                        std::function<void(std::chrono::milliseconds)> const& sleep,
                                                                         size_t operationsCycle,
                                                                         std::chrono::milliseconds const& cyclePause,
                                                                         std::chrono::milliseconds const* timeout)
 {
     if (g() % 2)
-        algorithm1_(g, subGrid, operationsCycle, cyclePause, timeout);
+        algorithm1_(g, subGrid, sleep, operationsCycle, cyclePause, timeout);
     else
-        algorithm2_(g, subGrid, operationsCycle, cyclePause, timeout);
+        algorithm2_(g, subGrid, sleep, operationsCycle, cyclePause, timeout);
 }
 
 #endif // LABYRINTH3D_ALGORITHM_RANDOM_H

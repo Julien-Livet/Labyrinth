@@ -3,12 +3,12 @@
 
 //Constantes pour le labyrinthe 2D
 
-#define LONGUEURFACILE 41
-#define LARGEURFACILE 31
-#define LONGUEURMOYEN 61
-#define LARGEURMOYEN 51
-#define LONGUEURDIFFICILE 81
-#define LARGEURDIFFICILE 71
+#define LONGUEURFACILE 20/*41*/
+#define LARGEURFACILE 15/*31*/
+#define LONGUEURMOYEN 30/*61*/
+#define LARGEURMOYEN 25/*51*/
+#define LONGUEURDIFFICILE 40 /*81*/
+#define LARGEURDIFFICILE 35 /*71*/
 #define COULEURFOND QColor(255, 255, 255)
 #define MOTIFFOND QString(":/Images/resources/background_pattern.png")
 #define IMAGEFOND QString(":/Images/resources/background_image.png")
@@ -19,6 +19,8 @@
 #define MOTIFPARCOURS QString(":/Images/resources/way_pattern.png")
 #define IMAGEPARCOURS QString(":/Images/resources/way_image.png")
 #define TAILLECASE QSize(10, 10)
+#define WAYSSIZE QSize(10, 10)
+#define WALLSSIZE QSize(10, 10)
 #define INTERVALLEROTATIONMAX 1*60*1000
 #define INTERVALLEROTATIONMIN 10
 #define INTERVALLEROTATION 50

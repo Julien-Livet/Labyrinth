@@ -26,9 +26,9 @@
 class QLabyrinth;
 
 #define NOMBRESCORES 10
-#define MUSIQUE QString("./Animation.mid")
+#define MUSIQUE QString(":/Musiques/resources/Animation.mid")
 #define MUET false
-#define VERSION QString("3.0")
+#define VERSION QString("4.0")
 
 class TabWidget : public QTabWidget
 {
@@ -79,6 +79,8 @@ class MainWindow : public QMainWindow
         QAction *actionNouvellePartie;
         QAction *actionRecommencer;
         QAction *actionMettreEnPause;
+        QMenu *menuAlgorithmesResolution;
+        QList<QAction *> actionsAlgorithmesResolution;
         QAction *actionResoudre;
         QAction *actionResolutionProgressive;
         QAction *actionOuvrir;
@@ -108,8 +110,8 @@ class MainWindow : public QMainWindow
         QMenu *menuTypeLabyrinthe;
         QAction *actionLabyrinthe2D;
         QAction *actionLabyrinthe2Den3D;
-        QMenu *menuAlgorithmes;
-        QList<QAction *> actionsAlgorithmes;
+        QMenu *menuAlgorithmesGeneration;
+        QList<QAction *> actionsAlgorithmesGeneration;
         QLabel *niveau;
         QLabel *deplacement;
         QCheckBox *chronometre;
@@ -130,6 +132,10 @@ class MainWindow : public QMainWindow
         QLineEdit *lineEditImageParcours;
         QSpinBox *spinBoxLongueur;
         QSpinBox *spinBoxLargeur;
+        QSpinBox *spinBoxLongueurChemins;
+        QSpinBox *spinBoxLargeurChemins;
+        QSpinBox *spinBoxLongueurMurs;
+        QSpinBox *spinBoxLargeurMurs;
         QGroupBox *groupBoxChronometre;
         QGroupBox *groupBoxDeplacement;
         QGroupBox *groupBoxNiveau;
@@ -209,6 +215,7 @@ class MainWindow : public QMainWindow
         QTranslator *translatorQt;
         QString nomPartie;
         QString dernierNomEnregistre;
+        unsigned int typeResolution_;
         void actualiserLangue();
 
     private slots:
@@ -256,8 +263,10 @@ class MainWindow : public QMainWindow
         void reinitialiserMotifParcours();
         void choisirImageParcours();
         void reinitialiserImageParcours();
-        void reinitialiserLongueur();
-        void reinitialiserLargeur();
+        void reinitialiserLongueurChemins();
+        void reinitialiserLargeurChemins();
+        void reinitialiserLongueurMurs();
+        void reinitialiserLargeurMurs();
         void reinitialiserAffichage();
         void pleinEcran();
         void labyrintheSeulement();
@@ -275,7 +284,8 @@ class MainWindow : public QMainWindow
         void changerEnregistrement();
         void pause();
         void type();
-        void algorithme();
+        void algorithmeGeneration();
+        void algorithmeResolution();
         void reinitialiserModes();
         void choisirCouleurObscurite();
         void reinitialiserCouleurObscurite();
