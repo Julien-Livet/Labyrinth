@@ -4,11 +4,14 @@
 #include <QKeyEvent>
 #include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QOpenGLFunctions>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLTexture>
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <GL/gl.h>
 
 #include "Labyrinth2d/Labyrinth.h"
+#include "Labyrinth2d/Qt/GeometryEngine.h"
 
 class GLLabyrinth : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -62,10 +65,17 @@ class GLLabyrinth : public QOpenGLWidget, protected QOpenGLFunctions
         double pasAngle;
         double pasDistance;
         unsigned int typeResolution_;
+        QOpenGLShaderProgram program;
+        QList<QOpenGLTexture*> textures_;
+        QMatrix4x4 projection;
+        QList<GeometryEngine*> geometries;
         void dessinerMurEntreeSortie(int x, int y);
         void libererTextures();
         bool routineDeplacement();
         void loadTexture(QImage const& image, GLuint& id);
+        QOpenGLTexture* loadTexture(QImage const& image);
+        void initShaders();
+        void initTextures();
 
     private slots:
         void toucheAppuyee();

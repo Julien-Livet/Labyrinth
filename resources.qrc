@@ -22,4 +22,8 @@
     <file>./Labyrinth_es.qm</file>
     <file>./Labyrinth_en.qm</file>
   </qresource>
+  <qresource prefix="Shaders" >
+    <file>./resources/fshader.glsl</file>
+    <file>./resources/vshader.glsl</file>
+  </qresource>
 </RCC>

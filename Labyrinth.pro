@@ -40,6 +40,7 @@ SOURCES += \
     src/Labyrinth2d/Algorithm/TimeoutException.cpp \
     src/Labyrinth2d/Algorithm/WaySearch.cpp \
     src/Labyrinth2d/Mover/QKeyPress.cpp \
+    src/Labyrinth2d/Qt/GeometryEngine.cpp \
     src/Labyrinth2d/Qt/GLLabyrinth.cpp \
     src/Labyrinth2d/Qt/MainWindow.cpp \
     src/Labyrinth2d/Qt/QLabyrinth.cpp \
@@ -73,6 +74,7 @@ HEADERS += \
     include/Labyrinth2d/Algorithm/WaySearch.h \
     include/Labyrinth2d/Mover/QKeyPress.h \
     include/Labyrinth2d/Qt/constants.h \
+    include/Labyrinth2d/Qt/GeometryEngine.h \
     include/Labyrinth2d/Qt/GLLabyrinth.h \
     include/Labyrinth2d/Qt/MainWindow.h \
     include/Labyrinth2d/Qt/QLabyrinth.h \

@@ -294,7 +294,7 @@ MainWindow::MainWindow()
     menuPartie->addAction(actionQuitter);
 
     menuOptions->addMenu(menuTypeLabyrinthe);
-    menuOptions->addMenu(menuAlgorithmesResolution);
+    menuOptions->addMenu(menuAlgorithmesGeneration);
     menuOptions->addAction(actionModes);
     menuOptions->addSeparator();
     menuOptions->addAction(actionEffacerChemin);

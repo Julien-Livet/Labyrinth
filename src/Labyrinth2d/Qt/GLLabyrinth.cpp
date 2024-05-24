@@ -48,7 +48,12 @@ GLLabyrinth::GLLabyrinth(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(par
 
 GLLabyrinth::~GLLabyrinth()
 {
+    makeCurrent();
     libererTextures();
+    for (auto& g : geometries)
+        delete g;
+    geometries.clear();
+    doneCurrent();
 }
 
 void GLLabyrinth::setLabyrinth(Labyrinth2d::Labyrinth *l)
@@ -118,6 +123,9 @@ void GLLabyrinth::initializeGL()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    initShaders();
+    initTextures();
+
     QLabyrinth* lab = qobject_cast<QLabyrinth*>(parentWidget());
 
     if (!lab)
@@ -137,6 +145,20 @@ void GLLabyrinth::initializeGL()
         glDisable(GL_LIGHT0);*/
         glDisable(GL_FOG);
     }
+
+    for (size_t i(0); i < labyrinth->grid().height(); ++i)
+    {
+        for (size_t j(0); j < labyrinth->grid().width(); ++j)
+        {
+            if (labyrinth->grid().at(i, j))
+                geometries << new GeometryEngine(QVector3D((i + 1) / 2 * lab->wallsSize().width() + i / 2 * lab->waysSize().width(),
+                                                           (j + 1) / 2 * lab->wallsSize().height() + i / 2 * lab->waysSize().height(),
+                                                           0),
+                                                 QVector3D(lab->wallsSize().width(),
+                                                           lab->wallsSize().height(),
+                                                           qMax(lab->wallsSize().width(), lab->wallsSize().height())));
+        }
+    }
 }
 
 void GLLabyrinth::paintGL()
@@ -149,29 +171,68 @@ void GLLabyrinth::paintGL()
     QSize tailleCase = l->getTailleCase();
     int hauteurMur = 2 * qMax(tailleCase.width(), tailleCase.height());
     QLabyrinth::Texture textures[3] = {l->getTextureFond(), l->getTextureMur(), l->getTextureParcours()};
-/**Convert into GL2:
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(70, (double)width()/height(), 0.1, qMax((l->getLongueur() + 1) * tailleCase.width(), (l->getLargeur() + 1) * tailleCase.height()));
+
+    // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-**/
+    // Enable depth buffer
+    glEnable(GL_DEPTH_TEST);
+    // Enable back face culling
+    glEnable(GL_CULL_FACE);
+
+    for (auto const& t : textures_)
+        t->bind();
+    program.bind();
+
+    // Reset projection
+    projection.setToIdentity();
+
+    // Set perspective projection
+    projection.perspective(70, (double)width()/height(), 0.1,
+                           qMax((l->getLongueur() + 1) * tailleCase.width(),
+                                (l->getLargeur() + 1) * tailleCase.height()));
+
+
     if (l->getModeLabyrinthe().mode & QLabyrinth::Obscurite)
     {
         QColor c = l->getModeLabyrinthe().couleurObscurite;
-        ///Convert into GL2: glClearColor(c.redF(), c.greenF(), c.blueF(), c.alphaF());
+        glClearColor(c.redF(), c.greenF(), c.blueF(), c.alphaF());
     }
     else
-        ;//Convert into GL2: glClearColor(textures[0].couleur.redF(), textures[0].couleur.greenF(), textures[0].couleur.blueF(), textures[0].couleur.alphaF());
-/**Convert into GL2:
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glScaled(-1, 1, 1);
+        glClearColor(textures[0].couleur.redF(), textures[0].couleur.greenF(), textures[0].couleur.blueF(), textures[0].couleur.alphaF());
+
+    QMatrix4x4 matrix;
+
+    matrix.scale(-1, 1, 1);
 
     if ((l->getEmplacementXJoueur() == l->getXSortie() && l->getEmplacementYJoueur() == l->getYSortie()) || (!l->getResolutionProgressive() && l->getEnResolution()))
-        gluLookAt(l->getLongueur() * tailleCase.width() / 2, l->getLargeur() * tailleCase.height() / 2, qMax(l->getLongueur() * tailleCase.width(), l->getLargeur() * tailleCase.height()) * 2 / 3, l->getLongueur() * tailleCase.width() / 2, l->getLargeur() * tailleCase.height() / 2, 0, 0, -1, 0);
+        matrix.lookAt(QVector3D(l->getLongueur() * tailleCase.width() / 2,
+                                l->getLargeur() * tailleCase.height() / 2,
+                                qMax(l->getLongueur() * tailleCase.width(),
+                                     l->getLargeur() * tailleCase.height()) * 2 / 3),
+                      QVector3D(l->getLongueur() * tailleCase.width() / 2,
+                                l->getLargeur() * tailleCase.height() / 2,
+                                0),
+                      QVector3D(0, -1, 0));
     else
-        gluLookAt(xCamera, yCamera, zCamera, xCamera + 10.0 * cos(angleRotationZCamera), yCamera + 10.0 * sin(angleRotationZCamera), zCamera, 0, 0, 1);
-**/
+        matrix.lookAt(QVector3D(xCamera, yCamera, zCamera),
+                      QVector3D(xCamera + 10.0 * cos(angleRotationZCamera),
+                                yCamera + 10.0 * sin(angleRotationZCamera),
+                                zCamera),
+                      QVector3D(0, 0, 1));
+
+    matrix.scale(tailleCase.width(), tailleCase.height(), hauteurMur);
+
+    // Set modelview-projection matrix
+    program.setUniformValue("mvp_matrix", projection * matrix);
+
+    // Use texture unit 0 which contains pattern of walls
+    program.setUniformValue("texture", 3);
+
+    for (auto&g : geometries)
+        g->drawCubeGeometry(&program);
+
+    return;
+
     if (l->getModeLabyrinthe().mode & QLabyrinth::Obscurite)
     {/*
         GLint couleurAmbient[] = {255, 0, 0, 255};
@@ -243,7 +304,8 @@ void GLLabyrinth::paintGL()
         GLfloat couleurBlanche[4] = {1.0f, 1.0f, 1.0f, 1.0f};
         //glLightfv(GL_LIGHT0, GL_AMBIENT, couleur);
         glLightfv(GL_LIGHT0, GL_DIFFUSE, couleurBlanche);
-        glLightfv(GL_LIGHT0, GL_SPECULAR, couleurBlanche);*//**Convert into GL2:
+        glLightfv(GL_LIGHT0, GL_SPECULAR, couleurBlanche);*/
+/**Convert into GL2:
         GLfloat rayon = qMax(tailleCase.width(), tailleCase.height()) * l->getModeLabyrinthe().rayonObscurite;
         glFogi(GL_FOG_MODE, GL_LINEAR);
         glFogf(GL_FOG_START, 0);
@@ -252,8 +314,6 @@ void GLLabyrinth::paintGL()
         GLfloat couleur[4] = {c.redF(), c.greenF(), c.blueF(), 1.0f};
         glFogfv(GL_FOG_COLOR, couleur);**/
     }
-
-    //Convert into GL2: glScaled(tailleCase.width(), tailleCase.height(), hauteurMur);
 
     if (!glIDMotifFond && !glIDImageFond && !glIDMotifMur && !glIDImageMur && !glIDMotifParcours && !glIDImageParcours)
         rechargerTextures();
@@ -1008,16 +1068,20 @@ void GLLabyrinth::rechargerTextures()
 
     libererTextures();
 
-    loadTexture(pixmapMotifFond.toImage(), glIDMotifFond);
-    loadTexture(pixmapImageFond.toImage(), glIDImageFond);
-    loadTexture(pixmapMotifMur.toImage(), glIDMotifMur);
-    loadTexture(pixmapImageMur.toImage(), glIDImageMur);
-    loadTexture(pixmapMotifParcours.toImage(), glIDMotifParcours);
-    loadTexture(pixmapImageParcours.toImage(), glIDImageParcours);
+    textures_ << loadTexture(pixmapMotifFond.toImage());
+    textures_ << loadTexture(pixmapImageFond.toImage());
+    textures_ << loadTexture(pixmapMotifMur.toImage());
+    textures_ << loadTexture(pixmapImageMur.toImage());
+    textures_ << loadTexture(pixmapMotifParcours.toImage());
+    textures_ << loadTexture(pixmapImageParcours.toImage());
 }
 
 void GLLabyrinth::libererTextures()
 {
+    for (auto const& t : textures_)
+        delete t;
+    textures_.clear();
+/*
     if (glIDMotifFond)
     {
         glDeleteTextures(1, &glIDMotifFond);
@@ -1047,7 +1111,7 @@ void GLLabyrinth::libererTextures()
     {
         glDeleteTextures(1, &glIDImageParcours);
         glIDImageParcours = 0;
-    }
+    }*/
 }
 
 void GLLabyrinth::solveLabyrinth()
@@ -1457,10 +1521,52 @@ void GLLabyrinth::loadTexture(QImage const& image, GLuint& id)
     glBindTexture(GL_TEXTURE_2D, id);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, im.width(), im.height(),
-                                         0, GL_RGBA, GL_UNSIGNED_BYTE, im.constBits());
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, im.constBits());
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+QOpenGLTexture* GLLabyrinth::loadTexture(QImage const& image)
+{
+    // Loadimage
+    QOpenGLTexture* texture = new QOpenGLTexture(image.mirrored());
+
+    // Set nearest filtering mode for texture minification
+    texture->setMinificationFilter(QOpenGLTexture::Nearest);
+
+    // Set bilinear filtering mode for texture magnification
+    texture->setMagnificationFilter(QOpenGLTexture::Linear);
+
+    // Wrap texture coordinates by repeating
+    // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
+    texture->setWrapMode(QOpenGLTexture::Repeat);
+
+    return texture;
+}
+
+void GLLabyrinth::initShaders()
+{
+    // Compile vertex shader
+    if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/Shaders/resources/vshader.glsl"))
+        close();
+
+    // Compile fragment shader
+    if (!program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/Shaders/resources/fshader.glsl"))
+        close();
+
+    // Link shader pipeline
+    if (!program.link())
+        close();
+
+    // Bind shader pipeline for use
+    if (!program.bind())
+        close();
+}
+
+void GLLabyrinth::initTextures()
+{
+
 }

@@ -1637,7 +1637,7 @@ void QLabyrinth::setWallsSize(const QSize &wallsSize)
 
     rafraichir();
 
-    if (typeLabyrinthe == Labyrinthe2Den3D)
+    if (typeLabyrinthe == Labyrinthe2Den3D && glLabyrinth)
     {
         glLabyrinth->tailleCaseChangee();
         return;
