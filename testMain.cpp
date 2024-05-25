@@ -20,6 +20,9 @@
 #include "include/Labyrinth2d/Solver/Solver.h"
 #include "include/Labyrinth2d/Mover/QKeyPress.h"
 
+#include "include/Labyrinth3d/Labyrinth.h"
+#include "include/Labyrinth3d/Algorithm/Algorithm.h"
+
 using namespace Labyrinth2d;
 
 void stringRenderGeneratingLabyrinth(Renderer::String& stringRenderer, std::chrono::milliseconds const& cyclePause)
@@ -160,9 +163,43 @@ int main(int argc, char** argv)
         }
     };
 
+    Labyrinth3d::Labyrinth l3d(2, 2, 2);/*
+    Labyrinth3d::Algorithm::Kruskal ka3d;
+    l3d.generate(g, ka3d, sleep, cycleOperations, cyclePause);*/
+    Labyrinth3d::Algorithm::CellFusion cfa3d;
+    l3d.generate(g, cfa3d, sleep, cycleOperations, cyclePause);
+
+    std::string const path{"C:/Users/juju0/AppData/Roaming/FreeCAD/Macro"};
+
+    std::ofstream ofs3d{path + "/labyrinth3d.FCMacro"};
+
+    if (ofs3d)
+    {
+        for (size_t k(0); k < l3d.grid().depth(); ++k)
+        {
+            for (size_t i(0); i < l3d.grid().height(); ++i)
+            {
+                for (size_t j(0); j < l3d.grid().width(); ++j)
+                {
+                    if (l3d.grid().at(i, j, k))
+                    {
+                        ofs3d << "cube = App.ActiveDocument.addObject(\"Part::Box\", \"Cube\")\n"
+                              << "cube.Length = 10\n"
+                              << "cube.Width = 10\n"
+                              << "cube.Height = 10\n"
+                              << "cube.Placement = App.Placement(App.Vector(" << j * 10 << ", " << i * 10 << ", " << k * 10
+                                                                            << "), App.Rotation(App.Vector(0, 0, 1), 0))\n";
+                    }
+                }
+            }
+        }
+
+        ofs3d.close();
+    }
+
     //Labyrinth l(3, 9);
-    //Labyrinth l(10, 50);
-    Labyrinth l(40, 100);
+    Labyrinth l(10, 50);
+    //Labyrinth l(40, 100);
     //Labyrinth l(800, 600);
     //Labyrinth l(1440, 900);
     //Labyrinth l(20, 75);
@@ -183,13 +220,13 @@ int main(int argc, char** argv)
     //Algorithm::Kruskal ka;
     Algorithm::Kruskal ka(Algorithm::Kruskal::Iterative);
 
-    //l.generate(g, ka, cycleOperations, cyclePause);
+    //l.generate(g, ka, sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine,
                                                 Algorithm::Kruskal>,
                            &l, std::ref(g), std::ref(ka), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
 */
-    //l.generate(g, g, ka, rda, cycleOperations, cyclePause);
+    //l.generate(g, g, ka, rda, sleep, cycleOperations, cyclePause);
 /*
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, std::default_random_engine,
                                                 Algorithm::Kruskal, Algorithm::RandomDegenerative>,
@@ -198,14 +235,14 @@ int main(int argc, char** argv)
 *//*
     Algorithm::CellFusion cfa;
 
-    //l.generate(g, cfa, cycleOperations, cyclePause);
+    //l.generate(g, cfa, sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::CellFusion>,
                            &l, std::ref(g), std::ref(cfa), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
 *//*
     Algorithm::RecursiveDivision rda;
 
-    //l.generate(g, rda, cycleOperations, cyclePause);
+    //l.generate(g, rda,sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::RecursiveDivision>,
                            &l, std::ref(g), std::ref(rda), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
@@ -214,7 +251,7 @@ int main(int argc, char** argv)
     //Algorithm::WaySearch wsa(Algorithm:WaySearch::Prim);
     //Algorithm::WaySearch wsa(Algorithm::WaySearch::HuntAndKill);
 
-    //l.generate(g, wsa, cycleOperations, cyclePause);
+    //l.generate(g, wsa, sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::WaySearch>,
         &l, std::ref(g), std::ref(wsa),
         [] (std::chrono::milliseconds const& ms) -> void { std::this_thread::sleep_for(ms); },
@@ -223,7 +260,7 @@ int main(int argc, char** argv)
 /*
     Algorithm::Fractal fa;
 
-    //l.generate(g, fa, cycleOperations, cyclePause);
+    //l.generate(g, fa, sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::Fractal>,
                            &l, std::ref(g), std::ref(fa), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
@@ -234,7 +271,7 @@ int main(int argc, char** argv)
 
     Algorithm::Recursive<Algorithm::Random<Algorithm::Kruskal, Algorithm::Fractal> > r(ra, 50, 2, 2);
 
-    //l.generate(g, r, cycleOperations, cyclePause);
+    //l.generate(g, r, sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::Recursive<Algorithm::Random<Algorithm::Kruskal, Algorithm::Fractal> > >,
                            &l, std::ref(g), std::ref(r), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
@@ -251,6 +288,7 @@ int main(int argc, char** argv)
 
     std::cout << l.generationDuration().count() << " ms" << std::endl;
 */
+
     QApplication application(argc, argv);
 
     QScrollArea scrollArea;/*
@@ -281,6 +319,30 @@ int main(int argc, char** argv)
     //qpr.changeWallsTexture(Renderer::QPainter::Texture(QPixmap("walls.png"), Renderer::QPainter::Texture::Mosaic));
     //qpr.changeBackgroundTexture(Renderer::QPainter::Texture(QPixmap("background.png"), Renderer::QPainter::Texture::Mosaic));
     //qpr.changeBbackgroundTexture(Renderer::QPainter::Texture(Qt::green));
+
+    std::ofstream ofs2d{path + "/labyrinth2d.FCMacro"};
+
+    if (ofs2d)
+    {
+        for (size_t i(0); i < l.grid().height(); ++i)
+        {
+            for (size_t j(0); j < l.grid().width(); ++j)
+            {
+                if (l.grid().at(i, j))
+                {
+                    ofs2d << "cube = App.ActiveDocument.addObject(\"Part::Box\", \"Cube\")\n"
+                          << "cube.Length = " << (j % 2 ? qpr.waysSize().width() : qpr.wallsSize().width()) << "\n"
+                          << "cube.Width = " << (i % 2 ? qpr.waysSize().height() : qpr.wallsSize().height()) << "\n"
+                          << "cube.Height = " << 2 * std::max(qpr.wallsSize().width(), qpr.wallsSize().height()) << "\n"
+                          << "cube.Placement = App.Placement(App.Vector(" << (j + 1) / 2 * qpr.wallsSize().width() + j / 2 * qpr.waysSize().width() << ", "
+                                                                        << (i + 1) / 2 * qpr.wallsSize().height() + i / 2 * qpr.waysSize().height()
+                                                                        << ", 0), App.Rotation(App.Vector(0, 0, 1), 0))\n";
+                }
+            }
+        }
+
+        ofs2d.close();
+    }
 
     size_t const player1Id(l.addPlayer(0, 0, {l.grid().rows() - 1}, {l.grid().columns() - 1}, true));
     size_t const player2Id(l.addPlayer(l.grid().rows() - 1, 0, {0}, {l.grid().columns() - 1}, true));

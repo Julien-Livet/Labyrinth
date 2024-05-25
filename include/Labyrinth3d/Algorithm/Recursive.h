@@ -71,7 +71,7 @@ namespace Labyrinth3d
                  *  \param timeout: time before to abort generation
                  */
                 template <class URNG>
-                void operator()(URNG& g, Grid::SubGrid const& subGrid,
+                void operator()(URNG& g, SubGrid<bool> const& subGrid,
                     std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
                                 size_t operationsCycle = 0,
                                 std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
@@ -131,7 +131,7 @@ size_t Labyrinth3d::Algorithm::Recursive<Algorithm>::minimumFloors() const
 
 template <class Algorithm>
 template <class URNG>
-void Labyrinth3d::Algorithm::Recursive<Algorithm>::operator()(URNG& g, Grid::SubGrid const& subGrid,
+void Labyrinth3d::Algorithm::Recursive<Algorithm>::operator()(URNG& g, SubGrid<bool> const& subGrid,
                                                               std::function<void(std::chrono::milliseconds)> const& sleep,
                                                               size_t operationsCycle,
                                                               std::chrono::milliseconds const& cyclePause,
@@ -154,7 +154,7 @@ void Labyrinth3d::Algorithm::Recursive<Algorithm>::operator()(URNG& g, Grid::Sub
             for (size_t j(0); j < (columnDivision ? 2 : 1); ++j)
                 for (size_t k(0); k < (floorDivision ? 2 : 1); ++k)
                     operator()(g,
-                               Grid::SubGrid(subGrid,
+                               SubGrid<bool>(subGrid,
                                              i * rows,
                                              j * columns,
                                              k * floors,

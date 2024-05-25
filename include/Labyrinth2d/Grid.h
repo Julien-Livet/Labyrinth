@@ -122,15 +122,15 @@ namespace Labyrinth2d
     };
 
     /*!
-             *  \brief Nested class to manipulate a sub-grid
-             */
+     *  \brief Class to manipulate a sub-grid
+     */
     template <typename CellType = bool>
     class SubGrid
     {
         public:
             /*!
-                         *  \brief Authorized operations by manipulating sub-grid
-                         */
+             *  \brief Authorized operations by manipulating sub-grid
+             */
             enum Operation
             {
                 Set,
@@ -139,113 +139,113 @@ namespace Labyrinth2d
             };
 
             /*!
-                         *  \brief Construct a subgrid from a sub-grid
-                         *
-                         *  \param subGrid: parent sub-grid of a labyrinth
-                         *  \param rowShift: row shift from the top left corner of parent sub-grid
-                         *  \param columnShift: column shift from the top left corner of parent sub-grid
-                         *  \param rows: rows of this new sub-grid
-                         *  \param columns: columns of this new sub-grid
-                         */
-            SubGrid(SubGrid const& subGrid, size_t rowShift, size_t columnShift, size_t rows, size_t columns);
+             *  \brief Construct a subgrid from a sub-grid
+             *
+             *  \param subGrid: parent sub-grid of a labyrinth
+             *  \param rowShift: row shift from the top left corner of parent sub-grid
+             *  \param columnShift: column shift from the top left corner of parent sub-grid
+             *  \param rows: rows of this new sub-grid
+             *  \param columns: columns of this new sub-grid
+             */
+            SubGrid(SubGrid<CellType> const& subGrid, size_t rowShift, size_t columnShift, size_t rows, size_t columns);
 
             /*!
-                         *  \brief Construct a subgrid from a grid
-                         *
-                         *  Row and column shifts are null. Rows and columns are equal to rows and columns of labyrinth grid.
-                         *
-                         *  \param grid: grid of a labyrinth
-                         *  \param operation: authorized operation
-                         */
+             *  \brief Construct a subgrid from a grid
+             *
+             *  Row and column shifts are null. Rows and columns are equal to rows and columns of labyrinth grid.
+             *
+             *  \param grid: grid of a labyrinth
+             *  \param operation: authorized operation
+             */
             SubGrid(Grid<CellType> &grid, Operation operation);
 
             /*!
-                         *  \return A constant reference to the top left of sub-grid
-                         */
+             *  \return A constant reference to the top left of sub-grid
+             */
             Grid<CellType> const& grid() const;
 
             /*!
-                         *  \return The row shift from the parent sub-grid
-                         */
+             *  \return The row shift from the parent sub-grid
+             */
             size_t rowShift() const;
 
             /*!
-                         *  \return The column shift from the parent sub-grid
-                         */
+             *  \return The column shift from the parent sub-grid
+             */
             size_t columnShift() const;
 
             /*!
-                         *  \return The rows count of the sub-grid
-                         */
+             *  \return The rows count of the sub-grid
+             */
             size_t rows() const;
 
             /*!
-                         *  \return The columns count of the sub-grid
-                         */
+             *  \return The columns count of the sub-grid
+             */
             size_t columns() const;
 
             /*!
-                         *  \return The height of the sub-grid
-                         */
+             *  \return The height of the sub-grid
+             */
             size_t height() const;
 
             /*!
-                         *  \return The width of the sub-grid
-                         */
+             *  \return The width of the sub-grid
+             */
             size_t width() const;
 
             /*!
-                         *  \param i: index in [0; height() - 1]
-                         *  \param j: index in [0; width() - 1]
-                         *
-                         *  \return A boolean which is one if the considered cell is wall
-                         */
+             *  \param i: index in [0; height() - 1]
+             *  \param j: index in [0; width() - 1]
+             *
+             *  \return A value which is one if the considered cell is wall
+             */
             CellType at(size_t i, size_t j) const;
 
             /*!
-                         *  \brief Change a cell state
-                         *
-                         *  \param i: index in [0; height() - 1]
-                         *  \param j: index in [0; width() - 1]
-                         *  \param value: CellType which is one if the considered cell is wall
-                         */
+             *  \brief Change a cell state
+             *
+             *  \param i: index in [0; height() - 1]
+             *  \param j: index in [0; width() - 1]
+             *  \param value: which is one if the considered cell is wall
+             */
             void change(size_t i, size_t j, CellType value) const;
 
             /*!
-                         *  \brief Toggle a cell state
-                         *
-                         *  \param i: index in [0; height() - 1]
-                         *  \param j: index in [0; width() - 1]
-                         */
+             *  \brief Toggle a cell state
+             *
+             *  \param i: index in [0; height() - 1]
+             *  \param j: index in [0; width() - 1]
+             */
             void toggle(size_t i, size_t j) const;
 
             /*!
-                         *  \brief Set a cell as a wall
-                         *
-                         *  \param i: index in [0; height() - 1]
-                         *  \param j: index in [0; width() - 1]
-                         */
+             *  \brief Set a cell as a wall
+             *
+             *  \param i: index in [0; height() - 1]
+             *  \param j: index in [0; width() - 1]
+             */
             void set(size_t i, size_t j) const;
 
             /*!
-                         *  \brief Set a cell as a way
-                         *
-                         *  \param i: index in [0; height() - 1]
-                         *  \param j: index in [0; width() - 1]
-                         */
+             *  \brief Set a cell as a way
+             *
+             *  \param i: index in [0; height() - 1]
+             *  \param j: index in [0; width() - 1]
+             */
             void reset(size_t i, size_t j) const;
 
             /*!
-                         *  \return The authorize operation for this sub-grid
-                         */
+             *  \return The authorize operation for this sub-grid
+             */
             Operation operation() const;
 
             /*!
-                         *  \param i: index in [0; height() - 1]
-                         *  \param j: index in [0; width() - 1]
-                         *
-                         *  \return A boolean which is true if the considered cell is wall
-                         */
+             *  \param i: index in [0; height() - 1]
+             *  \param j: index in [0; width() - 1]
+             *
+             *  \return A value which is one if the considered cell is wall
+             */
             CellType operator()(size_t i, size_t j) const;
 
         private:

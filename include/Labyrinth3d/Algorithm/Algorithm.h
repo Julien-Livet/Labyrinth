@@ -9,6 +9,7 @@
  *  \date 20/01/2016
  */
 
+#include "CellFusion.h"
 #include "Fractal.h"
 #include "Kruskal.h"
 #include "Random.h"

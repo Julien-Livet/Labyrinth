@@ -923,6 +923,16 @@ void Labyrinth2d::Renderer::QPainter::operator()(::QPainter* painter,  QPoint co
     render(painter, QRegion(rect()), targetOffset);
 }
 
+QSize const& Labyrinth2d::Renderer::QPainter::wallsSize() const
+{
+    return wallsSize_;
+}
+
+QSize const& Labyrinth2d::Renderer::QPainter::waysSize() const
+{
+    return waysSize_;
+}
+
 void Labyrinth2d::Renderer::QPainter::changeWallsSize(QSize const& wallsSize)
 {
     if (wallsSize.isEmpty())

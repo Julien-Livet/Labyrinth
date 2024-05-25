@@ -51,13 +51,13 @@ SOURCES += \
     src/Labyrinth2d/Solver/WallHand.cpp \
     src/Labyrinth2d/Labyrinth.cpp \
     src/Labyrinth2d/Player.cpp \
+    src/Labyrinth3d/Algorithm/CellFusion.cpp \
     src/Labyrinth3d/Algorithm/Kruskal.cpp \
     src/Labyrinth3d/Algorithm/RandomDegenerative.cpp \
     src/Labyrinth3d/Algorithm/TimeoutException.cpp \
     src/Labyrinth3d/Algorithm/WaySearch.cpp \
     src/Labyrinth3d/Solver/FailureException.cpp \
     src/Labyrinth3d/Solver/TimeoutException.cpp \
-    src/Labyrinth3d/Grid.cpp \
     src/Labyrinth3d/Labyrinth.cpp \
     src/Labyrinth3d/Player.cpp
 
@@ -93,6 +93,7 @@ HEADERS += \
     include/Labyrinth2d/Player.h \
     include/Labyrinth2d/utility.h \
     include/Labyrinth3d/Algorithm/Algorithm.h \
+    include/Labyrinth3d/Algorithm/CellFusion.h \
     include/Labyrinth3d/Algorithm/Fractal.h \
     include/Labyrinth3d/Algorithm/Kruskal.h \
     include/Labyrinth3d/Algorithm/Random.h \
@@ -108,6 +109,7 @@ HEADERS += \
     include/Labyrinth3d/Solver/Solver.h \
     include/Labyrinth3d/Solver/TimeoutException.h \
     include/Labyrinth3d/Grid.h \
+    include/Labyrinth3d/Grid.tcc \
     include/Labyrinth3d/Labyrinth.h \
     include/Labyrinth3d/Player.h \
     include/Labyrinth3d/utility.h

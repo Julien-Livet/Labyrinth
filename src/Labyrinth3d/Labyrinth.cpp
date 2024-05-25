@@ -51,12 +51,12 @@ Labyrinth3d::Player& Labyrinth3d::Labyrinth::player(size_t id)
     return *players_.at(id);
 }
 
-Labyrinth3d::Grid const& Labyrinth3d::Labyrinth::grid() const
+Labyrinth3d::Grid<bool> const& Labyrinth3d::Labyrinth::grid() const
 {
     return grid_;
 }
 
-Labyrinth3d::Grid& Labyrinth3d::Labyrinth::grid()
+Labyrinth3d::Grid<bool>& Labyrinth3d::Labyrinth::grid()
 {
     return grid_;
 }

@@ -116,7 +116,7 @@ size_t Labyrinth2d::Grid<CellType>::modificationCounter() const
 }
 
 template<typename CellType>
-Labyrinth2d::SubGrid<CellType>::SubGrid(SubGrid const& subGrid, size_t rowShift, size_t columnShift,
+Labyrinth2d::SubGrid<CellType>::SubGrid(SubGrid<CellType> const& subGrid, size_t rowShift, size_t columnShift,
                                         size_t rows, size_t columns) : grid_(subGrid.grid_),
     rowShift_(subGrid.rowShift_ + rowShift),
     columnShift_(subGrid.columnShift_ + columnShift),
