@@ -1,5 +1,5 @@
-#ifndef LABYRINTH2D_SOLVER_ASTAR_H
-#define LABYRINTH2D_SOLVER_ASTAR_H
+#ifndef LABYRINTH3D_SOLVER_ASTAR_H
+#define LABYRINTH3D_SOLVER_ASTAR_H
 
 /*!
  *  \file AStar.h
@@ -50,17 +50,17 @@ namespace Labyrinth3d
             void operator()(URNG& g, Player& player,
                             std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
                             size_t finishIndex = 0, size_t movements = 0, size_t operationsCycle = 0,
-                            std::chrono::milliseconds cyclePause = std::chrono::milliseconds(0),
+                            std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                             std::chrono::milliseconds const* timeout = nullptr);
         };
     }
 }
 
 template <class URNG>
-void Labyrinth3d::Solver::AStar::operator()(URNG&, Player& player,
+void Labyrinth3d::Solver::AStar::operator()(URNG& /*g*/, Player& player,
                                             std::function<void(std::chrono::milliseconds)> const& sleep,
                                             size_t finishIndex, size_t movements,
-                                            size_t operationsCycle, std::chrono::milliseconds cyclePause,
+                                            size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
                                             std::chrono::milliseconds const* timeout)
 {
     auto const t(std::chrono::steady_clock::now());
@@ -81,8 +81,9 @@ void Labyrinth3d::Solver::AStar::operator()(URNG&, Player& player,
 
         Node& operator=(std::tuple<size_t, size_t, size_t> const& tuple)
         {
-            for (size_t i(0); i < 3; ++i)
-                std::get<i>(*this) = std::get<i>(tuple);
+            std::get<0>(*this) = std::get<0>(tuple);
+            std::get<1>(*this) = std::get<1>(tuple);
+            std::get<2>(*this) = std::get<2>(tuple);
 
             return *this;
         }
@@ -99,9 +100,9 @@ void Labyrinth3d::Solver::AStar::operator()(URNG&, Player& player,
 
         bool operator==(std::tuple<size_t, size_t, size_t> const& tuple) const
         {
-            for (size_t i(0); i < 3; ++i)
-                if (std::get<i>(*this) != std::get<i>(tuple))
-                    return false;
+            return (std::get<0>(*this) == std::get<0>(tuple)
+			        && std::get<1>(*this) != std::get<1>(tuple)
+					&& std::get<2>(*this) != std::get<2>(tuple));
 
             return true;
         }
@@ -121,7 +122,7 @@ void Labyrinth3d::Solver::AStar::operator()(URNG&, Player& player,
     };
 
     auto calculateEstimatedCost([]
-                                (std::tuple<size_t, size_t, size_t> const& t1, std::tuple<size_t, size_t, size_t> const& t2)
+                                (std::tuple<size_t, size_t, size_t> const& t1, std::tuple<size_t, size_t, size_t> const& t2) -> double
                                 {
                                     return std::sqrt(std::pow(static_cast<double>(std::get<0>(t1)) - static_cast<double>(std::get<0>(t2)), 2)
                                                      + std::pow(static_cast<double>(std::get<1>(t1)) - static_cast<double>(std::get<1>(t2)), 2)
@@ -130,12 +131,14 @@ void Labyrinth3d::Solver::AStar::operator()(URNG&, Player& player,
 
     size_t operations(0);
 
-    auto const finish(std::make_tuple(player.finishI(), player.finishJ(), player.finishK()));
-    Grid const& grid(player.labyrinth().grid());
+    auto const finish(std::make_tuple(player.finishI()[finishIndex],
+                                      player.finishJ()[finishIndex],
+                                      player.finishK()[finishIndex]));
+    auto const& grid(player.labyrinth().grid());
 
     std::vector<Node> closedList;
     std::vector<Node> openedList{Node(player.i(), player.j(), player.k(), 0.0,
-                                      calculateEstimatedCost(std::make_pair(player.i(), player.j(), player.k()), finish))};
+                                      calculateEstimatedCost(std::make_tuple(player.i(), player.j(), player.k()), finish))};
 
     while (!openedList.empty())
     {
@@ -171,7 +174,8 @@ void Labyrinth3d::Solver::AStar::operator()(URNG&, Player& player,
                 if (player.state() & Player::StoppedSolving)
                     return;
 
-                if (operationsCycle && cyclePause.count() && !(operations % operationsCycle))
+                if (operationsCycle && cyclePause.count()
+                    && !(operations % operationsCycle))
                     sleep(cyclePause);
 
                 if (timeout != nullptr)
@@ -209,7 +213,8 @@ void Labyrinth3d::Solver::AStar::operator()(URNG&, Player& player,
                 }
                 else
                 {
-                    assert(std::get<1>(closedList[i]) == player.j() && std::get<2>(closedList[i]) == player.k());
+                    assert(std::get<1>(closedList[i]) == player.j()
+                           && std::get<2>(closedList[i]) == player.k());
 
                     if (std::get<0>(closedList[i]) > player.i())
                         player.move(Back, sleep);
@@ -250,24 +255,27 @@ void Labyrinth3d::Solver::AStar::operator()(URNG&, Player& player,
                     --std::get<1>(node);
                     break;
 
-                case Up:
+                case Down:
                     --std::get<2>(node);
                     break;
 
-                case Down:
+                case Up:
                     ++std::get<2>(node);
                     break;
             }
 
             directions.pop_back();
 
-            if (std::get<0>(node) < grid.height() && std::get<1>(node) < grid.width() && std::get<2>(node) < grid.depth()
+            if (std::get<0>(node) < grid.height()
+                && std::get<1>(node) < grid.width()
+                && std::get<2>(node) < grid.depth()
                 && !grid(std::get<0>(node), std::get<1>(node), std::get<2>(node)))
             {
                 node.changeEstimatedCost(calculateEstimatedCost(node, finish));
                 node.parentNodeIndex = closedList.size() - 1;
 
-                auto it(std::find(closedList.begin(), closedList.end(), static_cast<std::tuple<size_t, size_t, size_t> >(node)));
+                auto it(std::find(closedList.begin(), closedList.end(),
+                                  static_cast<std::tuple<size_t, size_t, size_t> >(node)));
 
                 bool ok(it == closedList.end());
 
@@ -276,7 +284,8 @@ void Labyrinth3d::Solver::AStar::operator()(URNG&, Player& player,
 
                 if (ok)
                 {
-                    it = std::find(openedList.begin(), openedList.end(), static_cast<std::tuple<size_t, size_t, size_t> >(node));
+                    it = std::find(openedList.begin(), openedList.end(),
+                                   static_cast<std::tuple<size_t, size_t, size_t> >(node));
 
                     ok = (it == openedList.end());
 
@@ -285,7 +294,8 @@ void Labyrinth3d::Solver::AStar::operator()(URNG&, Player& player,
 
                     if (ok)
                     {
-                        std::multiset<Node, CompareNodes> multiset(openedList.begin(), openedList.end());
+                        std::multiset<Node, CompareNodes> multiset(openedList.begin(),
+                                                                   openedList.end());
 
                         multiset.insert(node);
 
@@ -299,4 +309,4 @@ void Labyrinth3d::Solver::AStar::operator()(URNG&, Player& player,
     throw FailureException();
 }
 
-#endif // LABYRINTH2D_SOLVER_ASTAR_H
+#endif // LABYRINTH3D_SOLVER_ASTAR_H

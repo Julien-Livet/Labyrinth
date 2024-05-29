@@ -100,7 +100,7 @@ void Labyrinth3d::Algorithm::Kruskal::operator()(URNG& g, SubGrid<bool> const& s
     size_t const height(subGrid.height());
     size_t const width(subGrid.width());
     size_t const depth(subGrid.depth());
-    return;
+
     for (size_t k(1); k < depth; k += 2)
     {
         for (size_t i(1); i < height - 3; i += 2)
@@ -119,10 +119,14 @@ void Labyrinth3d::Algorithm::Kruskal::operator()(URNG& g, SubGrid<bool> const& s
             subGrid.set(height - 2, j, k);
     }
 
-    for (size_t i(1); i < height; i += 2)
+    for (size_t i(1); i < width; i += 2)
+    {
         for (size_t k(2); k < depth - 1; k += 2)
+        {
             for (size_t j(1); j < height - 1; j += 2)
                 subGrid.set(i, j, k);
+        }
+    }
 
     if (type == Recursive)
         recursiveGeneration_(g, subGrid, sleep, operationsCycle, cyclePause, timeout);

@@ -20,10 +20,6 @@
 #include "include/Labyrinth2d/Solver/Solver.h"
 #include "include/Labyrinth2d/Mover/QKeyPress.h"
 
-#include "include/Labyrinth3d/Labyrinth.h"
-#include "include/Labyrinth3d/Algorithm/Algorithm.h"
-#include "include/Labyrinth3d/Solver/Solver.h"
-
 using namespace Labyrinth2d;
 
 void stringRenderGeneratingLabyrinth(Renderer::String& stringRenderer, std::chrono::milliseconds const& cyclePause)
@@ -164,20 +160,6 @@ int main(int argc, char** argv)
         }
     };
 
-    Labyrinth3d::Labyrinth l3d(2, 2, 2);
-    //Labyrinth3d::Labyrinth l3d(5, 5, 5);
-    //Labyrinth3d::Labyrinth l3d(9, 9, 9);
-/*
-    //Not working
-    Labyrinth3d::Algorithm::Kruskal ka3d;
-    l3d.generate(g, ka3d, sleep, cycleOperations, cyclePause);*/
-    //Not working
-    Labyrinth3d::Algorithm::CellFusion cfa3d;
-    l3d.generate(g, cfa3d, sleep, cycleOperations, cyclePause);/*
-    //Not working
-    Labyrinth3d::Algorithm::RecursiveDivision rda3d;
-    l3d.generate(g, rda3d, sleep, cycleOperations, cyclePause);*/
-
     //Labyrinth l(3, 9);
     Labyrinth l(9, 9);
     //Labyrinth l(10, 50);
@@ -304,43 +286,12 @@ int main(int argc, char** argv)
 
     std::string const path{"C:/Users/juju0/AppData/Roaming/FreeCAD/Macro"};
 
-    QVector3D const wallsSize3d{5, 5, 5};
-    QVector3D const waysSize3d{20, 20, 20}; //diameter of 16 mm for a school ball
+    QSize const wallsSize{5, 5};
+    QSize const waysSize{20, 20}; //diameter of 16 mm for a school ball
 
-    std::ofstream ofs3d{path + "/labyrinth3d.FCMacro"};
+    std::ofstream ofs{path + "/labyrinth2d.FCMacro"};
 
-    if (ofs3d)
-    {
-        for (size_t k(0); k < l3d.grid().depth(); ++k)
-        {
-            for (size_t i(0); i < l3d.grid().height(); ++i)
-            {
-                for (size_t j(0); j < l3d.grid().width(); ++j)
-                {
-                    if (l3d.grid().at(i, j, k))
-                    {
-                        ofs3d << "cube = App.ActiveDocument.addObject(\"Part::Box\", \"Cube\")\n"
-                              << "cube.Length = " << (j % 2 ? waysSize3d.x() : wallsSize3d.x()) << "\n"
-                              << "cube.Width = " << (i % 2 ? waysSize3d.y() : wallsSize3d.y()) << "\n"
-                              << "cube.Height = " << (k % 2 ? waysSize3d.z() : wallsSize3d.z()) << "\n"
-                              << "cube.Placement = App.Placement(App.Vector(" << (j + 1) / 2 * wallsSize3d.x() + j / 2 * waysSize3d.x() << ", "
-                                                                              << (i + 1) / 2 * wallsSize3d.y() + i / 2 * waysSize3d.y() << ", "
-                                                                              << (k + 1) / 2 * wallsSize3d.z() + k / 2 * waysSize3d.z()
-                                                                              << "), App.Rotation(App.Vector(0, 0, 1), 0))\n";
-                    }
-                }
-            }
-        }
-
-        ofs3d.close();
-    }
-
-    QSize const wallsSize2d{5, 5};
-    QSize const waysSize2d{20, 20}; //diameter of 16 mm for a school ball
-
-    std::ofstream ofs2d{path + "/labyrinth2d.FCMacro"};
-
-    if (ofs2d)
+    if (ofs)
     {
         for (size_t i(0); i < l.grid().height(); ++i)
         {
@@ -348,21 +299,19 @@ int main(int argc, char** argv)
             {
                 if (l.grid().at(i, j))
                 {
-                    ofs2d << "cube = App.ActiveDocument.addObject(\"Part::Box\", \"Cube\")\n"
-                          << "cube.Length = " << (j % 2 ? waysSize2d.width() : wallsSize2d.width()) << "\n"
-                          << "cube.Width = " << (i % 2 ? waysSize2d.height() : wallsSize2d.height()) << "\n"
-                          << "cube.Height = " << 2 * std::max(wallsSize2d.width(), wallsSize2d.height()) << "\n"
-                          << "cube.Placement = App.Placement(App.Vector(" << (j + 1) / 2 * wallsSize2d.width() + j / 2 * waysSize2d.width() << ", "
-                                                                        << (i + 1) / 2 * wallsSize2d.height() + i / 2 * waysSize2d.height()
+                    ofs << "cube = App.ActiveDocument.addObject(\"Part::Box\", \"Cube\")\n"
+                        << "cube.Length = " << (j % 2 ? waysSize.width() : wallsSize.width()) << "\n"
+                        << "cube.Width = " << (i % 2 ? waysSize.height() : wallsSize.height()) << "\n"
+                        << "cube.Height = " << 2 * std::max(wallsSize.width(), wallsSize.height()) << "\n"
+                        << "cube.Placement = App.Placement(App.Vector(" << (j + 1) / 2 * wallsSize.width() + j / 2 * waysSize.width() << ", "
+                                                                        << (i + 1) / 2 * wallsSize.height() + i / 2 * waysSize.height()
                                                                         << ", 0), App.Rotation(App.Vector(0, 0, 1), 0))\n";
                 }
             }
         }
 
-        ofs2d.close();
+        ofs.close();
     }
-
-    size_t const player3d(l3d.addPlayer(0, 0, 0, {l3d.grid().rows() - 1}, {l3d.grid().columns() - 1}, {l3d.grid().floors() - 1}, true));
 
     size_t const player1Id(l.addPlayer(0, 0, {l.grid().rows() - 1}, {l.grid().columns() - 1}, true));
     size_t const player2Id(l.addPlayer(l.grid().rows() - 1, 0, {0}, {l.grid().columns() - 1}, true));
@@ -398,22 +347,6 @@ int main(int argc, char** argv)
 
     //thGenerate.join(); //generete system_error exception but what...
 
-    Labyrinth3d::Solver::AStar ass3d;
-
-    //l3d.player(player3d).solve(g, ass3d, sleep, 0, 0, cycleOperationsSolving, cyclePauseSolving);
-    std::thread thSolvePlayer3d(&Labyrinth3d::Player::solve<std::default_random_engine, Labyrinth3d::Solver::AStar>, &l3d.player(player3d),
-                                std::ref(g), std::ref(ass3d), sleep, 0, 0,
-                                cycleOperationsSolving, cyclePauseSolving, nullptr);
-    thSolvePlayer3d.detach();
-/*
-    Labyrinth3d::Solver::Blind bs3d;
-
-    //l3d.player(player3d).solve(g, bs3d, sleep, 0, 0, cycleOperationsSolving, cyclePauseSolving);
-    std::thread thSolvePlayer3d(&Labyrinth3d::Player::solve<std::default_random_engine, Labyrinth3d::Solver::Blind>, &l3d.player(player3d),
-                                std::ref(g), std::ref(bs3d), sleep, 0, 0,
-                                cycleOperationsSolving, cyclePauseSolving, nullptr);
-    thSolvePlayer3d.detach();
-*/
     Solver::AStar ass;
     Solver::Blind bs;
     Solver::WallHand whsl(Solver::WallHand::Left);
@@ -473,22 +406,13 @@ int main(int argc, char** argv)
     thSolvePlayer3.join();
     thSolvePlayer4.join();
 */
-    std::cout << "Player 3D state: " << l3d.player(player3d).state() << std::endl;
     std::cout << "Player 1 state: " << l.player(player1Id).state() << std::endl;
     std::cout << "Player 2 state: " << l.player(player2Id).state() << std::endl;
     std::cout << "Player 3 state: " << l.player(player3Id).state() << std::endl;
     std::cout << "Player 4 state: " << l.player(player4Id).state() << std::endl;
 
-    if (l3d.state() & Labyrinth3d::Labyrinth::Generated)
-        std::cout << "Labyrinth 3D generated in " << l3d.generationDuration().count() << " ms" << std::endl;
-
     if (l.state() & Labyrinth::Generated)
-        std::cout << "Labyrinth 2D generated in " << l.generationDuration().count() << " ms" << std::endl;
-
-    if (l3d.player(player3d).state() & Labyrinth3d::Player::Solved)
-        std::cout << "Player 3D solved in " << l3d.player(player3d).solvingDuration().count() << " ms" << std::endl;
-    else if (l.player(player3d).state() & Labyrinth3d::Player::Finished)
-        std::cout << "Player 3D finished in " << l3d.player(player3d).finishingDuration().count() << " ms" << std::endl;
+        std::cout << "Labyrinth generated in " << l.generationDuration().count() << " ms" << std::endl;
 
     if (l.player(player1Id).state() & Player::Solved)
         std::cout << "Player 1 solved in " << l.player(player1Id).solvingDuration().count() << " ms" << std::endl;

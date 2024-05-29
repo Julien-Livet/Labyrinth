@@ -105,15 +105,21 @@ void Labyrinth2d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
         grid.change(y + e / 2, x + d / 2, grid.at(y, x));
         subGrid.reset(y + e / 2, x + d / 2);
 
-        if (x + d + 2 < static_cast<int>(width) && grid.at(y + e, x + d + 1) != 1
+        if (x + d + 2 < static_cast<int>(width)
+            && grid.at(y + e, x + d + 1) != 1
             && grid.at(y + e, x + d + 2) != grid.at(y, x))
 			fill(x + d, y + e, 2, 0);
-		if (x + d - 2 >= 0 && grid.at(y + e, x + d - 1) != 1 && grid.at(y + e, x + d - 2) != grid.at(y, x))
+        if (x + d - 2 >= 0
+            && grid.at(y + e, x + d - 1) != 1
+            && grid.at(y + e, x + d - 2) != grid.at(y, x))
 			fill(x + d, y + e, -2, 0);
-        if (y + e + 2 < static_cast<int>(height) && grid.at(y + e + 1, x + d) != 1
+        if (y + e + 2 < static_cast<int>(height)
+            && grid.at(y + e + 1, x + d) != 1
             && grid.at(y + e + 2, x + d) != grid.at(y, x))
 			fill(x + d, y + e, 0, 2);
-		if (y + e - 2 >= 0 && grid.at(y + e - 1, x + d) != 1 && grid.at(y + e - 2, x + d) != grid.at(y, x))
+        if (y + e - 2 >= 0
+            && grid.at(y + e - 1, x + d) != 1
+            && grid.at(y + e - 2, x + d) != grid.at(y, x))
 			fill(x + d, y + e, 0, -2);
     };
 
@@ -178,19 +184,12 @@ void Labyrinth2d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
                     if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) > *timeout)
                         throw TimeoutException();
 
-                x += 2;
-                if (x >= static_cast<int>(width))
-                {
-                    x = 1;
-                    y += 2;
-                    if (y >= static_cast<int>(height))
-                        y = 1;
-                }
                 std::vector<std::pair<int, int> > possibilities
                 {
                     std::make_pair(0, 2), std::make_pair(2, 0),
                     std::make_pair(0, -2), std::make_pair(-2, 0)
                 };
+
                 while (!b && !possibilities.empty())
                 {
                     auto& p{possibilities[g() % possibilities.size()]};
@@ -218,6 +217,15 @@ void Labyrinth2d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
                         b = true;
                         break;
                     }
+                }
+
+                x += 2;
+                if (x >= static_cast<int>(width))
+                {
+                    x = 1;
+                    y += 2;
+                    if (y >= static_cast<int>(height))
+                        y = 1;
                 }
             } while (!b);
         }

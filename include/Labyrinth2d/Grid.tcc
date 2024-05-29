@@ -5,7 +5,7 @@ template<typename CellType>
 Labyrinth2d::Grid<CellType>::Grid(Labyrinth const& labyrinth,
                                   size_t rows, size_t columns) : labyrinth_(&labyrinth),
                                                                  height_(rows * 2 + 1), width_(columns * 2 + 1),
-                                                                 cells_(height_ * width_, false),
+                                                                 cells_(height_ * width_, CellType(0)),
                                                                  modificationCounter_(0)
 {
     if (!rows || !columns)
@@ -13,19 +13,21 @@ Labyrinth2d::Grid<CellType>::Grid(Labyrinth const& labyrinth,
 
     for (size_t j(0); j < width_; ++j)
     {
-        cells_[j] = true;
-        cells_[(height_ - 1) * width_ + j] = true;
+        cells_[j] = CellType(1);
+        cells_[(height_ - 1) * width_ + j] = CellType(1);
     }
 
     for (size_t i(1); i < height_ - 1; ++i)
     {
-        cells_[width_ * i] = true;
-        cells_[(i + 1) * width_ - 1] = true;
+        cells_[width_ * i] = CellType(1);
+        cells_[(i + 1) * width_ - 1] = CellType(1);
     }
 
     for (size_t i(2); i < height_ - 1; i += 2)
+    {
         for (size_t j(2); j < width_ - 1; j += 2)
-            cells_[i * width_ + j] = true;
+            cells_[i * width_ + j] = CellType(1);
+    }
 }
 
 template<typename CellType>
@@ -86,13 +88,13 @@ void Labyrinth2d::Grid<CellType>::toggle(size_t i, size_t j)
 template<typename CellType>
 void Labyrinth2d::Grid<CellType>::set(size_t i, size_t j)
 {
-    change(i, j, true);
+    change(i, j, CellType(1));
 }
 
 template<typename CellType>
 void Labyrinth2d::Grid<CellType>::reset(size_t i, size_t j)
 {
-    change(i, j, false);
+    change(i, j, CellType(0));
 }
 
 template<typename CellType>
@@ -225,7 +227,7 @@ void Labyrinth2d::SubGrid<CellType>::set(size_t i, size_t j) const
     if (operation_ == Reset)
         throw std::invalid_argument("Set operation not allowed");
 
-    change(i, j, true);
+    change(i, j, CellType(1));
 }
 
 template<typename CellType>
@@ -234,7 +236,7 @@ void Labyrinth2d::SubGrid<CellType>::reset(size_t i, size_t j) const
     if (operation_ == Set)
         throw std::invalid_argument("Reset operation not allowed");
 
-    change(i, j, false);
+    change(i, j, CellType(0));
 }
 
 template<typename CellType>

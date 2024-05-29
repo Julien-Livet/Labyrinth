@@ -86,8 +86,10 @@ void Labyrinth2d::Algorithm::RecursiveDivision::operator()(URNG& g, SubGrid<bool
                 sleep(cyclePause);
 
             if (timeout != nullptr)
+            {
                 if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time) > *timeout)
                     throw TimeoutException();
+            }
 
             for (size_t iTmp(std::get<0>(t) + 1); iTmp < std::get<2>(t); iTmp += 2)
                 subGrid.set(iTmp, j);

@@ -235,7 +235,7 @@ namespace Labyrinth2d
             void stopSolving();
 			
 			/*!
-			 *  \brief Return the full trace as a vector of tuples
+             *  \brief Return the full trace as a vector of pairs
 			 */
             std::vector<std::pair<size_t, size_t> > const& fullTrace() const;
 

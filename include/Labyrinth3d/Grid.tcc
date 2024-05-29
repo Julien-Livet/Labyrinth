@@ -7,7 +7,7 @@ Labyrinth3d::Grid<CellType>::Grid(Labyrinth const& labyrinth,
                                                                                 height_(rows * 2 + 1),
                                                                                 width_(columns * 2 + 1),
                                                                                 depth_(floors * 2 + 1),
-                                                                                cells_(depth_ * height_ * width_, false),
+                                                                                cells_(depth_ * height_ * width_, CellType(0)),
                                                                                 modificationCounter_(0)
 {
     if (!rows || !columns || !floors)
@@ -17,8 +17,8 @@ Labyrinth3d::Grid<CellType>::Grid(Labyrinth const& labyrinth,
     {
         for (size_t j(0); j < width_; ++j)
         {
-            cells_[i * width_ + j] = true;
-            cells_[((depth_ - 1) * height_ + i) * width_ + j] = true;
+            cells_[i * width_ + j] = CellType(1);
+            cells_[((depth_ - 1) * height_ + i) * width_ + j] = CellType(1);
         }
     }
 
@@ -26,8 +26,8 @@ Labyrinth3d::Grid<CellType>::Grid(Labyrinth const& labyrinth,
     {
         for (size_t k(0); k < depth_; ++k)
         {
-            cells_[(k * height_ + i) * width_] = true;
-            cells_[(k * height_ + i) * width_ + width_ - 1] = true;
+            cells_[(k * height_ + i) * width_] = CellType(1);
+            cells_[(k * height_ + i) * width_ + width_ - 1] = CellType(1);
         }
     }
 
@@ -35,15 +35,19 @@ Labyrinth3d::Grid<CellType>::Grid(Labyrinth const& labyrinth,
     {
         for (size_t k(1); k < depth_ - 1; ++k)
         {
-            cells_[(k * height_) * width_ + j] = true;
-            cells_[(k * height_ + height_ - 1) * width_ + j] = true;
+            cells_[(k * height_) * width_ + j] = CellType(1);
+            cells_[(k * height_ + height_ - 1) * width_ + j] = CellType(1);
         }
     }
 
     for (size_t i(2); i < height_ - 1; i += 2)
+    {
         for (size_t j(2); j < width_ - 1; j += 2)
+        {
             for (size_t k(2); k < depth_ - 1; k += 2)
-                cells_[(k * height_ + i) * width_ + j] = true;
+                cells_[(k * height_ + i) * width_ + j] = CellType(1);
+        }
+    }
 }
 
 template<typename CellType>
@@ -116,13 +120,13 @@ void Labyrinth3d::Grid<CellType>::toggle(size_t i, size_t j, size_t k)
 template<typename CellType>
 void Labyrinth3d::Grid<CellType>::set(size_t i, size_t j, size_t k)
 {
-    change(i, j, k, true);
+    change(i, j, k, CellType(1));
 }
 
 template<typename CellType>
 void Labyrinth3d::Grid<CellType>::reset(size_t i, size_t j, size_t k)
 {
-    change(i, j, k, false);
+    change(i, j, k, CellType(0));
 }
 
 template<typename CellType>
@@ -276,7 +280,7 @@ void Labyrinth3d::SubGrid<CellType>::set(size_t i, size_t j, size_t k) const
     if (operation_ == Reset)
         throw std::invalid_argument("Set operation not allowed");
 
-    change(i, j, k, true);
+    change(i, j, k, CellType(1));
 }
 
 template<typename CellType>
@@ -285,7 +289,7 @@ void Labyrinth3d::SubGrid<CellType>::reset(size_t i, size_t j, size_t k) const
     if (operation_ == Set)
         throw std::invalid_argument("Reset operation not allowed");
 
-    change(i, j, k, false);
+    change(i, j, k, CellType());
 }
 
 template<typename CellType>

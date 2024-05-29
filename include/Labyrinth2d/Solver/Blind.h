@@ -230,7 +230,10 @@ void Labyrinth2d::Solver::Blind::operator()(URNG& g, Player& player,
             else
             {
                 if (unvisitedDirections.empty())
-                    chosenDirection = visitedDirections[g() % visitedDirections.size()];
+                {
+                    if (!visitedDirections.empty())
+                        chosenDirection = visitedDirections[g() % visitedDirections.size()];
+                }
                 else
                     chosenDirection = unvisitedDirections[g() % unvisitedDirections.size()];
             }

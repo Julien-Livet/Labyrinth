@@ -54,7 +54,7 @@ namespace Labyrinth3d
         };
     }
 }
-
+#include <QDebug>
 template <class URNG>
 void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const& subGrid,
                                                     std::function<void(std::chrono::milliseconds)> const& sleep,
@@ -75,8 +75,8 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
         {
             for (size_t j(2); j < width - 1; j += 2)
             {
-                grid.change(i, j, 1, k);
-                grid.change(i + 1, j - 1, 1, k);
+                grid.change(i, j, k, 1);
+                grid.change(i + 1, j - 1, k, 1);
                 subGrid.set(i, j, k);
                 subGrid.set(i + 1, j - 1, k);
             }
@@ -92,15 +92,6 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
         {
             grid.change(height - 2, j, k, 1);
             subGrid.set(height - 2, j, k);
-        }
-    }
-
-    for (size_t z = 1; z < depth ; z += 2)
-    {
-        for (size_t y = 1; y < height; y += 2)
-        {
-            for (size_t x = 1; x < width; x += 2)
-                grid.change(y, x, z, (z - 1) * (height - 1) / 8 + (y - 1) * (width - 1) / 4 + (x - 1) / 2 + 2);
         }
     }
 
@@ -128,6 +119,15 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
         }
     }
 
+    for (size_t z = 1; z < depth ; z += 2)
+    {
+        for (size_t y = 1; y < height; y += 2)
+        {
+            for (size_t x = 1; x < width; x += 2)
+                grid.change(y, x, z, ((z - 1) * (height - 1) / 2 + (y - 1)) * (width - 1) / 4 + (x - 1) / 2 + 2);
+        }
+    }
+
     std::function<void(int, int, int, int, int, int)> fill;
 
     fill = [&grid, &subGrid, width, height, depth, &fill](int x, int y, int z, int d, int e, int f) -> void
@@ -136,20 +136,29 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
         grid.change(y + e / 2, x + d / 2, z + f / 2, grid.at(y, x, z));
         subGrid.reset(y + e / 2, x + d / 2, z + f / 2);
 
-        if (x + d + 2 < static_cast<int>(width) && grid.at(y + e, x + d + 1, z + f) != 1
+        if (x + d + 2 < static_cast<int>(width)
+            && grid.at(y + e, x + d + 1, z + f) != 1
             && grid.at(y + e, x + d + 2, z + f) != grid.at(y, x, z))
             fill(x + d, y + e, z + f, 2, 0, 0);
-        if (x + d - 2 >= 0 && grid.at(y + e, x + d - 1, z + f) != 1 && grid.at(y + e, x + d - 2, z + f) != grid.at(y, x, z))
+        if (x + d - 2 >= 0
+            && grid.at(y + e, x + d - 1, z + f) != 1
+            && grid.at(y + e, x + d - 2, z + f) != grid.at(y, x, z))
             fill(x + d, y + e, z + f, -2, 0, 0);
-        if (y + e + 2 < static_cast<int>(height) && grid.at(y + e + 1, x + d, z + f) != 1
+        if (y + e + 2 < static_cast<int>(height)
+            && grid.at(y + e + 1, x + d, z + f) != 1
             && grid.at(y + e + 2, x + d, z + f) != grid.at(y, x, z))
             fill(x + d, y + e, z + f, 0, 2, 0);
-        if (y + e - 2 >= 0 && grid.at(y + e - 1, x + d, z + f) != 1 && grid.at(y + e - 2, x + d, z + f) != grid.at(y, x, z))
+        if (y + e - 2 >= 0
+            && grid.at(y + e - 1, x + d, z + f) != 1
+            && grid.at(y + e - 2, x + d, z + f) != grid.at(y, x, z))
             fill(x + d, y + e, z + f, 0, -2, 0);
-        if (z + f + 2 < static_cast<int>(depth) && grid.at(x + e, x + d, z + f + 1) != 1
+        if (z + f + 2 < static_cast<int>(depth)
+            && grid.at(x + e, x + d, z + f + 1) != 1
             && grid.at(y + e, x + d, z + f + 2) != grid.at(y, x, z))
             fill(x + d, y + e, z + f, 0, 0, 2);
-        if (z + f - 2 >= 0 && grid.at(y + e, x + d, z + f - 1) != 1 && grid.at(y + e, x + d, z + f - 2) != grid.at(y, x, z))
+        if (z + f - 2 >= 0
+            && grid.at(y + e, x + d, z + f - 1) != 1
+            && grid.at(y + e, x + d, z + f - 2) != grid.at(y, x, z))
             fill(x + d, y + e, z + f, 0, 0, -2);
     };
 
@@ -228,26 +237,13 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
                     if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) > *timeout)
                         throw TimeoutException();
 
-                x += 2;
-                if (x >= static_cast<int>(width))
-                {
-                    x = 1;
-                    y += 2;
-                    if (y >= static_cast<int>(height))
-                    {
-                        y = 1;
-                        z += 2;
-
-                        if (z >= static_cast<int>(depth))
-                            z = 1;
-                    }
-                }
                 std::vector<std::tuple<int, int, int> > possibilities
                 {
                     std::make_tuple(0, 2, 0), std::make_tuple(2, 0, 0),
                     std::make_tuple(0, -2, 0), std::make_tuple(-2, 0, 0),
                     std::make_tuple(0, 0, -2), std::make_tuple(0, 0, 2)
                 };
+
                 while (!b && !possibilities.empty())
                 {
                     auto& p{possibilities[g() % possibilities.size()]};
@@ -276,6 +272,20 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
                         ++openedDoorNumber;
                         b = true;
                         break;
+                    }
+                }
+
+                x += 2;
+                if (x >= static_cast<int>(width))
+                {
+                    x = 1;
+                    y += 2;
+                    if (y >= static_cast<int>(height))
+                    {
+                        y = 1;
+                        z += 2;
+                        if (z >= static_cast<int>(depth))
+                            z = 1;
                     }
                 }
             } while (!b);

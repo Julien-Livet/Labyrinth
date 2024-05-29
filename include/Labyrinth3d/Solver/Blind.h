@@ -61,12 +61,11 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
                                             std::function<void(std::chrono::milliseconds)> const& sleep,
                                             size_t finishIndex, size_t movements,
                                             size_t operationsCycle, std::chrono::milliseconds cyclePause,
-                                            std::chrono::milliseconds const* timeout,
-                                            std::function<std::chrono::milliseconds()> const& sleep)
+                                            std::chrono::milliseconds const* timeout)
 {
     auto const t(std::chrono::steady_clock::now());
 
-    Grid const& grid(player.labyrinth().grid());
+    auto const& grid(player.labyrinth().grid());
 
     enum CellState
     {
@@ -87,11 +86,11 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
         if (player.state() & Player::StoppedSolving)
             return;
 
-        size_t const k(g() % directions.size());
+        size_t const v(g() % directions.size());
 
-        chosenDirection = directions[k];
+        chosenDirection = directions[v];
 
-        directions[k] = directions.back();
+        directions[v] = directions.back();
 
         directions.pop_back();
 
@@ -117,11 +116,11 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
                 --j;
                 break;
 
-            case Front:
+            case Down:
                 --k;
                 break;
 
-            case Back:
+            case Up:
                 ++k;
                 break;
         }
@@ -195,12 +194,12 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
                     --j;
                     break;
 
-                case Up:
+                case Down:
                     --k;
                     break;
 
-                case Down:
-                    --k;
+                case Up:
+                    ++k;
                     break;
             }
 
@@ -210,7 +209,7 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
                     blockedDirections.push_back(directions[l]);
                 else
                 {
-                    switch (cellStates[(k * grid.depth() + i) * grid.width() + j])
+                    switch (cellStates[(k * grid.height() + i) * grid.width() + j])
                     {
                         case Visited:
                             visitedDirections.push_back(directions[l]);
@@ -230,14 +229,14 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
                 blockedDirections.push_back(directions[l]);
         }
 
-        if (blockedDirections.size() == 3)
+        if (blockedDirections.size() == 5)
         {
             chosenDirection = opposedDirections.at(chosenDirection);
-            cellStates[(player.k() * grid.depth() + player.i()) * grid.width() + player.j()] = Blocked;
+            cellStates[(player.k() * grid.height() + player.i()) * grid.width() + player.j()] = Blocked;
         }
         else
         {
-            if (blockedDirections.size() == 2)
+            if (blockedDirections.size() == 4)
             {
                 if (!unvisitedDirections.empty())
                     chosenDirection = unvisitedDirections.back();
@@ -245,14 +244,17 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
                 {
                     chosenDirection = visitedDirections.back();
 
-                    if (cellStates[(previousK * grid.depth() + previousI) * grid.width() + previousJ])
-                        cellStates[(player.k() * grid.depth() + player.i()) * grid.width() + player.j()] = Blocked;
+                    if (cellStates[(previousK * grid.height() + previousI) * grid.width() + previousJ])
+                        cellStates[(player.k() * grid.height() + player.i()) * grid.width() + player.j()] = Blocked;
                 }
             }
             else
             {
                 if (unvisitedDirections.empty())
-                    chosenDirection = visitedDirections[g() % visitedDirections.size()];
+                {
+                    if (!visitedDirections.empty())
+                        chosenDirection = visitedDirections[g() % visitedDirections.size()];
+                }
                 else
                     chosenDirection = unvisitedDirections[g() % unvisitedDirections.size()];
             }
@@ -285,22 +287,22 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
                     --j;
                     break;
 
-                case Up:
+                case Down:
                     --k;
                     break;
 
-                case Down:
+                case Up:
                     ++k;
                     break;
             }
 
-            if (cellStates[(k * grid.depth() + i) * grid.width() + j] == Blocked)
+            if (cellStates[(k * grid.height() + i) * grid.width() + j] == Blocked)
                 throw FailureException();
         }
 
         player.move(chosenDirection, sleep);
 
-        cellStates[(player.k() * grid.depth() + player.i()) * grid.width() + player.j()] = Visited;
+        cellStates[(player.k() * grid.height() + player.i()) * grid.width() + player.j()] = Visited;
 
         ++operations;
     }

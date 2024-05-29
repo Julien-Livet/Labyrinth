@@ -56,7 +56,7 @@ namespace Labyrinth2d
 }
 
 template <class URNG>
-void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player,
+void Labyrinth2d::Solver::AStar::operator()(URNG& /*g*/, Player& player,
                                             std::function<void(std::chrono::milliseconds)> const& sleep,
                                             size_t finishIndex, size_t movements,
                                             size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
@@ -115,7 +115,7 @@ void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player,
     };
 
     auto calculateEstimatedCost([]
-                                (std::pair<size_t, size_t> const& p1, std::pair<size_t, size_t> const& p2)
+                                (std::pair<size_t, size_t> const& p1, std::pair<size_t, size_t> const& p2) -> double
                                 {
                                     return std::sqrt(std::pow(static_cast<double>(p1.first) - static_cast<double>(p2.first), 2)
                                                      + std::pow(static_cast<double>(p1.second) - static_cast<double>(p2.second), 2));
@@ -123,7 +123,8 @@ void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player,
 
     size_t operations(0);
 
-    auto const finish(std::make_pair(player.finishI()[finishIndex], player.finishJ()[finishIndex]));
+    auto const finish(std::make_pair(player.finishI()[finishIndex],
+                                     player.finishJ()[finishIndex]));
     auto const& grid(player.labyrinth().grid());
 
     std::vector<Node> closedList;
@@ -164,7 +165,8 @@ void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player,
                 if (player.state() & Player::StoppedSolving)
                     return;
 
-                if (operationsCycle && cyclePause.count() && !(operations % operationsCycle))
+                if (operationsCycle && cyclePause.count()
+                    && !(operations % operationsCycle))
                     sleep(cyclePause);
 
                 if (timeout != nullptr)
@@ -230,12 +232,15 @@ void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player,
 
             directions.pop_back();
 
-            if (node.first < grid.height() && node.second < grid.width() && !grid(node.first, node.second))
+            if (node.first < grid.height()
+                && node.second < grid.width()
+                && !grid(node.first, node.second))
             {
                 node.changeEstimatedCost(calculateEstimatedCost(node, finish));
                 node.parentNodeIndex = closedList.size() - 1;
 
-                auto it(std::find(closedList.begin(), closedList.end(), static_cast<std::pair<size_t, size_t> >(node)));
+                auto it(std::find(closedList.begin(), closedList.end(),
+                                  static_cast<std::pair<size_t, size_t> >(node)));
 
                 bool ok(it == closedList.end());
 
@@ -244,7 +249,8 @@ void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player,
 
                 if (ok)
                 {
-                    it = std::find(openedList.begin(), openedList.end(), static_cast<std::pair<size_t, size_t> >(node));
+                    it = std::find(openedList.begin(), openedList.end(),
+                                   static_cast<std::pair<size_t, size_t> >(node));
 
                     ok = (it == openedList.end());
 
@@ -253,7 +259,8 @@ void Labyrinth2d::Solver::AStar::operator()(URNG&, Player& player,
 
                     if (ok)
                     {
-                        std::multiset<Node, CompareNodes> multiset(openedList.begin(), openedList.end());
+                        std::multiset<Node, CompareNodes> multiset(openedList.begin(),
+                                                                   openedList.end());
 
                         multiset.insert(node);
 

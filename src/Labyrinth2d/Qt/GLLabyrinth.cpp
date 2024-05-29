@@ -151,12 +151,16 @@ void GLLabyrinth::initializeGL()
         for (size_t j(0); j < labyrinth->grid().width(); ++j)
         {
             if (labyrinth->grid().at(i, j))
-                geometries << new GeometryEngine(QVector3D((i + 1) / 2 * lab->wallsSize().width() + i / 2 * lab->waysSize().width(),
-                                                           (j + 1) / 2 * lab->wallsSize().height() + i / 2 * lab->waysSize().height(),
-                                                           0),
+            {
+                QVector3D const bottom((j + 1) / 2 * lab->wallsSize().width() + j / 2 * lab->waysSize().width(),
+                                       (i + 1) / 2 * lab->wallsSize().height() + i / 2 * lab->waysSize().height(),
+                                       0);
+                geometries << new GeometryEngine(bottom,
+                                                 bottom +
                                                  QVector3D(lab->wallsSize().width(),
                                                            lab->wallsSize().height(),
-                                                           qMax(lab->wallsSize().width(), lab->wallsSize().height())));
+                                                           2 * qMax(lab->wallsSize().width(), lab->wallsSize().height())));
+            }
         }
     }
 }
@@ -168,8 +172,8 @@ void GLLabyrinth::paintGL()
     if (!l)
         return;
 
-    QSize tailleCase = l->getTailleCase();
-    int hauteurMur = 2 * qMax(tailleCase.width(), tailleCase.height());
+    QSize const tailleCase = l->getTailleCase();
+    int const hauteurMur = 2 * qMax(tailleCase.width(), tailleCase.height());
     QLabyrinth::Texture textures[3] = {l->getTextureFond(), l->getTextureMur(), l->getTextureParcours()};
 
     // Clear color and depth buffer
@@ -178,19 +182,19 @@ void GLLabyrinth::paintGL()
     glEnable(GL_DEPTH_TEST);
     // Enable back face culling
     glEnable(GL_CULL_FACE);
-
+/*
     for (auto const& t : textures_)
-        t->bind();
+        t->bind();*/
+    textures_[2]->bind();
     program.bind();
 
     // Reset projection
     projection.setToIdentity();
 
     // Set perspective projection
-    projection.perspective(70, (double)width()/height(), 0.1,
+    projection.perspective(70, (double)width() / height(), 0.1,
                            qMax((l->getLongueur() + 1) * tailleCase.width(),
                                 (l->getLargeur() + 1) * tailleCase.height()));
-
 
     if (l->getModeLabyrinthe().mode & QLabyrinth::Obscurite)
     {
@@ -225,8 +229,8 @@ void GLLabyrinth::paintGL()
     // Set modelview-projection matrix
     program.setUniformValue("mvp_matrix", projection * matrix);
 
-    // Use texture unit 0 which contains pattern of walls
-    program.setUniformValue("texture", 3);
+    // Use texture unit 2 which contains pattern of walls
+    program.setUniformValue("texture", 2);
 
     for (auto&g : geometries)
         g->drawCubeGeometry(&program);
@@ -982,28 +986,32 @@ bool GLLabyrinth::routineDeplacement()
 			
             if (x < l->getEmplacementXJoueur() * tailleCase.width() + 1)
             {
-                if (!l->getEmplacementXJoueur() || grid.at(l->getEmplacementYJoueur(), l->getEmplacementXJoueur() - 1) == 1)
+                if (!l->getEmplacementXJoueur()
+                    || grid.at(l->getEmplacementYJoueur(), l->getEmplacementXJoueur() - 1) == 1)
                     x = xCamera;
                 else if (x < l->getEmplacementXJoueur() * tailleCase.width())
                     deplacementX = -1;
             }
             else if ((l->getEmplacementXJoueur() + 1) * tailleCase.width() - 1 < x)
             {
-                if (l->getEmplacementXJoueur() == l->getLongueur()-1 || grid.at(l->getEmplacementYJoueur(), l->getEmplacementXJoueur() + 1) == 1)
+                if (l->getEmplacementXJoueur() == l->getLongueur()-1
+                    || grid.at(l->getEmplacementYJoueur(), l->getEmplacementXJoueur() + 1) == 1)
                     x = xCamera;
                 else if ((l->getEmplacementXJoueur() + 1) * tailleCase.width() < x)
                     deplacementX = 1;
             }
             if (y < l->getEmplacementYJoueur() * tailleCase.height()+1)
             {
-                if (!l->getEmplacementYJoueur() || grid.at(l->getEmplacementYJoueur() - 1, l->getEmplacementXJoueur()) == 1)
+                if (!l->getEmplacementYJoueur()
+                    || grid.at(l->getEmplacementYJoueur() - 1, l->getEmplacementXJoueur()) == 1)
                     y = yCamera;
                 else if (y < l->getEmplacementYJoueur() * tailleCase.height())
                     deplacementY = -1;
             }
             else if ((l->getEmplacementYJoueur() + 1) * tailleCase.height() - 1 < y)
             {
-                if (l->getEmplacementYJoueur() == l->getLargeur() - 1 || grid.at(l->getEmplacementYJoueur() + 1, l->getEmplacementXJoueur()) == 1)
+                if (l->getEmplacementYJoueur() == l->getLargeur() - 1
+                    || grid.at(l->getEmplacementYJoueur() + 1, l->getEmplacementXJoueur()) == 1)
                     y = yCamera;
                 else if ((l->getEmplacementYJoueur() + 1) * tailleCase.height() < y)
                     deplacementY = 1;
@@ -1017,7 +1025,8 @@ bool GLLabyrinth::routineDeplacement()
             }
         }
 
-        if (l->getEmplacementXJoueur() + deplacementX == l->getXSortie() && l->getEmplacementYJoueur() + deplacementY == l->getYSortie())
+        if (l->getEmplacementXJoueur() + deplacementX == l->getXSortie()
+            && l->getEmplacementYJoueur() + deplacementY == l->getYSortie())
         {
             timer->stop();
             toucheDroiteAppuyee = false;
@@ -1068,12 +1077,7 @@ void GLLabyrinth::rechargerTextures()
 
     libererTextures();
 
-    textures_ << loadTexture(pixmapMotifFond.toImage());
-    textures_ << loadTexture(pixmapImageFond.toImage());
-    textures_ << loadTexture(pixmapMotifMur.toImage());
-    textures_ << loadTexture(pixmapImageMur.toImage());
-    textures_ << loadTexture(pixmapMotifParcours.toImage());
-    textures_ << loadTexture(pixmapImageParcours.toImage());
+    initTextures();
 }
 
 void GLLabyrinth::libererTextures()
@@ -1568,5 +1572,10 @@ void GLLabyrinth::initShaders()
 
 void GLLabyrinth::initTextures()
 {
-
+    textures_ << loadTexture(pixmapMotifFond.toImage());
+    textures_ << loadTexture(pixmapImageFond.toImage());
+    textures_ << loadTexture(pixmapMotifMur.toImage());
+    textures_ << loadTexture(pixmapImageMur.toImage());
+    textures_ << loadTexture(pixmapMotifParcours.toImage());
+    textures_ << loadTexture(pixmapImageParcours.toImage());
 }
