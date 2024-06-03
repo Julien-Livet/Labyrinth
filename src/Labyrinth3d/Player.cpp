@@ -7,9 +7,9 @@ Labyrinth3d::Player::Player(Labyrinth const& labyrinth,
                             size_t startI, size_t startJ, size_t startK,
                             std::vector<size_t> const& finishI, std::vector<size_t> const&finishJ, std::vector<size_t> const&finishK,
                             bool enabledTrace, bool blockingFinish,
-                            bool keptFullTrace) : startI_{startI}, startJ_{startJ}, startK__(startK),
+                            bool keptFullTrace) : startI_{startI}, startJ_{startJ}, startK_(startK),
                                                   finishI_{finishI}, finishJ_{finishJ}, finishK_{finishK},
-                                                  i_{startI_}, j_{startJ_}, k_{startK__},
+                                                  i_{startI_}, j_{startJ_}, k_{startK_},
                                                   labyrinth_{labyrinth}, movements_{0},
                                                   state_{0},
                                                   enabledTrace_{enabledTrace},
@@ -47,7 +47,7 @@ size_t Labyrinth3d::Player::startJ() const
 
 size_t Labyrinth3d::Player::startK() const
 {
-    return startK__;
+    return startK_;
 }
 
 std::vector<size_t> const& Labyrinth3d::Player::finishI() const
@@ -92,7 +92,7 @@ size_t Labyrinth3d::Player::startColumn() const
 
 size_t Labyrinth3d::Player::startFloor() const
 {
-    return (startK__ - 1) / 2;
+    return (startK_ - 1) / 2;
 }
 
 std::vector<size_t> Labyrinth3d::Player::finishRows() const
@@ -201,6 +201,7 @@ bool Labyrinth3d::Player::restart()
 
     i_ = startI_;
     j_ = startJ_;
+    k_ = startK_;
     movements_ = 0;
     state_ = 0;
     finishingDuration_ = std::chrono::milliseconds();
@@ -265,29 +266,29 @@ size_t Labyrinth3d::Player::move(Direction direction,
 
         switch (direction)
         {
-        case Front:
-            --i_;
-            break;
+            case Front:
+                ++j_;
+                break;
 
-        case Right:
-            ++j_;
-            break;
+            case Right:
+                --i_;
+                break;
 
-        case Back:
-            ++i_;
-            break;
+            case Back:
+                --j_;
+                break;
 
-        case Left:
-            --j_;
-            break;
+            case Left:
+                ++i_;
+                break;
 
-        case Up:
-            --k_;
-            break;
+            case Up:
+                ++k_;
+                break;
 
-        case Down:
-            ++k_;
-            break;
+            case Down:
+                --k_;
+                break;
         }
 
         if (labyrinth_.grid()(i_, j_, k_))

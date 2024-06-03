@@ -137,7 +137,10 @@ void Labyrinth2d::Solver::Blind::operator()(URNG& g, Player& player,
                                                            std::make_pair(Down, Up),
                                                            std::make_pair(Left, Right)};
 
-    while (!(player.state() & Player::Finished) && !(player.i() == player.finishI()[finishIndex] && player.j() == player.finishJ()[finishIndex]) && (!movements || (operations < movements)))
+    while (!(player.state() & Player::Finished)
+           && !(player.i() == player.finishI()[finishIndex]
+                && player.j() == player.finishJ()[finishIndex])
+           && (!movements || (operations < movements)))
     {
         if (player.state() & Player::StoppedSolving)
             return;

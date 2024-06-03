@@ -97,6 +97,9 @@ void Labyrinth2d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
             grid.change(y, x, (y - 1) * (width - 1) / 4 + (x - 1) / 2 + 2);
     }
 
+    if (grid.rows() == 1 && grid.columns() == 1)
+        return;
+
     std::function<void(int, int, int, int)> fill;
 
     fill = [&grid, &subGrid, width, height, &fill](int x, int y, int d, int e) -> void

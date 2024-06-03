@@ -127,6 +127,14 @@ void Labyrinth2d::Solver::AStar::operator()(URNG& /*g*/, Player& player,
                                      player.finishJ()[finishIndex]));
     auto const& grid(player.labyrinth().grid());
 
+    if (player.i() == finish.first
+        && player.j() == finish.second)
+    {
+        player.move(Up, sleep);
+
+        return;
+    }
+
     std::vector<Node> closedList;
     std::vector<Node> openedList{Node(player.i(), player.j(), 0.0,
                                       calculateEstimatedCost(std::make_pair(player.i(), player.j()), finish))};

@@ -101,8 +101,8 @@ void Labyrinth3d::Solver::AStar::operator()(URNG& /*g*/, Player& player,
         bool operator==(std::tuple<size_t, size_t, size_t> const& tuple) const
         {
             return (std::get<0>(*this) == std::get<0>(tuple)
-			        && std::get<1>(*this) != std::get<1>(tuple)
-					&& std::get<2>(*this) != std::get<2>(tuple));
+                    && std::get<1>(*this) == std::get<1>(tuple)
+                    && std::get<2>(*this) == std::get<2>(tuple));
 
             return true;
         }
@@ -135,6 +135,15 @@ void Labyrinth3d::Solver::AStar::operator()(URNG& /*g*/, Player& player,
                                       player.finishJ()[finishIndex],
                                       player.finishK()[finishIndex]));
     auto const& grid(player.labyrinth().grid());
+
+    if (player.i() == std::get<0>(finish)
+        && player.j() == std::get<1>(finish)
+        && player.k() == std::get<2>(finish))
+    {
+        player.move(Front, sleep);
+
+        return;
+    }
 
     std::vector<Node> closedList;
     std::vector<Node> openedList{Node(player.i(), player.j(), player.k(), 0.0,
@@ -193,9 +202,9 @@ void Labyrinth3d::Solver::AStar::operator()(URNG& /*g*/, Player& player,
                     if (std::get<2>(closedList[i]) == player.k())
                     {
                         if (std::get<1>(closedList[i]) > player.j())
-                            player.move(Right, sleep);
+                            player.move(Front, sleep);
                         else if (std::get<1>(closedList[i]) < player.j())
-                            player.move(Left, sleep);
+                            player.move(Back, sleep);
                         else
                             --operations;
                     }
@@ -217,9 +226,9 @@ void Labyrinth3d::Solver::AStar::operator()(URNG& /*g*/, Player& player,
                            && std::get<2>(closedList[i]) == player.k());
 
                     if (std::get<0>(closedList[i]) > player.i())
-                        player.move(Back, sleep);
+                        player.move(Left, sleep);
                     else if (std::get<0>(closedList[i]) < player.i())
-                        player.move(Front, sleep);
+                        player.move(Right, sleep);
                     else
                         --operations;
                 }
@@ -240,19 +249,19 @@ void Labyrinth3d::Solver::AStar::operator()(URNG& /*g*/, Player& player,
             switch (directions.back())
             {
                 case Front:
-                    --std::get<0>(node);
-                    break;
-
-                case Left:
                     ++std::get<1>(node);
                     break;
 
-                case Back:
+                case Left:
                     ++std::get<0>(node);
                     break;
 
-                case Right:
+                case Back:
                     --std::get<1>(node);
+                    break;
+
+                case Right:
+                    --std::get<0>(node);
                     break;
 
                 case Down:

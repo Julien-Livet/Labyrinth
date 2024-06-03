@@ -76,7 +76,7 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
 
     std::vector<CellState> cellStates(grid.height() * grid.width() * grid.depth(), Unvisited);
 
-    cellStates[(player.k() * grid.depth() + player.i()) * grid.width() + player.j()] = Visited;
+    cellStates[(player.k() * grid.height() + player.i()) * grid.width() + player.j()] = Visited;
 
     std::vector<Direction> directions{Up, Left, Down, Right, Front, Back};
     Direction chosenDirection;
@@ -101,19 +101,19 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
         switch (chosenDirection)
         {
             case Front:
-                --i;
-                break;
-
-            case Right:
                 ++j;
                 break;
 
+            case Right:
+                --i;
+                break;
+
             case Back:
-                ++i;
+                --j;
                 break;
 
             case Left:
-                --j;
+                ++i;
                 break;
 
             case Down:
@@ -138,7 +138,7 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
 
     player.move(chosenDirection, sleep);
 
-    cellStates[(player.k() * grid.depth() + player.i()) * grid.width() + player.j()] = Visited;
+    cellStates[(player.k() * grid.height() + player.i()) * grid.width() + player.j()] = Visited;
 
     size_t operations(1);
 
@@ -149,7 +149,11 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
                                                            std::make_pair(Front, Back),
                                                            std::make_pair(Back, Front)};
 
-    while (!(player.state() & Player::Finished) && !(player.i() == player.finishI()[finishIndex] && player.j() == player.finishJ()[finishIndex] && player.k() == player.finishK()[finishIndex]) && (movements || (!movements && operations)))
+    while (!(player.state() & Player::Finished)
+           && !(player.i() == player.finishI()[finishIndex]
+                && player.j() == player.finishJ()[finishIndex]
+                && player.k() == player.finishK()[finishIndex])
+           && (!movements || (operations < movements)))
     {
         if (player.state() & Player::StoppedSolving)
             return;
@@ -179,19 +183,19 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
             switch (directions[l])
             {
                 case Front:
-                    --i;
-                    break;
-
-                case Right:
                     ++j;
                     break;
 
+                case Right:
+                    --i;
+                    break;
+
                 case Back:
-                    ++i;
+                    --j;
                     break;
 
                 case Left:
-                    --j;
+                    ++i;
                     break;
 
                 case Down:
@@ -272,19 +276,19 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
             switch (chosenDirection)
             {
                 case Front:
-                    --i;
-                    break;
-
-                case Right:
                     ++j;
                     break;
 
+                case Right:
+                    --i;
+                    break;
+
                 case Back:
-                    ++i;
+                    --j;
                     break;
 
                 case Left:
-                    --j;
+                    ++i;
                     break;
 
                 case Down:
@@ -301,7 +305,7 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
         }
 
         player.move(chosenDirection, sleep);
-
+        qDebug() << "ijk" << player.i() << " " << player.j() << " " << player.k();
         cellStates[(player.k() * grid.height() + player.i()) * grid.width() + player.j()] = Visited;
 
         ++operations;

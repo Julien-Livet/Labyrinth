@@ -128,6 +128,9 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
         }
     }
 
+    if (grid.rows() == 1 && grid.columns() == 1 && grid.floors() == 1)
+        return;
+
     std::function<void(int, int, int, int, int, int)> fill;
 
     fill = [&grid, &subGrid, width, height, depth, &fill](int x, int y, int z, int d, int e, int f) -> void

@@ -273,7 +273,7 @@ namespace Labyrinth3d
         private:
             size_t startI_;
             size_t startJ_;
-            size_t startK__;
+            size_t startK_;
             std::vector<size_t> finishI_;
             std::vector<size_t> finishJ_;
             std::vector<size_t> finishK_;

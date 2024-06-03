@@ -20,8 +20,10 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     public:
         using QOpenGLWidget::QOpenGLWidget;
-        GLWidget(Labyrinth3d::Labyrinth const& labyrinth, QVector3D const& wallsSize = QVector3D(5, 5, 5),
-                 QVector3D const& waysSize = QVector3D(5, 5, 5));
+        GLWidget(Labyrinth3d::Labyrinth& labyrinth, QVector3D const& wallsSize = QVector3D(5, 5, 5),
+                 QVector3D const& waysSize = QVector3D(20, 20, 20));
+        Labyrinth3d::Labyrinth const& labyrinth() const;
+        Labyrinth3d::Labyrinth& labyrinth();
         QVector3D const& wallsSize() const;
         void setWallsSize(QVector3D const& wallsSize);
         QVector3D const& waysSize() const;
@@ -38,6 +40,8 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
                                                                                  QImage(128, 128, QImage::Format_ARGB32),
                                                                                  QImage(128, 128, QImage::Format_ARGB32),
                                                                                  QImage(128, 128, QImage::Format_ARGB32)});
+        QMatrix4x4 const& cameraMatrix() const;
+        void setCameraMatrix(QMatrix4x4 const& matrix);
 
     protected:
         void initializeGL() override;
@@ -46,7 +50,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
         void keyPressEvent(QKeyEvent* event) override;
 
     private:
-        Labyrinth3d::Labyrinth const& labyrinth_;
+        Labyrinth3d::Labyrinth& labyrinth_;
         QColor clearColor_ = Qt::white;
         std::vector<std::array<QImage, 6> > images_;
         std::vector<std::array<QOpenGLTexture*, 6> > textures_;
