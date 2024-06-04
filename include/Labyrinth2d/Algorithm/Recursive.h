@@ -65,7 +65,7 @@ namespace Labyrinth2d
                  *  \param timeout: time before to abort generation
                  */
                 template <class URNG>
-                void operator()(URNG& g, SubGrid<bool> const& subGrid, size_t operationsCycle = 0,
+                void operator()(URNG& g, SubGrid const& subGrid, size_t operationsCycle = 0,
                                 std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                                 std::chrono::milliseconds const* timeout = nullptr);
 
@@ -114,7 +114,7 @@ size_t Labyrinth2d::Algorithm::Recursive<Algorithm>::minimumColumns() const
 
 template <class Algorithm>
 template <class URNG>
-void Labyrinth2d::Algorithm::Recursive<Algorithm>::operator()(URNG& g, SubGrid<bool> const& subGrid,
+void Labyrinth2d::Algorithm::Recursive<Algorithm>::operator()(URNG& g, SubGrid const& subGrid,
                                                               size_t operationsCycle,
                                                               std::chrono::milliseconds const& cyclePause,
                                                               std::chrono::milliseconds const* timeout)
@@ -141,7 +141,7 @@ void Labyrinth2d::Algorithm::Recursive<Algorithm>::operator()(URNG& g, SubGrid<b
         for (size_t i(0); i < (rowDivision ? 2 : 1); ++i)
             for (size_t j(0); j < (columnDivision ? 2 : 1); ++j)
                 operator()(g,
-                           SubGrid<bool>(subGrid,
+                           SubGrid(subGrid,
                                          i * rows,
                                          j * columns,
                                          i * (subGrid.rows() - 2 * rows) + rows,

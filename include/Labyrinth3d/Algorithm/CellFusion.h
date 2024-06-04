@@ -11,6 +11,7 @@
 
 #include <chrono>
 #include <functional>
+#include <map>
 #include <vector>
 
 #include "../Grid.h"
@@ -46,7 +47,7 @@ namespace Labyrinth3d
              *  \param timeout: time before to abort generation
              */
             template <class URNG>
-            void operator()(URNG& g, SubGrid<bool> const& subGrid,
+            void operator()(URNG& g, SubGrid const& subGrid,
                             std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
                             size_t operationsCycle = 0,
                             std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
@@ -54,20 +55,21 @@ namespace Labyrinth3d
         };
     }
 }
-#include <QDebug>
+
 template <class URNG>
-void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const& subGrid,
+void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid const& subGrid,
                                                     std::function<void(std::chrono::milliseconds)> const& sleep,
                                                     size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
                                                     std::chrono::milliseconds const* timeout)
 {
-    Grid<std::size_t> grid{subGrid.grid().labyrinth(), subGrid.rows(), subGrid.columns(), subGrid.floors()};
-
     auto const t(std::chrono::steady_clock::now());
 
     size_t const height(subGrid.height());
     size_t const width(subGrid.width());
     size_t const depth(subGrid.depth());
+    size_t const rows(subGrid.rows());
+    size_t const columns(subGrid.columns());
+    size_t const floors(subGrid.floors());
 
     for (size_t k(1); k < depth - 1; ++k)
     {
@@ -75,24 +77,16 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
         {
             for (size_t j(2); j < width - 1; j += 2)
             {
-                grid.change(i, j, k, 1);
-                grid.change(i + 1, j - 1, k, 1);
                 subGrid.set(i, j, k);
                 subGrid.set(i + 1, j - 1, k);
             }
         }
 
         for (size_t i(2); i < height - 1; i += 2)
-        {
-            grid.change(i, width - 2, k, 1);
             subGrid.set(i, width - 2, k);
-        }
 
         for (size_t j(2); j < width - 1; j += 2)
-        {
-            grid.change(height - 2, j, k, 1);
             subGrid.set(height - 2, j, k);
-        }
     }
 
     for (size_t k(2); k < depth - 1; k += 2)
@@ -100,10 +94,7 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
         for (size_t i(1); i < height; i += 2)
         {
             for (size_t j(1); j < width; j += 2)
-            {
-                grid.change(i, j, k, 1);
                 subGrid.set(i, j, k);
-            }
         }
     }
 
@@ -112,64 +103,31 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
         for (size_t i(2); i < height - 1; i += 2)
         {
             for (size_t j(2); j < width - 1; j += 2)
-            {
-                grid.change(i, j, k, 1);
                 subGrid.set(i, j, k);
+        }
+    }
+
+    std::unordered_map<size_t, std::vector<std::tuple<size_t, size_t, size_t> > > cells;
+    std::vector<size_t> indexCells;
+    indexCells.resize(rows * columns * floors);
+
+    for (size_t i{0}; i < rows; ++i)
+    {
+        for (size_t j{0}; j < columns; ++j)
+        {
+            for (size_t k{0}; k < floors; ++k)
+            {
+                cells[(k * rows + i) * columns + j] = std::vector<std::tuple<size_t, size_t, size_t> >{std::make_tuple(i, j, k)};
+                indexCells[(k * rows + i) * columns + j] = (k * rows + i) * columns + j;
             }
         }
     }
 
-    for (size_t z = 1; z < depth ; z += 2)
-    {
-        for (size_t y = 1; y < height; y += 2)
-        {
-            for (size_t x = 1; x < width; x += 2)
-                grid.change(y, x, z, ((z - 1) * (height - 1) / 2 + (y - 1)) * (width - 1) / 4 + (x - 1) / 2 + 2);
-        }
-    }
-
-    if (grid.rows() == 1 && grid.columns() == 1 && grid.floors() == 1)
-        return;
-
-    std::function<void(int, int, int, int, int, int)> fill;
-
-    fill = [&grid, &subGrid, width, height, depth, &fill](int x, int y, int z, int d, int e, int f) -> void
-	{
-        grid.change(y + e, x + d, z + f, grid.at(y, x, z));
-        grid.change(y + e / 2, x + d / 2, z + f / 2, grid.at(y, x, z));
-        subGrid.reset(y + e / 2, x + d / 2, z + f / 2);
-
-        if (x + d + 2 < static_cast<int>(width)
-            && grid.at(y + e, x + d + 1, z + f) != 1
-            && grid.at(y + e, x + d + 2, z + f) != grid.at(y, x, z))
-            fill(x + d, y + e, z + f, 2, 0, 0);
-        if (x + d - 2 >= 0
-            && grid.at(y + e, x + d - 1, z + f) != 1
-            && grid.at(y + e, x + d - 2, z + f) != grid.at(y, x, z))
-            fill(x + d, y + e, z + f, -2, 0, 0);
-        if (y + e + 2 < static_cast<int>(height)
-            && grid.at(y + e + 1, x + d, z + f) != 1
-            && grid.at(y + e + 2, x + d, z + f) != grid.at(y, x, z))
-            fill(x + d, y + e, z + f, 0, 2, 0);
-        if (y + e - 2 >= 0
-            && grid.at(y + e - 1, x + d, z + f) != 1
-            && grid.at(y + e - 2, x + d, z + f) != grid.at(y, x, z))
-            fill(x + d, y + e, z + f, 0, -2, 0);
-        if (z + f + 2 < static_cast<int>(depth)
-            && grid.at(x + e, x + d, z + f + 1) != 1
-            && grid.at(y + e, x + d, z + f + 2) != grid.at(y, x, z))
-            fill(x + d, y + e, z + f, 0, 0, 2);
-        if (z + f - 2 >= 0
-            && grid.at(y + e, x + d, z + f - 1) != 1
-            && grid.at(y + e, x + d, z + f - 2) != grid.at(y, x, z))
-            fill(x + d, y + e, z + f, 0, 0, -2);
-    };
-
     size_t openedDoorNumber = 0;
 
-    do
+    while (cells.size() != 1)
     {
-        if (grid.labyrinth().state() & Labyrinth::StopGenerating)
+        if (subGrid.grid().labyrinth().state() & Labyrinth::StopGenerating)
             return;
 
         if (operationsCycle && cyclePause.count() && !(openedDoorNumber % operationsCycle))
@@ -179,121 +137,66 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid<bool> const
             if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) > *timeout)
                 throw TimeoutException();
 
-        int x = (g() % (((width - 2) + 1) / 2)) * 2 + 1;
-        int y = (g() % (((height - 2) + 1) / 2)) * 2 + 1;
-        int z = (g() % (((depth - 2) + 1) / 2)) * 2 + 1;
-        int d = 0, e = 0, f = 0;
+        auto const v1{g() % cells.size()};
 
-        if (openedDoorNumber > 10 * ((depth - 1) * (width - 1) * (height - 1) / 8 - 1) / 100)
+        auto it{cells.begin()};
+        std::advance(it, v1);
+        std::vector<std::tuple<size_t, size_t, size_t> > c{it->second};
+
+        while (!c.empty())
         {
-            auto const v{g() % 3};
-            if (!v)
+            auto const v2{g() % c.size()};
+
+            auto const i{std::get<0>(c[v2])};
+            auto const j{std::get<1>(c[v2])};
+            auto const k{std::get<2>(c[v2])};
+
+            std::vector<std::tuple<int, int, int> > directions{std::make_tuple<int, int, int>(1, 0, 0),
+                                                               std::make_tuple<int, int, int>(-1, 0, 0),
+                                                               std::make_tuple<int, int, int>(0, 1, 0),
+                                                               std::make_tuple<int, int, int>(0, -1, 0),
+                                                               std::make_tuple<int, int, int>(0, 0, 1),
+                                                               std::make_tuple<int, int, int>(0, 0, -1)};
+
+            while (!directions.empty())
             {
-                d = -4 * (g() % 2) + 2;
-                if (x + d >= 0 && x + d < static_cast<int>(width))
+                auto const v3{g() % directions.size()};
+                auto const di{std::get<0>(directions[v3])};
+                auto const dj{std::get<1>(directions[v3])};
+                auto const dk{std::get<2>(directions[v3])};
+
+                if (i + di >= 0 && i + di < rows
+                    && j + dj >= 0 && j + dj < columns
+                    && k + dk >= 0 && k + dk < floors
+                    /*&& subGrid(2 * i + 1 + di, 2 * j + 1 + dj, 2 * k + 1 + dk)*/
+                    && it->first != indexCells[((k + dk) * rows + i + di) * columns + j + dj])
                 {
-                    if (grid.at(y, x, z) != grid.at(y, x + d, z))
-                    {
-                        fill(x, y, z, d, 0, 0);
-                        ++openedDoorNumber;
-                    }
+                    auto const v4{indexCells[((k + dk) * rows + i + di) * columns + j + dj]};
+
+                    subGrid.reset(2 * i + 1 + di, 2 * j + 1 + dj, 2 * k + 1 + dk);
+                    cells[it->first].insert(cells[it->first].end(), cells[v4].begin(), cells[v4].end());
+
+                    for (auto const& cell : cells[v4])
+                        indexCells[(std::get<2>(cell) * rows + std::get<0>(cell)) * columns + std::get<1>(cell)] = it->first;
+
+                    cells.erase(cells.find(v4));
+
+                    ++openedDoorNumber;
+
+                    break;
                 }
+
+                directions[v3] = directions.back();
+                directions.pop_back();
             }
-            else if (v == 1)
-            {
-                e = -4 * (g() % 2) + 2;
-                if (y + e >= 0 && y + e < static_cast<int>(height))
-                {
-                    if (grid.at(y, x, z) != grid.at(y + e, x, z))
-                    {
-                        fill(x, y, z, 0, e, 0);
-                        ++openedDoorNumber;
-                    }
-                }
-            }
-            else
-            {
-                f = -4 * (g() % 2) + 2;
-                if (z + f >= 0 && z + f < static_cast<int>(depth))
-                {
-                    if (grid.at(y, x, z) != grid.at(y, x, z + f))
-                    {
-                        fill(x, y, z, 0, 0, f);
-                        ++openedDoorNumber;
-                    }
-                }
-            }
+
+            if (!directions.empty())
+                break;
+
+            c[v2] = c.back();
+            c.pop_back();
         }
-        else
-        {
-            bool b = false;
-
-            do
-            {
-				if (grid.labyrinth().state() & Labyrinth::StopGenerating)
-					return;
-
-                if (operationsCycle && cyclePause.count() && !(openedDoorNumber % operationsCycle))
-                    sleep(cyclePause);
-
-                if (timeout != nullptr)
-                    if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) > *timeout)
-                        throw TimeoutException();
-
-                std::vector<std::tuple<int, int, int> > possibilities
-                {
-                    std::make_tuple(0, 2, 0), std::make_tuple(2, 0, 0),
-                    std::make_tuple(0, -2, 0), std::make_tuple(-2, 0, 0),
-                    std::make_tuple(0, 0, -2), std::make_tuple(0, 0, 2)
-                };
-
-                while (!b && !possibilities.empty())
-                {
-                    auto& p{possibilities[g() % possibilities.size()]};
-                    d = std::get<0>(p);
-                    e = std::get<1>(p);
-                    f = std::get<2>(p);
-                    p = possibilities.back();
-                    possibilities.pop_back();
-
-					if (grid.labyrinth().state() & Labyrinth::StopGenerating)
-						return;
-
-                    if (operationsCycle && cyclePause.count() && !(openedDoorNumber % operationsCycle))
-                        sleep(cyclePause);
-
-                    if (timeout != nullptr)
-                        if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) > *timeout)
-                            throw TimeoutException();
-
-                    if (x + d >= 0 && x + d < static_cast<int>(width)
-                        && y + e >= 0 && y + e < static_cast<int>(height)
-                        && z + f >= 0 && z + f < static_cast<int>(depth)
-                        && grid.at(y, x, z) != grid.at(y + e, x + d, z + f))
-                    {
-                        fill(x, y, z, d, e, f);
-                        ++openedDoorNumber;
-                        b = true;
-                        break;
-                    }
-                }
-
-                x += 2;
-                if (x >= static_cast<int>(width))
-                {
-                    x = 1;
-                    y += 2;
-                    if (y >= static_cast<int>(height))
-                    {
-                        y = 1;
-                        z += 2;
-                        if (z >= static_cast<int>(depth))
-                            z = 1;
-                    }
-                }
-            } while (!b);
-        }
-    } while (openedDoorNumber != (depth - 1) * (width - 1) * (height - 1) / 8 - 1);
+    }
 }
 
 #endif // LABYRINTH3D_ALGORITHM_CELLFUSION_H

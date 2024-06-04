@@ -37,6 +37,7 @@ SOURCES += \
     src/Labyrinth3d/Qt/GlWidget.cpp \
     src/Labyrinth3d/Solver/FailureException.cpp \
     src/Labyrinth3d/Solver/TimeoutException.cpp \
+    src/Labyrinth3d/Grid.cpp \
     src/Labyrinth3d/Labyrinth.cpp \
     src/Labyrinth3d/Player.cpp
 
@@ -59,7 +60,6 @@ HEADERS += \
     include/Labyrinth3d/Solver/Solver.h \
     include/Labyrinth3d/Solver/TimeoutException.h \
     include/Labyrinth3d/Grid.h \
-    include/Labyrinth3d/Grid.tcc \
     include/Labyrinth3d/Labyrinth.h \
     include/Labyrinth3d/Player.h \
     include/Labyrinth3d/utility.h

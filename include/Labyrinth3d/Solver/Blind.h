@@ -305,7 +305,7 @@ void Labyrinth3d::Solver::Blind::operator()(URNG& g, Player& player,
         }
 
         player.move(chosenDirection, sleep);
-        qDebug() << "ijk" << player.i() << " " << player.j() << " " << player.k();
+
         cellStates[(player.k() * grid.height() + player.i()) * grid.width() + player.j()] = Visited;
 
         ++operations;

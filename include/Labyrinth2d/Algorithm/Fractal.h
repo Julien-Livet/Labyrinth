@@ -41,7 +41,7 @@ namespace Labyrinth2d
                  *  \param timeout: time before to abort generation
                  */
                 template <class URNG>
-                void operator()(URNG& g, SubGrid<bool> const& subGrid,
+                void operator()(URNG& g, SubGrid const& subGrid,
                                 std::function<void(std::chrono::milliseconds)> const& /*sleep*/ = [] (std::chrono::milliseconds const&) -> void {},
                                 size_t /*operationsCycle*/ = 0,
                                 std::chrono::milliseconds const& /*cyclePause*/ = std::chrono::milliseconds(0),
@@ -56,7 +56,7 @@ namespace Labyrinth2d
 }
 
 template <class URNG>
-void Labyrinth2d::Algorithm::Fractal::operator()(URNG& g, SubGrid<bool> const& subGrid,
+void Labyrinth2d::Algorithm::Fractal::operator()(URNG& g, SubGrid const& subGrid,
                                                  std::function<void(std::chrono::milliseconds)> const& /*sleep*/,
                                                  size_t /*operationsCycle*/,
                                                  std::chrono::milliseconds const& /*cyclePause*/,

@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     size_t const cycleOperationsSolving(1);
     std::chrono::milliseconds const cyclePauseSolving(1 * 50);//1 * 50);
 
-    //size_t const seed(1717330898347229600);
+    //size_t const seed(1717503823494194900);
     size_t const seed(std::chrono::system_clock::now().time_since_epoch().count());
     std::default_random_engine g(seed);
     std::cout << seed << std::endl;/*
@@ -44,14 +44,13 @@ int main(int argc, char** argv)
         }
     };
 
-    //Labyrinth l(2, 2, 2);
-    Labyrinth l(5, 5, 5);
+    Labyrinth l(2, 2, 2);
+    //Labyrinth l(5, 5, 5);
     //Labyrinth l(9, 9, 9);
 /*
     //Not working
     Algorithm::Kruskal ka;
     l.generate(g, ka, sleep, cycleOperations, cyclePause);*/
-    //Not working
     Algorithm::CellFusion cfa;
     l.generate(g, cfa, sleep, cycleOperations, cyclePause);/*
     //Not working

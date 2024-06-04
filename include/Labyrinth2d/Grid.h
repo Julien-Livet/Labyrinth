@@ -21,7 +21,6 @@ namespace Labyrinth2d
     /*!
      *  \brief Represent a labyrinth grid with booleans
      */
-    template<typename CellType = bool>
     class Grid
     {
         public:
@@ -58,18 +57,18 @@ namespace Labyrinth2d
              *  \param i: index in [0; height() - 1]
              *  \param j: index in [0; width() - 1]
              *
-             *  \return A value which is one if the considered cell is wall
+             *  \return A boolean value which is true if the considered cell is wall
              */
-            CellType at(size_t i, size_t j) const;
+            bool at(size_t i, size_t j) const;
 
             /*!
              *  \brief Change a cell state
              *
              *  \param i: index in [0; height() - 1]
              *  \param j: index in [0; width() - 1]
-             *  \param value: value which is one if the considered cell is wall
+             *  \param value: boolean value which is true if the considered cell is wall
              */
-            void change(size_t i, size_t j, CellType value);
+            void change(size_t i, size_t j, bool value);
 
             /*!
              *  \brief Toggle a cell state
@@ -101,7 +100,7 @@ namespace Labyrinth2d
              *
              *  \return A boolean which is true if the considered cell is wall
              */
-            CellType operator()(size_t i, size_t j) const;
+            bool operator()(size_t i, size_t j) const;
 
             /*!
              * \brief Get a constant reference of the labyrinth
@@ -117,14 +116,13 @@ namespace Labyrinth2d
             Labyrinth const* labyrinth_;
             size_t height_;
             size_t width_;
-            std::vector<CellType> cells_;
+            std::vector<bool> cells_;
             size_t modificationCounter_;
     };
 
     /*!
      *  \brief Class to manipulate a sub-grid
      */
-    template <typename CellType = bool>
     class SubGrid
     {
         public:
@@ -147,7 +145,7 @@ namespace Labyrinth2d
              *  \param rows: rows of this new sub-grid
              *  \param columns: columns of this new sub-grid
              */
-            SubGrid(SubGrid<CellType> const& subGrid, size_t rowShift, size_t columnShift, size_t rows, size_t columns);
+            SubGrid(SubGrid const& subGrid, size_t rowShift, size_t columnShift, size_t rows, size_t columns);
 
             /*!
              *  \brief Construct a subgrid from a grid
@@ -157,12 +155,12 @@ namespace Labyrinth2d
              *  \param grid: grid of a labyrinth
              *  \param operation: authorized operation
              */
-            SubGrid(Grid<CellType> &grid, Operation operation);
+            SubGrid(Grid &grid, Operation operation);
 
             /*!
              *  \return A constant reference to the top left of sub-grid
              */
-            Grid<CellType> const& grid() const;
+            Grid const& grid() const;
 
             /*!
              *  \return The row shift from the parent sub-grid
@@ -198,18 +196,18 @@ namespace Labyrinth2d
              *  \param i: index in [0; height() - 1]
              *  \param j: index in [0; width() - 1]
              *
-             *  \return A value which is one if the considered cell is wall
+             *  \return A boolean value which is true if the considered cell is wall
              */
-            CellType at(size_t i, size_t j) const;
+            bool at(size_t i, size_t j) const;
 
             /*!
              *  \brief Change a cell state
              *
              *  \param i: index in [0; height() - 1]
              *  \param j: index in [0; width() - 1]
-             *  \param value: which is one if the considered cell is wall
+             *  \param value: boolean value which is true if the considered cell is wall
              */
-            void change(size_t i, size_t j, CellType value) const;
+            void change(size_t i, size_t j, bool value) const;
 
             /*!
              *  \brief Toggle a cell state
@@ -244,12 +242,12 @@ namespace Labyrinth2d
              *  \param i: index in [0; height() - 1]
              *  \param j: index in [0; width() - 1]
              *
-             *  \return A value which is one if the considered cell is wall
+             *  \return A boolean value which is true if the considered cell is wall
              */
-            CellType operator()(size_t i, size_t j) const;
+            bool operator()(size_t i, size_t j) const;
 
         private:
-            Grid<CellType>& grid_;
+            Grid& grid_;
             size_t rowShift_;
             size_t columnShift_;
             size_t rows_;
@@ -260,7 +258,5 @@ namespace Labyrinth2d
             SubGrid& operator=(SubGrid const&) = delete;
     };
 }
-
-#include "Grid.tcc"
 
 #endif // LABYRINTH2D_GRID_H

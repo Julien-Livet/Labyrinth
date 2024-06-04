@@ -40,6 +40,7 @@ SOURCES += \
     src/Labyrinth2d/Solver/FailureException.cpp \
     src/Labyrinth2d/Solver/TimeoutException.cpp \
     src/Labyrinth2d/Solver/WallHand.cpp \
+    src/Labyrinth2d/Grid.cpp \
     src/Labyrinth2d/Labyrinth.cpp \
     src/Labyrinth2d/Player.cpp
 
@@ -65,7 +66,6 @@ HEADERS += \
     include/Labyrinth2d/Solver/TimeoutException.h \
     include/Labyrinth2d/Solver/WallHand.h \
     include/Labyrinth2d/Grid.h \
-    include/Labyrinth2d/Grid.tcc \
     include/Labyrinth2d/Labyrinth.h \
     include/Labyrinth2d/Player.h \
     include/Labyrinth2d/utility.h
