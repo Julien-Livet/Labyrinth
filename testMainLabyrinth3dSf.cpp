@@ -46,9 +46,9 @@ int main()
         }
     };
 
-    Labyrinth l(2, 2, 2);
+    //Labyrinth l(2, 2, 2);
     //Labyrinth l(5, 5, 5);
-    //Labyrinth l(9, 9, 9);
+    Labyrinth l(9, 9, 9);
 
     Algorithm::CellFusion cfa;
     l.generate(g, cfa, sleep, cycleOperations, cyclePause);
@@ -128,6 +128,8 @@ int main()
     }
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     sf::Shader colorShader{};
     colorShader.loadFromFile("shaders/couleur3D.vert", "shaders/couleur3D.frag");
@@ -137,12 +139,12 @@ int main()
     std::vector<GlBlock> glBlocks;
     glBlocks.reserve(2 * 2 * 2);
 
-    std::array<float, 6 * 3> const colors{1.0, 0.0, 0.0,
-                                          0.5, 0.0, 0.0,
-                                          0.0, 1.0, 0.0,
-                                          0.0, 0.5, 0.0,
-                                          0.0, 0.0, 1.0,
-                                          0.0, 0.0, 0.5};
+    std::array<float, 6 * 4> const colors{1.0, 0.0, 0.0, 1.0,
+                                          0.5, 0.0, 0.0, 1.0,
+                                          0.0, 1.0, 0.0, 1.0,
+                                          0.0, 0.5, 0.0, 1.0,
+                                          0.0, 0.0, 1.0, 1.0,
+                                          0.0, 0.0, 0.5, 1.0};
 
     for (size_t k{0}; k < 2; ++k)
     {
@@ -178,8 +180,7 @@ int main()
     GlFixedCamera glFixedCamera{glm::perspective(Utility::Double::radians(70.0),
                                                  static_cast<double>(window.getSize().x) / static_cast<double>(window.getSize().y),
                                                  1.0, 100.0),
-                                glm::lookAt(glm::vec3{5.0, 5.0, 5.0}, glm::vec3{0.0, 0.0, 0.0}, glm::vec3{0.0, 0.0, 1.0})};
-    //glFixedCamera.ortho(-5.0, 5.0, -5.0, 5.0, 1.0, 100.0);
+                                glm::lookAt(glm::vec3{0.0, 0.0, 0.0}, glm::vec3{1.0, 0.0, 0.0}, glm::vec3{0.0, 0.0, 1.0})};
 
     bool running{true};
     bool backspacePressed{false};
@@ -282,71 +283,97 @@ int main()
         for (size_t i{0}; i < 6; ++i)
             risingEdgeDirectionPressed[i] = directionPressed[i] && !previousDirectionPressed[i];
 
+        auto move{
+            [&l, player1Id] (Eigen::Vector3f const& u, Direction d)
+            {
+                switch (d)
+                {
+                    case Front:
+                    case Left:
+                    case Up:
+                        if ((u - Eigen::Vector3f::UnitX()).isZero())
+                            l.player(player1Id).move(Direction::Front);
+                        else if ((u + Eigen::Vector3f::UnitX()).isZero())
+                            l.player(player1Id).move(Direction::Back);
+                        else if ((u - Eigen::Vector3f::UnitY()).isZero())
+                            l.player(player1Id).move(Direction::Left);
+                        else if ((u + Eigen::Vector3f::UnitY()).isZero())
+                            l.player(player1Id).move(Direction::Right);
+                        else if ((u - Eigen::Vector3f::UnitZ()).isZero())
+                            l.player(player1Id).move(Direction::Up);
+                        else if ((u + Eigen::Vector3f::UnitZ()).isZero())
+                            l.player(player1Id).move(Direction::Down);
+                        break;
+
+                    case Back:
+                    case Right:
+                    case Down:
+                        if ((u - Eigen::Vector3f::UnitX()).isZero())
+                            l.player(player1Id).move(Direction::Back);
+                        else if ((u + Eigen::Vector3f::UnitX()).isZero())
+                            l.player(player1Id).move(Direction::Front);
+                        else if ((u - Eigen::Vector3f::UnitY()).isZero())
+                            l.player(player1Id).move(Direction::Right);
+                        else if ((u + Eigen::Vector3f::UnitY()).isZero())
+                            l.player(player1Id).move(Direction::Left);
+                        else if ((u - Eigen::Vector3f::UnitZ()).isZero())
+                            l.player(player1Id).move(Direction::Down);
+                        else if ((u + Eigen::Vector3f::UnitZ()).isZero())
+                            l.player(player1Id).move(Direction::Up);
+                        break;
+                }
+            }
+        };
+
+        float const stepAngle{90.0 / 2.0};
+
         if (risingEdgeDirectionPressed[0])
         {
             if (modifierPressed[0][1] || modifierPressed[1][1])
-            {
-                rotation *= Eigen::AngleAxisf{Utility::Float::radians(90.0), Eigen::Vector3f::UnitX()}.toRotationMatrix();
-            }
+                rotation *= Eigen::AngleAxisf{Utility::Float::radians(-stepAngle),
+                                              Eigen::Vector3f::UnitY()}.toRotationMatrix();
             else
-            {
-                l.player(player1Id).move(Direction::Front);
-            }
+                move(rotation.col(0), Direction::Front);
         }
         if (risingEdgeDirectionPressed[1])
         {
             if (modifierPressed[0][1] || modifierPressed[1][1])
-            {
-                rotation *= Eigen::AngleAxisf{Utility::Float::radians(-90.0), Eigen::Vector3f::UnitX()}.toRotationMatrix();
-            }
+                rotation *= Eigen::AngleAxisf{Utility::Float::radians(stepAngle),
+                                              Eigen::Vector3f::UnitY()}.toRotationMatrix();
             else
-            {
-                l.player(player1Id).move(Direction::Back);
-            }
+                move(rotation.col(0), Direction::Back);
         }
         if (risingEdgeDirectionPressed[2])
         {
             if (modifierPressed[0][1] || modifierPressed[1][1])
-            {
-                rotation *= Eigen::AngleAxisf{Utility::Float::radians(90.0), Eigen::Vector3f::UnitY()}.toRotationMatrix();
-            }
+                rotation *= Eigen::AngleAxisf{Utility::Float::radians(stepAngle),
+                                              Eigen::Vector3f::UnitZ()}.toRotationMatrix();
             else
-            {
-                l.player(player1Id).move(Direction::Left);
-            }
+                move(rotation.col(1), Direction::Left);
         }
         if (risingEdgeDirectionPressed[3])
         {
             if (modifierPressed[0][1] || modifierPressed[1][1])
-            {
-                rotation *= Eigen::AngleAxisf{Utility::Float::radians(-90.0), Eigen::Vector3f::UnitY()}.toRotationMatrix();
-            }
+                rotation *= Eigen::AngleAxisf{Utility::Float::radians(-stepAngle),
+                                              Eigen::Vector3f::UnitZ()}.toRotationMatrix();
             else
-            {
-                l.player(player1Id).move(Direction::Right);
-            }
+                move(rotation.col(1), Direction::Right);
         }
         if (risingEdgeDirectionPressed[4])
         {
             if (modifierPressed[0][1] || modifierPressed[1][1])
-            {
-                rotation *= Eigen::AngleAxisf{Utility::Float::radians(90.0), Eigen::Vector3f::UnitZ()}.toRotationMatrix();
-            }
+                rotation *= Eigen::AngleAxisf{Utility::Float::radians(stepAngle),
+                                              Eigen::Vector3f::UnitX()}.toRotationMatrix();
             else
-            {
-                l.player(player1Id).move(Direction::Up);
-            }
+                move(rotation.col(2), Direction::Up);
         }
         if (risingEdgeDirectionPressed[5])
         {
             if (modifierPressed[0][1] || modifierPressed[1][1])
-            {
-                rotation *= Eigen::AngleAxisf{Utility::Float::radians(-90.0), Eigen::Vector3f::UnitZ()}.toRotationMatrix();
-            }
+                rotation *= Eigen::AngleAxisf{Utility::Float::radians(-45.0),
+                                              Eigen::Vector3f::UnitX()}.toRotationMatrix();
             else
-            {
-                l.player(player1Id).move(Direction::Down);
-            }
+                move(rotation.col(2), Direction::Down);
         }
         if (backspacePressed)
             l.player(player1Id).stepBack();
@@ -358,10 +385,9 @@ int main()
         Eigen::Transform<float, 3, Eigen::Affine> modelView{Eigen::Transform<float, 3, Eigen::Affine>::Identity()};
         modelView.translation().x() = (j + 1) / 2 * wallsSize.x + j / 2 * waysSize.x + (j % 2 ? waysSize.x : wallsSize.x) / 2;
         modelView.translation().y() = (i + 1) / 2 * wallsSize.y + i / 2 * waysSize.y + (i % 2 ? waysSize.y : wallsSize.y) / 2;
-        modelView.translation().y() = (k + 1) / 2 * wallsSize.z + k / 2 * waysSize.z + (k % 2 ? waysSize.z : wallsSize.z) / 2;
+        modelView.translation().z() = (k + 1) / 2 * wallsSize.z + k / 2 * waysSize.z + (k % 2 ? waysSize.z : wallsSize.z) / 2;
         modelView.linear() = rotation;
 
-        //glFixedCamera.changeModelView(modelView);
         glFixedCamera.changeModelView(glm::lookAt(glm::vec3{modelView.translation().x(), modelView.translation().y(), modelView.translation().z()},
                                                   glm::vec3{modelView.translation().x() + modelView.linear().col(0)[0],
                                                             modelView.translation().y() + modelView.linear().col(0)[1],
@@ -370,6 +396,16 @@ int main()
 
         glClearColor(1.0, 1.0, 1.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        auto translateModelView{
+            [waysSize, wallsSize] (GlBlock const& glBlock, Eigen::Transform<float, 3, Eigen::Affine>& mv,
+                                   size_t i, size_t j, size_t k) -> void
+            {
+                mv.translate((Eigen::Vector3f{} << (j / 2) * waysSize.x + ((j + 1) / 2) * wallsSize.x + glBlock.sides()[0] / 2,
+                                                   (i / 2) * waysSize.y + ((i + 1) / 2) * wallsSize.y + glBlock.sides()[1] / 2,
+                                                   (k / 2) * waysSize.z + ((k + 1) / 2) * wallsSize.z + glBlock.sides()[2] / 2).finished());
+            }
+        };
 
         for (size_t k{0}; k < l.grid().depth(); ++k)
         {
@@ -382,20 +418,36 @@ int main()
                         auto const& glBlock{glBlocks[((k % 2) * 2 + i % 2) * 2 + j % 2]};
 
                         auto mv{glFixedCamera.modelView()};
-                        mv.translate((Eigen::Vector3f{} << (j / 2) * waysSize.x + ((j + 1) / 2) * wallsSize.x + glBlock.sides()[0] / 2,
-                                                           (i / 2) * waysSize.y + ((i + 1) / 2) * wallsSize.y + glBlock.sides()[1] / 2,
-                                                           (k / 2) * waysSize.z + ((k + 1) / 2) * wallsSize.z + glBlock.sides()[2] / 2).finished());
+                        translateModelView(glBlock, mv, i, j, k);
                         //glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
                         glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), textureShader, textures);
-                        /*Eigen::IOFormat const heavyFmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
-                        std::cout << "ijk " << i << " " << j << " " << k << std::endl;
-                        std::cout << modelView.matrix().format(heavyFmt) << std::endl;*//*
-                        i = l.grid().height();
-                        j = l.grid().width();
-                        k = l.grid().depth();*/
                     }
                 }
             }
+        }
+
+        auto& glBlock{glBlocks[((1 % 2) * 2 + 1 % 2) * 2 + 1 % 2]};
+        auto const& player{l.player(player1Id)};
+        glBlock.changeFacetColors(std::array<float, 6 * 4>{0.0, 1.0, 0.0, 0.25,
+                                                           0.0, 1.0, 0.0, 0.25,
+                                                           0.0, 1.0, 0.0, 0.25,
+                                                           0.0, 1.0, 0.0, 0.25,
+                                                           0.0, 1.0, 0.0, 0.25,
+                                                           0.0, 1.0, 0.0, 0.25});
+        auto mv{glFixedCamera.modelView()};
+        translateModelView(glBlock, mv, player.startI(), player.startJ(), player.startK());
+        glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
+        for (size_t i{0}; i < player.finishI().size(); ++i)
+        {
+            mv = glFixedCamera.modelView();
+            glBlock.changeFacetColors(std::array<float, 6 * 4>{1.0, 0.0, 0.0, 0.25,
+                                                               1.0, 0.0, 0.0, 0.25,
+                                                               1.0, 0.0, 0.0, 0.25,
+                                                               1.0, 0.0, 0.0, 0.25,
+                                                               1.0, 0.0, 0.0, 0.25,
+                                                               1.0, 0.0, 0.0, 0.25});
+            translateModelView(glBlock, mv, player.finishI()[i], player.finishJ()[i], player.finishK()[i]);
+            glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
         }
 
         window.display();
@@ -407,6 +459,32 @@ int main()
         if (elapsedTime < frameRate)
             std::this_thread::sleep_for(std::chrono::milliseconds{frameRate - elapsedTime});
     }
+/*
+    //thSolvePlayer1.join();
+    thSolvePlayer2.join();
+    thSolvePlayer3.join();
+*/
+    std::cout << "Player 1 state: " << l.player(player1Id).state() << std::endl;
+    std::cout << "Player 2 state: " << l.player(player2Id).state() << std::endl;
+    std::cout << "Player 3 state: " << l.player(player3Id).state() << std::endl;
+
+    if (l.state() & Labyrinth::Generated)
+        std::cout << "Labyrinth generated in " << l.generationDuration().count() << " ms" << std::endl;
+
+    if (l.player(player1Id).state() & Player::Solved)
+        std::cout << "Player 1 solved in " << l.player(player1Id).solvingDuration().count() << " ms" << std::endl;
+    else if (l.player(player1Id).state() & Player::Finished)
+        std::cout << "Player 1 finished in " << l.player(player1Id).finishingDuration().count() << " ms" << std::endl;
+
+    if (l.player(player2Id).state() & Player::Solved)
+        std::cout << "Player 2 solved in " << l.player(player2Id).solvingDuration().count() << " ms" << std::endl;
+    else if (l.player(player2Id).state() & Player::Finished)
+        std::cout << "Player 2 finished in " << l.player(player2Id).finishingDuration().count() << " ms" << std::endl;
+
+    if (l.player(player3Id).state() & Player::Solved)
+        std::cout << "Player 3 solved in " << l.player(player3Id).solvingDuration().count() << " ms" << std::endl;
+    else if (l.player(player3Id).state() & Player::Finished)
+        std::cout << "Player 3 finished in " << l.player(player3Id).finishingDuration().count() << " ms" << std::endl;
 
     return 0;
 }

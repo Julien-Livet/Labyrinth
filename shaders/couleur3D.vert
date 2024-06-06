@@ -6,7 +6,7 @@
 // Entrées
 
 in vec3 in_Vertex;
-in vec3 in_Color;
+in vec4 in_Color;
 
 
 // Uniform
@@ -17,7 +17,7 @@ uniform mat4 modelView;
 
 // Sortie
 
-out vec3 color;
+out vec4 color;
 
 
 // Fonction main

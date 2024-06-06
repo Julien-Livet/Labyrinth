@@ -5,7 +5,7 @@
 
 // Entrée
 
-in vec3 color;
+in vec4 color;
 
 
 // Sortie 
@@ -19,5 +19,5 @@ void main()
 {
     // Couleur finale du pixel
 
-    out_Color = vec4(color, 1.0);
+    out_Color = color;
 }

@@ -9,17 +9,17 @@ GlBlock::GlBlock(Eigen::Vector3f const& sides,
              Eigen::Transform<float, 3, Eigen::Affine> const& position)
  : position_{position}, sides_{}, vertices_{}, verticesUpdated_{false}, colors_{},
    textureVertices_{1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
-                     0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-                     1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
-                     0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-                     1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
-                     0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-                     1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
-                     0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-                     1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
-                     0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-                     1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
-                     0.0, 1.0, 0.0, 0.0, 1.0, 0.0},
+                    0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+                    1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+                    0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+                    1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+                    0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+                    1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+                    0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+                    1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+                    0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+                    1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+                    0.0, 1.0, 0.0, 0.0, 1.0, 0.0},
    glBufferVertices_{GL_ARRAY_BUFFER, vertices_.size() * sizeof(float), vertices_.data(), GL_STATIC_DRAW},
    glBufferColors_{GL_ARRAY_BUFFER, colors_.size() * sizeof(float), colors_.data(), GL_STATIC_DRAW},
    glBufferTextureVertices_{GL_ARRAY_BUFFER, textureVertices_.size() * sizeof(float), textureVertices_.data(), GL_STATIC_DRAW},
@@ -42,7 +42,7 @@ GlBlock::GlBlock(Eigen::Vector3f const& sides,
         glBufferVertices_.unbind();
 
         glBufferColors_.bind();
-        glVertexAttribPointer(colorsIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glVertexAttribPointer(colorsIndex, 4, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(colorsIndex);
         glBufferColors_.unbind();
 
@@ -349,12 +349,12 @@ std::array<float, 6 * 2 * 3 * 3> const& GlBlock::vertices() const
     return vertices_;
 }
 
-void GlBlock::changeFacetColors(std::array<float, 6 * 3> const& colors)
+void GlBlock::changeFacetColors(std::array<float, 6 * 4> const& colors)
 {
     for (unsigned char i{0}; i < 6; ++i)
         for (unsigned char j{0}; j < 6; ++j)
-            for (unsigned char k{0}; k < 3; ++k)
-                colors_[(i * 6 + j) * 3 + k] = colors[i * 3 + k];
+            for (unsigned char k{0}; k < 4; ++k)
+                colors_[(i * 6 + j) * 4 + k] = colors[i * 4 + k];
 
     glBufferColors_.update();
 }

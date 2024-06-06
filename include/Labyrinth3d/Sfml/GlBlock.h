@@ -45,14 +45,14 @@ class GlBlock
                      sf::Shader const& textureShader, std::array<std::reference_wrapper<const sf::Texture>, 6> const& facetTextures) const;
         GlBlock& operator=(GlBlock const&) = default;
         std::array<float, 6 * 2 * 3 * 3> const& vertices() const;
-        void changeFacetColors(std::array<float, 6 * 3> const& colors);
+        void changeFacetColors(std::array<float, 6 * 4> const& colors);
 
     private:
         Eigen::Transform<float, 3, Eigen::Affine> position_;
         Eigen::Vector3f sides_;
         mutable std::array<float, 6 * 2 * 3 * 3> vertices_;
         mutable bool verticesUpdated_;
-        std::array<float, 6 * 2 * 3 * 3> colors_;
+        std::array<float, 6 * 2 * 3 * 4> colors_;
         std::array<float, 6 * 2 * 3 * 2> textureVertices_;
         mutable Eigen::Transform<float, 3, Eigen::Affine> previousPosition_;
         GlVertexArray glVertexArrayColors_;
