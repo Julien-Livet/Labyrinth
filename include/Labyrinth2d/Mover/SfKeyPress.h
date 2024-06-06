@@ -1,5 +1,5 @@
-#ifndef LABYRINTH2D_MOVER_QKEYPRESS_H
-#define LABYRINTH2D_MOVER_QKEYPRESS_H
+#ifndef LABYRINTH2D_MOVER_SFKEYPRESS_H
+#define LABYRINTH2D_MOVER_SFKEYPRESS_H
 
 #include <array>
 
@@ -26,15 +26,15 @@ namespace Labyrinth2d
 
                 Labyrinth& labyrinth;
                 size_t playerId;
-                std::array<Sf::Keyboard::Key, 5> keys;
+                std::array<sf::Keyboard::Key, 5> keys;
 
-                QKeyPress(Labyrinth& labyrinth_, size_t playerId_,
-                          std::array<Sf::Keyboard::Key, 5> const& keys_ = {Sf::Keyboard::Right, Sf::Keyboard::Up,
-																		   Sf::Keyboard::Left, Sf::Keyboard::Down,
-																		   Sf::Keyboard::Backspace});
+                SfKeyPress(Labyrinth& labyrinth_, size_t playerId_,
+                           std::array<sf::Keyboard::Key, 5> const& keys_ = {sf::Keyboard::Right, sf::Keyboard::Up,
+																		    sf::Keyboard::Left, sf::Keyboard::Down,
+																		    sf::Keyboard::Backspace});
                 bool filter(sf::Event const& event);
         };
     }
 }
 
-#endif // LABYRINTH2D_MOVER_QKEYPRESS_H
+#endif // LABYRINTH2D_MOVER_SFKEYPRESS_H

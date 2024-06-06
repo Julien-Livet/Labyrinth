@@ -1,6 +1,6 @@
+#include <iostream>
 #include <fstream>
 #include <future>
-#include <iostream>
 #include <random>
 #include <thread>
 
@@ -14,10 +14,10 @@
 #include <QTimerEvent>
 #include <QWidget>
 
-#include "include/Labyrinth3d/Labyrinth.h"
-#include "include/Labyrinth3d/Algorithm/Algorithm.h"
-#include "include/Labyrinth3d/Qt/GlWidget.h"
-#include "include/Labyrinth3d/Solver/Solver.h"
+#include "Labyrinth3d/Labyrinth.h"
+#include "Labyrinth3d/Algorithm/Algorithm.h"
+#include "Labyrinth3d/Qt/GlWidget.h"
+#include "Labyrinth3d/Solver/Solver.h"
 
 using namespace Labyrinth3d;
 
@@ -56,7 +56,17 @@ int main(int argc, char** argv)
     //Not working
     Algorithm::RecursiveDivision rda;
     l.generate(g, rda, sleep, cycleOperations, cyclePause);*/
+/*
+    //Not working
+    Algorithm::WaySearch wsa(Algorithm::WaySearch::DepthFirstSearch);
+    //Algorithm::WaySearch wsa(Algorithm:WaySearch::Prim);
+    //Algorithm::WaySearch wsa(Algorithm::WaySearch::HuntAndKill);
 
+    //l.generate(g, wsa, sleep, cycleOperations, cyclePause);
+    std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::WaySearch>,
+                           &l, std::ref(g), std::ref(wsa), sleep, cycleOperations, cyclePause, nullptr);
+    thGenerate.detach();
+*/
     QApplication application(argc, argv);
 
     std::string const path{"C:/Users/juju0/AppData/Roaming/FreeCAD/Macro"};
@@ -102,7 +112,7 @@ int main(int argc, char** argv)
     std::thread thSolvePlayer1(&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player1Id),
                                std::ref(g), std::ref(ass), sleep, 0, 0,
                                cycleOperationsSolving, cyclePauseSolving, nullptr);
-*/
+*//*
     Solver::Blind bs;
 
     //l.player(player2Id).solve(g, bs, sleep, 0, 0, cycleOperationsSolving, cyclePauseSolving);
@@ -116,7 +126,7 @@ int main(int argc, char** argv)
     //thSolvePlayer1.detach();
     thSolvePlayer2.detach();
     thSolvePlayer3.detach();
-
+*/
     GLWidget glWidget(l, wallsSize, waysSize);
     glWidget.show();
     glWidget.setFixedSize(800, 600);

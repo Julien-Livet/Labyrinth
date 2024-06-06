@@ -92,70 +92,92 @@ void Labyrinth3d::Algorithm::RecursiveDivision::operator()(URNG& g, SubGrid cons
                     throw TimeoutException();
             }
 
-            for (size_t iTmp(std::get<0>(t) + 1); iTmp < std::get<3>(t); iTmp += 2)
-                subGrid.set(iTmp, j, k);
+            for (size_t jTmp(1); jTmp < subGrid.width() - 1; ++jTmp)
+            {
+                for (size_t iTmp(std::get<0>(t) + 1); iTmp < std::get<3>(t); iTmp += 2)
+                    subGrid.set(iTmp, jTmp, k);
+            }
 
-            for (size_t jTmp(std::get<1>(t) + 1); jTmp < std::get<4>(t); jTmp += 2)
-                subGrid.set(i, jTmp, k);
+            for (size_t kTmp(1); kTmp < subGrid.depth() - 1; ++kTmp)
+            {
+                for (size_t jTmp(std::get<1>(t) + 1); jTmp < std::get<4>(t); jTmp += 2)
+                    subGrid.set(i, jTmp, kTmp);
+            }
 
-            for (size_t kTmp(std::get<2>(t) + 1); kTmp < std::get<5>(t); kTmp += 2)
-                subGrid.set(i, j, kTmp);
-
+            for (size_t iTmp(1); iTmp < subGrid.width() - 1; ++iTmp)
+            {
+                for (size_t kTmp(std::get<2>(t) + 1); kTmp < std::get<5>(t); kTmp += 2)
+                    subGrid.set(iTmp, j, kTmp);
+            }
+return;
             std::vector<Direction> d{Up, Right, Down, Left, Back, Front};
 
             while (d.size() > 1)
             {
                 size_t v(g() % d.size());
 
-                switch (d[v])
-                {
-                    case Up:
-                        if (i - std::get<0>(t) - 2)
-                            subGrid.toggle(i - (g() % ((i - std::get<0>(t) - 2) / 2)) * 2 - 1, j, k);
-                        else
-                            subGrid.toggle(i - 1, j, k);
-                        break;
+                auto change{
+                    [i, j, k, t, &g] (Direction d, size_t& iTmp, size_t& jTmp, size_t& kTmp) -> void
+                    {
+                        switch (d)
+                        {
+                            case Left:
+                                if (i - std::get<0>(t) - 2)
+                                    iTmp = i - (g() % ((i - std::get<0>(t) - 2) / 2)) * 2 - 1;
+                                else
+                                    iTmp = i - 1;
+                                break;
 
-                    case Right:
-                        if (std::get<4>(t) - j - 2)
-                            subGrid.toggle(i, j + (g() % ((std::get<4>(t) - j - 2) / 2)) * 2 + 1, k);
-                        else
-                            subGrid.toggle(i, j + 1, k);
-                        break;
+                            case Back:
+                                if (std::get<4>(t) - j - 2)
+                                    jTmp = j + (g() % ((std::get<4>(t) - j - 2) / 2)) * 2 + 1;
+                                else
+                                    jTmp = j + 1;
+                                break;
 
-                    case Down:
-                        if (std::get<3>(t) - i - 2)
-                            subGrid.toggle(i + (g() % ((std::get<3>(t) - i - 2) / 2)) * 2 + 1, j, k);
-                        else
-                            subGrid.toggle(i + 1, j, k);
-                        break;
+                            case Right:
+                                if (std::get<3>(t) - i - 2)
+                                    iTmp = i + (g() % ((std::get<3>(t) - i - 2) / 2)) * 2 + 1;
+                                else
+                                    iTmp = i + 1;
+                                break;
 
-                    case Left:
-                        if (j - std::get<1>(t) - 2)
-                            subGrid.toggle(i, j - (g() % ((j - std::get<1>(t) - 2) / 2)) * 2 - 1, k);
-                        else
-                            subGrid.toggle(i, j - 1, k);
-                        break;
+                            case Front:
+                                if (j - std::get<1>(t) - 2)
+                                    jTmp = j - (g() % ((j - std::get<1>(t) - 2) / 2)) * 2 - 1;
+                                else
+                                    jTmp = j - 1;
+                                break;
 
-                    case Back:
-                        if (k - std::get<2>(t) - 2)
-                            subGrid.toggle(i, j, k - (g() % ((k - std::get<2>(t) - 2) / 2)) * 2 - 1);
-                        else
-                            subGrid.toggle(i, j, k - 1);
-                        break;
+                            case Up:
+                                if (k - std::get<2>(t) - 2)
+                                    kTmp = k - (g() % ((k - std::get<2>(t) - 2) / 2)) * 2 - 1;
+                                else
+                                    kTmp = k - 1;
+                                break;
 
-                    case Front:
-                        if (std::get<5>(t) - k - 2)
-                            subGrid.toggle(i, j, k + (g() % ((std::get<5>(t) - k - 2) / 2)) * 2 + 1);
-                        else
-                            subGrid.toggle(i, j, k + 1);
-                        break;
-                }
+                            case Down:
+                                if (std::get<5>(t) - k - 2)
+                                    kTmp = k + (g() % ((std::get<5>(t) - k - 2) / 2)) * 2 + 1;
+                                else
+                                    kTmp = k + 1;
+                                break;
+                        }
+                    }
+                };
+
+                size_t iTmp{i};
+                size_t jTmp{j};
+                size_t kTmp{k};
+
+                change(d[v], iTmp, jTmp, kTmp);
+
+                subGrid.toggle(iTmp, jTmp, kTmp);
 
                 d[v] = d.back();
                 d.pop_back();
             }
-
+return;
             ++operations;
         }
 
@@ -182,7 +204,7 @@ void Labyrinth3d::Algorithm::RecursiveDivision::operator()(URNG& g, SubGrid cons
         wTmp = j - std::get<1>(t) + 1;
 
         if (hTmp != 1 && wTmp != 1 && dTmp != 1 && (hTmp > 3 || wTmp > 3 || dTmp > 3))
-            history.push_back(std::make_tuple(i, std::get<1>(t), std::get<5>(t), std::get<3>(t), j, k));
+            history.push_back(std::make_tuple(i, std::get<1>(t), std::get<2>(t), std::get<3>(t), j, k));
 
         dTmp = std::get<5>(t) - k + 1;
         hTmp = i - std::get<0>(t) + 1;

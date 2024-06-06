@@ -1,6 +1,6 @@
+#include <iostream>
 #include <fstream>
 #include <future>
-#include <iostream>
 #include <random>
 #include <thread>
 
@@ -14,11 +14,11 @@
 #include <QTimerEvent>
 #include <QWidget>
 
-#include "include/Labyrinth2d/Labyrinth.h"
-#include "include/Labyrinth2d/Algorithm/Algorithm.h"
-#include "include/Labyrinth2d/Renderer/Renderer.h"
-#include "include/Labyrinth2d/Solver/Solver.h"
-#include "include/Labyrinth2d/Mover/QKeyPress.h"
+#include "Labyrinth2d/Labyrinth.h"
+#include "Labyrinth2d/Algorithm/Algorithm.h"
+#include "Labyrinth2d/Renderer/Renderer.h"
+#include "Labyrinth2d/Solver/Solver.h"
+#include "Labyrinth2d/Mover/QKeyPress.h"
 
 using namespace Labyrinth2d;
 
@@ -144,8 +144,8 @@ int main(int argc, char** argv)
     size_t const cycleOperationsSolving(1);
     std::chrono::milliseconds const cyclePauseSolving(1 * 50);//1 * 50);
 
-    //size_t const seed(2761453349);//3339863251);
-    size_t const seed(std::chrono::system_clock::now().time_since_epoch().count());
+    size_t const seed(2761453349);//3339863251);
+    //size_t const seed(std::chrono::system_clock::now().time_since_epoch().count());
     std::default_random_engine g(seed);
     std::cout << seed << std::endl;/*
     //std::default_random_engine g(156320);
@@ -160,8 +160,9 @@ int main(int argc, char** argv)
         }
     };
 
+    Labyrinth l(2, 2);
     //Labyrinth l(3, 9);
-    Labyrinth l(9, 9);
+    //Labyrinth l(9, 9);
     //Labyrinth l(10, 50);
     //Labyrinth l(40, 100);
     //Labyrinth l(800, 600);
@@ -203,25 +204,23 @@ int main(int argc, char** argv)
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::CellFusion>,
                            &l, std::ref(g), std::ref(cfa), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
-*//*
+*/
     Algorithm::RecursiveDivision rda;
 
     //l.generate(g, rda,sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::RecursiveDivision>,
                            &l, std::ref(g), std::ref(rda), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
-*/
+/*
     Algorithm::WaySearch wsa(Algorithm::WaySearch::DepthFirstSearch);
     //Algorithm::WaySearch wsa(Algorithm:WaySearch::Prim);
     //Algorithm::WaySearch wsa(Algorithm::WaySearch::HuntAndKill);
 
     //l.generate(g, wsa, sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::WaySearch>,
-        &l, std::ref(g), std::ref(wsa),
-        [] (std::chrono::milliseconds const& ms) -> void { std::this_thread::sleep_for(ms); },
-        cycleOperations, cyclePause, nullptr);
+        &l, std::ref(g), std::ref(wsa), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
-/*
+*//*
     Algorithm::Fractal fa;
 
     //l.generate(g, fa, sleep, cycleOperations, cyclePause);
@@ -356,7 +355,7 @@ int main(int argc, char** argv)
 
     /*std::thread thSolvePlayer1(&Player::solve<std::default_random_engine, Solver::WallHand>, &l.player(player1Id),
                                  std::ref(g), std::ref(whsr), sleep, 0, 0,
-                                 cycleOperationsSolving, cyclePauseSolving, nullptr);*/
+                                 cycleOperationsSolving, cyclePauseSolving, nullptr);*//*
     std::thread thSolvePlayer2(&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player2Id),
                                std::ref(g), std::ref(ass), sleep, 0, 0,
                                cycleOperationsSolving, cyclePauseSolving, nullptr);
@@ -371,7 +370,7 @@ int main(int argc, char** argv)
     thSolvePlayer2.detach();
     thSolvePlayer3.detach();
     thSolvePlayer4.detach();
-
+*/
     Mover::QKeyPress kpm(l, player1Id);
 
     wr->installEventFilter(&kpm);

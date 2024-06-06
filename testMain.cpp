@@ -1,6 +1,6 @@
+#include <iostream>
 #include <fstream>
 #include <future>
-#include <iostream>
 #include <random>
 #include <thread>
 
@@ -14,15 +14,15 @@
 #include <QTimerEvent>
 #include <QWidget>
 
-#include "include/Labyrinth2d/Labyrinth.h"
-#include "include/Labyrinth2d/Algorithm/Algorithm.h"
-#include "include/Labyrinth2d/Renderer/Renderer.h"
-#include "include/Labyrinth2d/Solver/Solver.h"
-#include "include/Labyrinth2d/Mover/QKeyPress.h"
+#include "Labyrinth2d/Labyrinth.h"
+#include "Labyrinth2d/Algorithm/Algorithm.h"
+#include "Labyrinth2d/Renderer/Renderer.h"
+#include "Labyrinth2d/Solver/Solver.h"
+#include "Labyrinth2d/Mover/QKeyPress.h"
 
-#include "include/Labyrinth3d/Labyrinth.h"
-#include "include/Labyrinth3d/Algorithm/Algorithm.h"
-#include "include/Labyrinth3d/Solver/Solver.h"
+#include "Labyrinth3d/Labyrinth.h"
+#include "Labyrinth3d/Algorithm/Algorithm.h"
+#include "Labyrinth3d/Solver/Solver.h"
 
 using namespace Labyrinth2d;
 
@@ -235,9 +235,7 @@ int main(int argc, char** argv)
 
     //l.generate(g, wsa, sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::WaySearch>,
-        &l, std::ref(g), std::ref(wsa),
-        [] (std::chrono::milliseconds const& ms) -> void { std::this_thread::sleep_for(ms); },
-        cycleOperations, cyclePause, nullptr);
+        &l, std::ref(g), std::ref(wsa), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
 /*
     Algorithm::Fractal fa;

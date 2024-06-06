@@ -96,7 +96,7 @@ void Labyrinth2d::Algorithm::RecursiveDivision::operator()(URNG& g, SubGrid cons
 
             for (size_t jTmp(std::get<1>(t) + 1); jTmp < std::get<3>(t); jTmp += 2)
                 subGrid.set(i, jTmp);
-
+return;
             std::vector<Direction> d{Up, Right, Down, Left};
 
             while (d.size() > 1)

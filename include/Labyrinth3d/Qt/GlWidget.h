@@ -64,6 +64,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
         float ryCamera_ = 0;
         float rzCamera_ = 0;
         QMatrix4x4 cameraMatrix_;
+        QMatrix4x4 rotationMatrix_;
         QVector3D wallsSize_ = QVector3D(5, 5, 5);
         QVector3D waysSize_ = QVector3D(20, 20, 20);
 };

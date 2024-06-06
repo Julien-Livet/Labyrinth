@@ -47,6 +47,7 @@ SOURCES += \
     src/Labyrinth3d/Algorithm/RandomDegenerative.cpp \
     src/Labyrinth3d/Algorithm/TimeoutException.cpp \
     src/Labyrinth3d/Algorithm/WaySearch.cpp \
+    src/Labyrinth3d/Mover/QKeyPress.cpp \
     src/Labyrinth3d/Solver/FailureException.cpp \
     src/Labyrinth3d/Solver/TimeoutException.cpp \
     src/Labyrinth3d/Labyrinth.cpp \
@@ -88,6 +89,7 @@ HEADERS += \
     include/Labyrinth3d/Algorithm/RecursiveDivision.h \
     include/Labyrinth3d/Algorithm/TimeoutException.h \
     include/Labyrinth3d/Algorithm/WaySearch.h \
+    include/Labyrinth3d/Mover/QKeyPress.h \
     include/Labyrinth3d/Renderer/Renderer.h \
     include/Labyrinth3d/Solver/AStar.h \
     include/Labyrinth3d/Solver/Blind.h \

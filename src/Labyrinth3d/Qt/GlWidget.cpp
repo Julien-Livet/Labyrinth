@@ -111,7 +111,7 @@ void GLWidget::initializeGL()
                                                k % 2 ? waysSize_.z() : wallsSize_.z()));
                     for (unsigned int l(0); l < 6; ++l)
                     {
-                        setTexture(textures_.size() - 1, l, QImage("C:/Users/juju0/Documents/GitHub/Labyrinth/resources/wall_pattern.png"));
+                        //setTexture(textures_.size() - 1, l, QImage("C:/Users/juju0/Documents/GitHub/Labyrinth/resources/wall_pattern.png"));
                         QImage image(128, 128, QImage::Format_ARGB32);
                         //image.fill(Qt::black);
                         image.fill(QColor(255, float(l) / 5 * 255, 0, 255));
@@ -125,8 +125,8 @@ void GLWidget::initializeGL()
 #define PROGRAM_VERTEX_ATTRIBUTE 0
 #define PROGRAM_TEXCOORD_ATTRIBUTE 1
 
-    QOpenGLShader *vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
-    const char *vsrc =
+    QOpenGLShader* vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
+    const char* vsrc =
         "attribute highp vec4 vertex;\n"
         "attribute mediump vec4 texCoord;\n"
         "varying mediump vec4 texc;\n"
@@ -138,8 +138,8 @@ void GLWidget::initializeGL()
         "}\n";
     vshader->compileSourceCode(vsrc);
 
-    QOpenGLShader *fshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-    const char *fsrc =
+    QOpenGLShader* fshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
+    const char* fsrc =
         "uniform sampler2D texture;\n"
         "varying mediump vec4 texc;\n"
         "void main(void)\n"
@@ -173,7 +173,7 @@ void GLWidget::paintGL()
 /*
     matrix.setToIdentity();
     matrix.ortho(-0.5f, +0.5f, +0.5f, -0.5f, 4.0f, 15.0f);
-    matrix.translate(0.0f, 0.0f, -10.0f);
+    matrix.translate(0.0f, 0.0f, 0.0f);
 */
     if (!labyrinth_.playerIds().empty())
     {
@@ -185,6 +185,9 @@ void GLWidget::paintGL()
                               (i + 1) / 2 * wallsSize_.y() + i / 2 * waysSize_.y() + (i % 2 ? waysSize_.y() : wallsSize_.y()) / 2,
                               (k + 1) / 2 * wallsSize_.z() + k / 2 * waysSize_.z() + (k % 2 ? waysSize_.z() : wallsSize_.z()) / 2);
         cameraMatrix_.translate(point);
+        cameraMatrix_.setColumn(0, rotationMatrix_.column(0));
+        cameraMatrix_.setColumn(1, rotationMatrix_.column(1));
+        cameraMatrix_.setColumn(2, rotationMatrix_.column(2));
         QMatrix4x4 rotation;
         rotation.rotate(rzCamera_, QVector3D(0, 0, 1));
         rotation.rotate(ryCamera_, QVector3D(0, 1, 0));
@@ -193,7 +196,6 @@ void GLWidget::paintGL()
         cameraMatrix_.lookAt(point,
                              point + rotation.column(0).toVector3D(),
                              rotation.column(1).toVector3D());*/
-        qDebug() << cameraMatrix_;
     }/*
     //cameraMatrix_.translate(xCamera_, yCamera_, zCamera_);
     cameraMatrix_.rotate(rzCamera_, QVector3D(0, 0, 1));
@@ -209,6 +211,8 @@ void GLWidget::paintGL()
     qDebug() << cameraMatrix_;
 
     matrix *= cameraMatrix_;
+
+    qDebug() << matrix;
 
     size_t count{0};
 
@@ -230,7 +234,8 @@ void GLWidget::paintGL()
 
                     for (int l = 0; l < 6; ++l)
                     {
-                        textures_[count][l]->bind();
+                        //textures_[count][l]->bind();
+                        textures_.front().front()->bind();
                         glDrawArrays(GL_TRIANGLE_FAN, l * 4, 4);
                     }
                 }
@@ -366,26 +371,32 @@ void GLWidget::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Right:
             ryCamera_ = 1.0;
             ryCamera_ = 90.0;
+            rotationMatrix_.rotate(-90.0, QVector3D(0, 1, 0));
             break;
         case Qt::Key_Left:
             ryCamera_ = -1.0;
             ryCamera_ = -90.0;
+            rotationMatrix_.rotate(90.0, QVector3D(0, 1, 0));
             break;
         case Qt::Key_Down:
             rxCamera_ = -1.0;
             rxCamera_ = -90.0;
+            rotationMatrix_.rotate(-90.0, QVector3D(1, 0, 0));
             break;
         case Qt::Key_Up:
             rxCamera_ = 1.0;
             rxCamera_ = 90.0;
+            rotationMatrix_.rotate(90.0, QVector3D(1, 0, 0));
             break;
         case Qt::Key_PageDown:
             rzCamera_ = -1.0;
             rzCamera_ = -90.0;
+            rotationMatrix_.rotate(-90.0, QVector3D(0, 0, 1));
             break;
         case Qt::Key_PageUp:
             rzCamera_ = 1.0;
             rzCamera_ = 90.0;
+            rotationMatrix_.rotate(90.0, QVector3D(0, 0, 1));
             break;
         default:
             break;
