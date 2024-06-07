@@ -160,9 +160,9 @@ int main(int argc, char** argv)
         }
     };
 
-    Labyrinth l(2, 2);
+    //Labyrinth l(2, 2);
     //Labyrinth l(3, 9);
-    //Labyrinth l(9, 9);
+    Labyrinth l(9, 9);
     //Labyrinth l(10, 50);
     //Labyrinth l(40, 100);
     //Labyrinth l(800, 600);
@@ -197,21 +197,21 @@ int main(int argc, char** argv)
                                                 Algorithm::Kruskal, Algorithm::RandomDegenerative>,
                            &l, std::ref(g), std::ref(g), std::ref(ka), std::ref(rda), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
-*//*
+*/
     Algorithm::CellFusion cfa;
 
     //l.generate(g, cfa, sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::CellFusion>,
                            &l, std::ref(g), std::ref(cfa), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
-*/
+/*
     Algorithm::RecursiveDivision rda;
 
     //l.generate(g, rda,sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::RecursiveDivision>,
                            &l, std::ref(g), std::ref(rda), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
-/*
+*//*
     Algorithm::WaySearch wsa(Algorithm::WaySearch::DepthFirstSearch);
     //Algorithm::WaySearch wsa(Algorithm:WaySearch::Prim);
     //Algorithm::WaySearch wsa(Algorithm::WaySearch::HuntAndKill);

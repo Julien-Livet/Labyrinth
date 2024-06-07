@@ -16,7 +16,7 @@ Labyrinth3d::Player::Player(Labyrinth const& labyrinth,
                                                   blockingFinish_{blockingFinish}, keptFullTrace_{keptFullTrace}
 {
     enableTrace(enabledTrace);
-	
+
 	assert(finishI_.size() && finishI_.size() == finishJ_.size() && finishI_.size() == finishK_.size());
 
 	for (std::size_t i{0}; i < finishI_.size(); ++i)
@@ -99,10 +99,10 @@ std::vector<size_t> Labyrinth3d::Player::finishRows() const
 {
 	std::vector<size_t> rows;
 	rows.reserve(finishI_.size());
-	
+
 	for (auto&& i : finishI_)
 		rows.emplace_back((i - 1) / 2);
-	
+
     return rows;
 }
 
@@ -110,10 +110,10 @@ std::vector<size_t> Labyrinth3d::Player::finishColumns() const
 {
 	std::vector<size_t> columns;
 	columns.reserve(finishJ_.size());
-	
+
 	for (auto&& j : finishJ_)
 		columns.emplace_back((j - 1) / 2);
-	
+
     return columns;
 }
 
@@ -121,10 +121,10 @@ std::vector<size_t> Labyrinth3d::Player::finishFloors() const
 {
 	std::vector<size_t> floors;
 	floors.reserve(finishK_.size());
-	
+
 	for (auto&& k : finishK_)
 		floors.emplace_back((k - 1) / 2);
-	
+
     return floors;
 }
 
@@ -184,7 +184,7 @@ bool Labyrinth3d::Player::keptFullTrace() const
 void Labyrinth3d::Player::keepFullTrace(bool keptFullTrace)
 {
     keptFullTrace_ = keptFullTrace;
-	
+
     if (!keptFullTrace_)
 		fullTrace_.clear();
 }
@@ -400,18 +400,18 @@ size_t Labyrinth3d::Player::stepBack(std::function<void(std::chrono::millisecond
             if (j_ == std::get<1>(traceIntersections_.back()))
             {
                 if (k_ < std::get<2>(traceIntersections_.back()))
-                    direction = Down;
-                else if (k_ > std::get<2>(traceIntersections_.back()))
                     direction = Up;
+                else if (k_ > std::get<2>(traceIntersections_.back()))
+                    direction = Down;
                 else
                     assert(0);
             }
             else if (k_ == std::get<2>(traceIntersections_.back()))
             {
                 if (j_ < std::get<1>(traceIntersections_.back()))
-                    direction = Right;
+                    direction = Front;
                 else if (j_ > std::get<1>(traceIntersections_.back()))
-                    direction = Left;
+                    direction = Back;
                 else
                     assert(0);
             }
@@ -423,18 +423,18 @@ size_t Labyrinth3d::Player::stepBack(std::function<void(std::chrono::millisecond
             if (i_ == std::get<0>(traceIntersections_.back()))
             {
                 if (k_ < std::get<2>(traceIntersections_.back()))
-                    direction = Down;
-                else if (k_ > std::get<2>(traceIntersections_.back()))
                     direction = Up;
+                else if (k_ > std::get<2>(traceIntersections_.back()))
+                    direction = Down;
                 else
                     assert(0);
             }
             else if (k_ == std::get<2>(traceIntersections_.back()))
             {
                 if (i_ < std::get<0>(traceIntersections_.back()))
-                    direction = Back;
+                    direction = Left;
                 else if (i_ > std::get<0>(traceIntersections_.back()))
-                    direction = Front;
+                    direction = Right;
                 else
                     assert(0);
             }

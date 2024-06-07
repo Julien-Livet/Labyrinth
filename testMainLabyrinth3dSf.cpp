@@ -23,19 +23,156 @@
 
 using namespace Labyrinth3d;
 
+void translateModelView(sf::Vector3f const& waysSize, sf::Vector3f const& wallsSize, Eigen::Vector3f const& offset,
+                        Eigen::Transform<float, 3, Eigen::Affine>& mv, size_t i, size_t j, size_t k)
+{
+    mv.translate((Eigen::Vector3f{} << (j / 2) * waysSize.x + ((j + 1) / 2) * wallsSize.x + offset[0],
+                                       (i / 2) * waysSize.y + ((i + 1) / 2) * wallsSize.y + offset[1],
+                                       (k / 2) * waysSize.z + ((k + 1) / 2) * wallsSize.z + offset[2]).finished());
+}
+
+void displayPlayer(sf::Vector3f const& waysSize, sf::Vector3f const& wallsSize,
+                   Labyrinth const& labyrinth, size_t playerId,
+                   GlFixedCamera const& glFixedCamera,
+                   sf::Shader const& colorShader,
+                   std::array<float, 4> const& color,
+                   bool displayPlayer,
+                   bool displayTrace,
+                   std::array<float, 4> const& traceColor)
+{
+    auto const& player{labyrinth.player(playerId)};
+
+    float const pRatio{0.25};
+    GlBlock pGlBlock{pRatio * Eigen::Vector3f{waysSize.x, waysSize.y, waysSize.z}}; //player
+
+    std::array<float, 6 * 4> colors;
+
+    if (displayPlayer)
+    {
+        for (size_t i{0}; i < 6; ++i)
+        {
+            for (size_t j{0}; j < 4; ++j)
+                colors[i * 4 + j] = color[j];
+        }
+
+        pGlBlock.changeFacetColors(colors);
+
+        auto mv{glFixedCamera.modelView()};
+        translateModelView(waysSize, wallsSize, pGlBlock.sides() / 2 / pRatio, mv, player.i(), player.j(), player.k());
+        pGlBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
+    }
+
+    if (displayTrace)
+    {
+        if (!player.traceIntersections().empty())
+        {
+            std::vector<GlBlock> traceGlBlocks;
+            traceGlBlocks.reserve(2 * 2 * 2);
+
+            for (size_t i{0}; i < 6; ++i)
+            {
+                for (size_t j{0}; j < 4; ++j)
+                    colors[i * 4 + j] = traceColor[j];
+            }
+
+            float const traceRatio{0.05};
+
+            for (size_t k{0}; k < 2; ++k)
+            {
+                for (size_t i{0}; i < 2; ++i)
+                {
+                    for (size_t j{0}; j < 2; ++j)
+                    {
+                        Eigen::Vector3f v;
+                        v[0] = traceRatio * (j % 2 ? waysSize.x : wallsSize.x);
+                        v[1] = traceRatio * (i % 2 ? waysSize.y : wallsSize.y);
+                        v[2] = traceRatio * (k % 2 ? waysSize.z : wallsSize.z);
+                        traceGlBlocks.emplace_back(v);
+                        traceGlBlocks.back().changeFacetColors(colors);
+                    }
+                }
+            }
+
+            for (size_t l{0}; l < player.traceIntersections().size() - 1; ++l)
+            {
+                size_t i1(std::get<0>(player.traceIntersections()[l]));
+                size_t j1(std::get<1>(player.traceIntersections()[l]));
+                size_t k1(std::get<2>(player.traceIntersections()[l]));
+                size_t const i2(std::get<0>(player.traceIntersections()[l + 1]));
+                size_t const j2(std::get<1>(player.traceIntersections()[l + 1]));
+                size_t const k2(std::get<2>(player.traceIntersections()[l + 1]));
+                long di(i2 - i1);
+                long dj(j2 - j1);
+                long dk(k2 - k1);
+
+                if (di)
+                    di /= std::abs(di);
+                if (dj)
+                    dj /= std::abs(dj);
+                if (dk)
+                    dk /= std::abs(dk);
+
+                while (i1 != i2 || j1 != j2 || k1 != k2)
+                {
+                    auto const& glBlock{traceGlBlocks[((k1 % 2) * 2 + i1 % 2) * 2 + j1 % 2]};
+
+                    auto mv{glFixedCamera.modelView()};
+                    translateModelView(waysSize, wallsSize, glBlock.sides() / 2 / traceRatio, mv, i1, j1, k1);
+                    glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
+
+                    i1 += di;
+                    j1 += dj;
+                    k1 += dk;
+                }
+            }
+
+            {
+                size_t i1(std::get<0>(player.traceIntersections().back()));
+                size_t j1(std::get<1>(player.traceIntersections().back()));
+                size_t k1(std::get<2>(player.traceIntersections().back()));
+                size_t const i2(player.i());
+                size_t const j2(player.j());
+                size_t const k2(player.k());
+                long di(i2 - i1);
+                long dj(j2 - j1);
+                long dk(k2 - k1);
+
+                if (di)
+                    di /= std::abs(di);
+                if (dj)
+                    dj /= std::abs(dj);
+                if (dk)
+                    dk /= std::abs(dk);
+
+                while (i1 != i2 || j1 != j2 || k1 != k2)
+                {
+                    auto const& glBlock{traceGlBlocks[((k1 % 2) * 2 + i1 % 2) * 2 + j1 % 2]};
+
+                    auto mv{glFixedCamera.modelView()};
+                    translateModelView(waysSize, wallsSize, glBlock.sides() / 2 / traceRatio, mv, i1, j1, k1);
+                    glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
+
+                    i1 += di;
+                    j1 += dj;
+                    k1 += dk;
+                }
+            }
+        }
+    }
+}
+
 int main()
 {
     size_t const cycleOperations(0 * 1);
     std::chrono::milliseconds const cyclePause(0 * 1 * 1);
     size_t const cycleOperationsSolving(1);
-    std::chrono::milliseconds const cyclePauseSolving(1 * 50);//1 * 50);
+    std::chrono::milliseconds const cyclePauseSolving(5 * 50);
 
     //size_t const seed(1717503823494194900);
     size_t const seed(std::chrono::system_clock::now().time_since_epoch().count());
     std::default_random_engine g(seed);
-    std::cout << seed << std::endl;/*
-    //std::default_random_engine g(156320);
-    std::random_device g;*/
+    std::cout << seed << std::endl;
+    //std::random_device g;
 
     auto const sleep{
         [] (std::chrono::milliseconds const& ms) -> void
@@ -47,8 +184,10 @@ int main()
     };
 
     //Labyrinth l(2, 2, 2);
+    //Labyrinth l(3, 3, 3);
     //Labyrinth l(5, 5, 5);
     Labyrinth l(9, 9, 9);
+    //Labyrinth l(15, 15, 15);
 
     Algorithm::CellFusion cfa;
     l.generate(g, cfa, sleep, cycleOperations, cyclePause);
@@ -95,7 +234,7 @@ int main()
     std::thread thSolvePlayer1(&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player1Id),
                                std::ref(g), std::ref(ass), sleep, 0, 0,
                                cycleOperationsSolving, cyclePauseSolving, nullptr);
-*//*
+*/
     Solver::Blind bs;
 
     //l.player(player2Id).solve(g, bs, sleep, 0, 0, cycleOperationsSolving, cyclePauseSolving);
@@ -109,7 +248,7 @@ int main()
     //thSolvePlayer1.detach();
     thSolvePlayer2.detach();
     thSolvePlayer3.detach();
-*/
+
     sf::Window window{sf::VideoMode{800, 600}, "Labyrinth3DSf", sf::Style::Default,
                       sf::ContextSettings{24, 8, 0, 3, 2, sf::ContextSettings::Default, false}};
     window.setVerticalSyncEnabled(true);
@@ -162,6 +301,9 @@ int main()
         }
     }
 
+    float const sfRatio{0.95};
+    GlBlock sfGlBlock{sfRatio * Eigen::Vector3f{waysSize.x, waysSize.y, waysSize.z}}; //start and finish
+
     sf::Image image{};
     image.loadFromFile("resources/wall_pattern.png");
     image.flipVertically();
@@ -179,16 +321,15 @@ int main()
 
     GlFixedCamera glFixedCamera{glm::perspective(Utility::Double::radians(70.0),
                                                  static_cast<double>(window.getSize().x) / static_cast<double>(window.getSize().y),
-                                                 1.0, 100.0),
+                                                 1.0, 1000.0),
                                 glm::lookAt(glm::vec3{0.0, 0.0, 0.0}, glm::vec3{1.0, 0.0, 0.0}, glm::vec3{0.0, 0.0, 1.0})};
 
     bool running{true};
     bool backspacePressed{false};
+    bool enterPressed{false};
     sf::Event::KeyEvent keyEvent{};
 
-    std::bitset<6> previousDirectionPressed{};
     std::bitset<6> directionPressed{};
-    std::bitset<6> risingEdgeDirectionPressed{};
     std::array<std::bitset<3>, 2> modifierPressed{};
 
     Eigen::Matrix3f rotation{Eigen::Matrix3f::Identity()};
@@ -199,8 +340,13 @@ int main()
 
         sf::Event event{};
 
+        std::bitset<6> previousDirectionPressed{};
+
         for (size_t i{0}; i < 6; ++i)
             previousDirectionPressed[i] = directionPressed[i];
+
+        bool previousEnterPressed{enterPressed};
+        bool previousBackspacePressed{backspacePressed};
 
         while (window.pollEvent(event))
         {
@@ -236,6 +382,8 @@ int main()
                     modifierPressed[1][2] = true;
                 else if (event.key.code == sf::Keyboard::Backspace)
                     backspacePressed = true;
+                else if (event.key.code == sf::Keyboard::Enter)
+                    enterPressed = true;
             }
             else if (event.type == sf::Event::KeyReleased)
             {
@@ -267,6 +415,8 @@ int main()
                     modifierPressed[1][2] = false;
                 else if (event.key.code == sf::Keyboard::Backspace)
                     backspacePressed = false;
+                else if (event.key.code == sf::Keyboard::Enter)
+                    enterPressed = false;
 
                 keyEvent = event.key;
             }
@@ -280,8 +430,13 @@ int main()
             }
         }
 
+        std::bitset<6> risingEdgeDirectionPressed{};
+
         for (size_t i{0}; i < 6; ++i)
             risingEdgeDirectionPressed[i] = directionPressed[i] && !previousDirectionPressed[i];
+
+        bool const risingEdgeEnterPressed{enterPressed && !previousEnterPressed};
+        bool const risingEdgeBackspacePressed{backspacePressed && !previousBackspacePressed};
 
         auto move{
             [&l, player1Id] (Eigen::Vector3f const& u, Direction d)
@@ -375,79 +530,120 @@ int main()
             else
                 move(rotation.col(2), Direction::Down);
         }
-        if (backspacePressed)
+        if (risingEdgeBackspacePressed)
             l.player(player1Id).stepBack();
+        if (risingEdgeEnterPressed)
+            rotation = Eigen::Matrix3f::Identity();
 
-        auto const i{l.player(l.playerIds().front()).i()};
-        auto const j{l.player(l.playerIds().front()).j()};
-        auto const k{l.player(l.playerIds().front()).k()};
-
-        Eigen::Transform<float, 3, Eigen::Affine> modelView{Eigen::Transform<float, 3, Eigen::Affine>::Identity()};
-        modelView.translation().x() = (j + 1) / 2 * wallsSize.x + j / 2 * waysSize.x + (j % 2 ? waysSize.x : wallsSize.x) / 2;
-        modelView.translation().y() = (i + 1) / 2 * wallsSize.y + i / 2 * waysSize.y + (i % 2 ? waysSize.y : wallsSize.y) / 2;
-        modelView.translation().z() = (k + 1) / 2 * wallsSize.z + k / 2 * waysSize.z + (k % 2 ? waysSize.z : wallsSize.z) / 2;
-        modelView.linear() = rotation;
-
-        glFixedCamera.changeModelView(glm::lookAt(glm::vec3{modelView.translation().x(), modelView.translation().y(), modelView.translation().z()},
-                                                  glm::vec3{modelView.translation().x() + modelView.linear().col(0)[0],
-                                                            modelView.translation().y() + modelView.linear().col(0)[1],
-                                                            modelView.translation().z() + modelView.linear().col(0)[2]},
-                                                  glm::vec3{modelView.linear().col(2)[0], modelView.linear().col(2)[1], modelView.linear().col(2)[2]}));
-
-        glClearColor(1.0, 1.0, 1.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        auto translateModelView{
-            [waysSize, wallsSize] (GlBlock const& glBlock, Eigen::Transform<float, 3, Eigen::Affine>& mv,
-                                   size_t i, size_t j, size_t k) -> void
-            {
-                mv.translate((Eigen::Vector3f{} << (j / 2) * waysSize.x + ((j + 1) / 2) * wallsSize.x + glBlock.sides()[0] / 2,
-                                                   (i / 2) * waysSize.y + ((i + 1) / 2) * wallsSize.y + glBlock.sides()[1] / 2,
-                                                   (k / 2) * waysSize.z + ((k + 1) / 2) * wallsSize.z + glBlock.sides()[2] / 2).finished());
-            }
-        };
-
-        for (size_t k{0}; k < l.grid().depth(); ++k)
+        try
         {
-            for (size_t i{0}; i < l.grid().height(); ++i)
-            {
-                for (size_t j{0}; j < l.grid().width(); ++j)
-                {
-                    if (l.grid().at(i, j, k))
-                    {
-                        auto const& glBlock{glBlocks[((k % 2) * 2 + i % 2) * 2 + j % 2]};
+            auto const i{l.player(l.playerIds().front()).i()};
+            auto const j{l.player(l.playerIds().front()).j()};
+            auto const k{l.player(l.playerIds().front()).k()};
 
-                        auto mv{glFixedCamera.modelView()};
-                        translateModelView(glBlock, mv, i, j, k);
-                        //glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
-                        glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), textureShader, textures);
+            Eigen::Transform<float, 3, Eigen::Affine> modelView{Eigen::Transform<float, 3, Eigen::Affine>::Identity()};
+            modelView.translation().x() = (j + 1) / 2 * wallsSize.x + j / 2 * waysSize.x + (j % 2 ? waysSize.x : wallsSize.x) / 2;
+            modelView.translation().y() = (i + 1) / 2 * wallsSize.y + i / 2 * waysSize.y + (i % 2 ? waysSize.y : wallsSize.y) / 2;
+            modelView.translation().z() = (k + 1) / 2 * wallsSize.z + k / 2 * waysSize.z + (k % 2 ? waysSize.z : wallsSize.z) / 2;
+            modelView.linear() = rotation;
+
+            glFixedCamera.changeModelView(glm::lookAt(glm::vec3{modelView.translation().x(), modelView.translation().y(), modelView.translation().z()},
+                                                      glm::vec3{modelView.translation().x() + modelView.linear().col(0)[0],
+                                                                modelView.translation().y() + modelView.linear().col(0)[1],
+                                                                modelView.translation().z() + modelView.linear().col(0)[2]},
+                                                      glm::vec3{modelView.linear().col(2)[0], modelView.linear().col(2)[1], modelView.linear().col(2)[2]}));
+
+            glClearColor(1.0, 1.0, 1.0, 1.0);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            for (size_t k{0}; k < l.grid().depth(); ++k)
+            {
+                for (size_t i{0}; i < l.grid().height(); ++i)
+                {
+                    for (size_t j{0}; j < l.grid().width(); ++j)
+                    {
+                        if (l.grid().at(i, j, k))
+                        {
+                            auto const& glBlock{glBlocks[((k % 2) * 2 + i % 2) * 2 + j % 2]};
+
+                            auto mv{glFixedCamera.modelView()};
+                            translateModelView(waysSize, wallsSize, glBlock.sides() / 2, mv, i, j, k);
+                            //glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
+                            glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), textureShader, textures);
+                        }
                     }
                 }
             }
-        }
 
-        auto& glBlock{glBlocks[((1 % 2) * 2 + 1 % 2) * 2 + 1 % 2]};
-        auto const& player{l.player(player1Id)};
-        glBlock.changeFacetColors(std::array<float, 6 * 4>{0.0, 1.0, 0.0, 0.25,
-                                                           0.0, 1.0, 0.0, 0.25,
-                                                           0.0, 1.0, 0.0, 0.25,
-                                                           0.0, 1.0, 0.0, 0.25,
-                                                           0.0, 1.0, 0.0, 0.25,
-                                                           0.0, 1.0, 0.0, 0.25});
-        auto mv{glFixedCamera.modelView()};
-        translateModelView(glBlock, mv, player.startI(), player.startJ(), player.startK());
-        glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
-        for (size_t i{0}; i < player.finishI().size(); ++i)
+            for (size_t m{0}; m < l.playerIds().size(); ++m)
+            {
+                auto const playerId{l.playerIds()[m]};
+                auto& glBlock{sfGlBlock};
+                auto const& player{l.player(playerId)};
+                glBlock.changeFacetColors(std::array<float, 6 * 4>{0.0, 1.0, 0.0, 0.25,
+                                                                   0.0, 1.0, 0.0, 0.25,
+                                                                   0.0, 1.0, 0.0, 0.25,
+                                                                   0.0, 1.0, 0.0, 0.25,
+                                                                   0.0, 1.0, 0.0, 0.25,
+                                                                   0.0, 1.0, 0.0, 0.25});
+                auto mv{glFixedCamera.modelView()};
+                translateModelView(waysSize, wallsSize, glBlock.sides() / 2 / sfRatio, mv, player.startI(), player.startJ(), player.startK());
+                glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
+                for (size_t i{0}; i < player.finishI().size(); ++i)
+                {
+                    mv = glFixedCamera.modelView();
+                    glBlock.changeFacetColors(std::array<float, 6 * 4>{1.0, 0.0, 0.0, 0.25,
+                                                                       1.0, 0.0, 0.0, 0.25,
+                                                                       1.0, 0.0, 0.0, 0.25,
+                                                                       1.0, 0.0, 0.0, 0.25,
+                                                                       1.0, 0.0, 0.0, 0.25,
+                                                                       1.0, 0.0, 0.0, 0.25});
+                    translateModelView(waysSize, wallsSize, glBlock.sides() / 2 / sfRatio, mv, player.finishI()[i], player.finishJ()[i], player.finishK()[i]);
+                    glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
+                }
+            }
+
+            displayPlayer(waysSize, wallsSize, l, player1Id, glFixedCamera, colorShader, std::array<float, 4>{1.0, 0.0, 0.0, 1.0},
+                          false, true, std::array<float, 4>{1.0, 0.0, 0.0, 0.5});
+            displayPlayer(waysSize, wallsSize, l, player2Id, glFixedCamera, colorShader, std::array<float, 4>{0.0, 1.0, 0.0, 1.0},
+                          l.player(player2Id).i() != l.player(player1Id).i() && l.player(player2Id).j() != l.player(player1Id).j() && l.player(player2Id).k() != l.player(player1Id).k(),
+                          true, std::array<float, 4>{0.0, 1.0, 0.0, 0.5});
+            displayPlayer(waysSize, wallsSize, l, player3Id, glFixedCamera, colorShader, std::array<float, 4>{0.0, 0.0, 1.0, 1.0},
+                          l.player(player3Id).i() != l.player(player1Id).i() && l.player(player3Id).j() != l.player(player1Id).j() && l.player(player3Id).k() != l.player(player1Id).k(),
+                          true, std::array<float, 4>{0.0, 0.0, 1.0, 0.5});
+        }
+        catch (GlException const& e)
         {
-            mv = glFixedCamera.modelView();
-            glBlock.changeFacetColors(std::array<float, 6 * 4>{1.0, 0.0, 0.0, 0.25,
-                                                               1.0, 0.0, 0.0, 0.25,
-                                                               1.0, 0.0, 0.0, 0.25,
-                                                               1.0, 0.0, 0.0, 0.25,
-                                                               1.0, 0.0, 0.0, 0.25,
-                                                               1.0, 0.0, 0.0, 0.25});
-            translateModelView(glBlock, mv, player.finishI()[i], player.finishJ()[i], player.finishK()[i]);
-            glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
+            switch (e.glError())
+            {
+                case GL_NO_ERROR:
+                    std::cout << "GL_NO_ERROR" << std::endl;
+                    break;
+                case GL_INVALID_ENUM:
+                    std::cout << "GL_INVALID_ENUM" << std::endl;
+                    break;
+                case GL_INVALID_VALUE:
+                    std::cout << "GL_INVALID_VALUE" << std::endl;
+                    break;
+                case GL_INVALID_OPERATION:
+                    std::cout << "GL_INVALID_OPERATION" << std::endl;
+                    break;
+                case GL_INVALID_FRAMEBUFFER_OPERATION:
+                    std::cout << "GL_INVALID_FRAMEBUFFER_OPERATION" << std::endl;
+                    break;
+                case GL_OUT_OF_MEMORY:
+                    std::cout << "GL_OUT_OF_MEMORY" << std::endl;
+                    break;
+                case GL_STACK_UNDERFLOW:
+                    std::cout << "GL_STACK_UNDERFLOW" << std::endl;
+                    break;
+                case GL_STACK_OVERFLOW:
+                    std::cout << "GL_STACK_OVERFLOW" << std::endl;
+                    break;
+                default:
+                    std::cout << e.glError() << std::endl;
+                    break;
+            }
         }
 
         window.display();
