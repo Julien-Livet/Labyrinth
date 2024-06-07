@@ -10,12 +10,9 @@
  */
 
 #include "CellFusion.h"
-#include "Fractal.h"
-#include "Kruskal.h"
 #include "Random.h"
 #include "RandomDegenerative.h"
 #include "Recursive.h"
-#include "RecursiveDivision.h"
-#include "WaySearch.h"
+#include "ShuffleSlicer.h"
 
 #endif // LABYRINTH3D_ALGORITHM_ALGORITHM_H

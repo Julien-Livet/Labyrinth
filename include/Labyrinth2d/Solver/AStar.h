@@ -41,14 +41,14 @@ namespace Labyrinth2d
              *  \param sleep: sleep function
              *  \param finishIndex: finish index to reach
              *  \param movements: movements done by the player (0 for a complete resolution if possible)
-             *  \param operationsCycle: number of operations in each cycle
+             *  \param cycleOperations: number of operations in each cycle
              *  \param cyclePause: pause time between each cycle
              *  \param timeout: time before to abort solving
              */
             template <class URNG>
             void operator()(URNG& g, Player& player,
                             std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
-                            size_t finishIndex = 0, size_t movements = 0, size_t operationsCycle = 0,
+                            size_t finishIndex = 0, size_t movements = 0, size_t cycleOperations = 0,
                             std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                             std::chrono::milliseconds const* timeout = nullptr);
         };
@@ -59,7 +59,7 @@ template <class URNG>
 void Labyrinth2d::Solver::AStar::operator()(URNG& /*g*/, Player& player,
                                             std::function<void(std::chrono::milliseconds)> const& sleep,
                                             size_t finishIndex, size_t movements,
-                                            size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
+                                            size_t cycleOperations, std::chrono::milliseconds const& cyclePause,
                                             std::chrono::milliseconds const* timeout)
 {
     auto const t(std::chrono::steady_clock::now());
@@ -173,8 +173,8 @@ void Labyrinth2d::Solver::AStar::operator()(URNG& /*g*/, Player& player,
                 if (player.state() & Player::StoppedSolving)
                     return;
 
-                if (operationsCycle && cyclePause.count()
-                    && !(operations % operationsCycle))
+                if (cycleOperations && cyclePause.count()
+                    && !(operations % cycleOperations))
                     sleep(cyclePause);
 
                 if (timeout != nullptr)

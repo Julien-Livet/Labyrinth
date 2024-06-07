@@ -157,14 +157,14 @@ namespace Labyrinth3d
              *  \param direction: the movement direction
              *  \param sleep: sleep function
              *  \param movements: the number of movements in this direction
-             *  \param operationsCycle: number of operations in each cycle
+             *  \param cycleOperations: number of operations in each cycle
              *  \param cyclePause: pause time between each cycle
              *
              *  \return The accomplished movements in the considered direction
              */
             size_t move(Direction direction,
                         std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
-                        size_t movements = 1, size_t operationsCycle = 0,
+                        size_t movements = 1, size_t cycleOperations = 0,
                         std::chrono::milliseconds cyclePause = std::chrono::milliseconds(0));
 
             /*!
@@ -188,7 +188,7 @@ namespace Labyrinth3d
              *  \return A boolean which is true if the player keep a full trace of his path (included unsuccesfull path)
              */
             bool keptFullTrace() const;
-			
+
             /*!
              *  \brief Keep the full trace (included unsuccesfull path), only possible until the player has started
              *
@@ -230,13 +230,13 @@ namespace Labyrinth3d
              *
              *  \param sleep: sleep function
              *  \param movements: the number of movements executed
-             *  \param operationsCycle: number of operations in each cycle
+             *  \param cycleOperations: number of operations in each cycle
              *  \param cyclePause: pause time between each cycle
              *
              *  \return Effective step back movements
              */
             size_t stepBack(std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
-                            size_t movements = 1, size_t operationsCycle = 0,
+                            size_t movements = 1, size_t cycleOperations = 0,
                             std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0));
 
             /*!
@@ -247,7 +247,7 @@ namespace Labyrinth3d
              *  \param sleep: sleep function
              *  \param finishIndex: finish index to reach
              *  \param movements: the number of movements executed by the solver
-             *  \param operationsCycle: number of operations in each cycle
+             *  \param cycleOperations: number of operations in each cycle
              *  \param cyclePause: pause time between each cycle
              *  \param timeout: time before to abort solving
              *
@@ -257,14 +257,14 @@ namespace Labyrinth3d
             bool solve(URG& g, Solver& solver,
                        std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
                        size_t finishIndex = 0, size_t movements = 0,
-                       size_t operationsCycle = 0, std::chrono::milliseconds cyclePause = std::chrono::milliseconds(0),
+                       size_t cycleOperations = 0, std::chrono::milliseconds cyclePause = std::chrono::milliseconds(0),
                        std::chrono::milliseconds const* timeout = nullptr);
 
             /*!
              *  \brief Stop solving player
              */
             void stopSolving();
-			
+
 			/*!
              *  \brief Return the full trace as a vector of tuples
 			 */
@@ -310,7 +310,7 @@ template <class URG, class Solver>
 bool Labyrinth3d::Player::solve(URG& g, Solver& solver,
                                 std::function<void(std::chrono::milliseconds)> const& sleep,
                                 size_t finishIndex, size_t movements,
-                                size_t operationsCycle, std::chrono::milliseconds cyclePause,
+                                size_t cycleOperations, std::chrono::milliseconds cyclePause,
                                 std::chrono::milliseconds const* timeout)
 {
     if ((state_ & Solving) || (state_ & Moving))
@@ -346,7 +346,7 @@ bool Labyrinth3d::Player::solve(URG& g, Solver& solver,
 
     try
     {
-        solver(g, *this, sleep, finishIndex, movements, operationsCycle, cyclePause, timeout);
+        solver(g, *this, sleep, finishIndex, movements, cycleOperations, cyclePause, timeout);
     }
     catch (Labyrinth3d::Solver::TimeoutException const&)
     {

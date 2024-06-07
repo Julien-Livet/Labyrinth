@@ -42,14 +42,14 @@ namespace Labyrinth2d
              *  \param g: uniform random number generator
              *  \param subGrid: sub-grid of labyrinth grid
              *  \param sleep: sleep function
-             *  \param operationsCycle: number of operations in each cycle
+             *  \param cycleOperations: number of operations in each cycle
              *  \param cyclePause: pause time between each cycle
              *  \param timeout: time before to abort generation
              */
             template <class URNG>
             void operator()(URNG& g, SubGrid const& subGrid,
                             std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
-                            size_t operationsCycle = 0,
+                            size_t cycleOperations = 0,
                             std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                             std::chrono::milliseconds const* timeout = nullptr);
         };
@@ -59,7 +59,7 @@ namespace Labyrinth2d
 template <class URNG>
 void Labyrinth2d::Algorithm::CellFusion::operator()(URNG& g, SubGrid const& subGrid,
                                                     std::function<void(std::chrono::milliseconds)> const& sleep,
-                                                    size_t operationsCycle, std::chrono::milliseconds const& cyclePause,
+                                                    size_t cycleOperations, std::chrono::milliseconds const& cyclePause,
                                                     std::chrono::milliseconds const* timeout)
 {
     auto const t(std::chrono::steady_clock::now());
@@ -104,7 +104,7 @@ void Labyrinth2d::Algorithm::CellFusion::operator()(URNG& g, SubGrid const& subG
         if (subGrid.grid().labyrinth().state() & Labyrinth::StopGenerating)
             return;
 
-        if (operationsCycle && cyclePause.count() && !(openedDoorNumber % operationsCycle))
+        if (cycleOperations && cyclePause.count() && !(openedDoorNumber % cycleOperations))
             sleep(cyclePause);
 
         if (timeout != nullptr)

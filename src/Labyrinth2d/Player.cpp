@@ -205,7 +205,7 @@ std::vector<std::pair<size_t, size_t> > const& Labyrinth2d::Player::fullTrace() 
 
 size_t Labyrinth2d::Player::move(Direction direction,
                                  std::function<void(std::chrono::milliseconds)> const& sleep,
-                                 size_t movements, size_t operationsCycle,
+                                 size_t movements, size_t cycleOperations,
                                  std::chrono::milliseconds cyclePause)
 {
     if ((labyrinth_.state() & Labyrinth::Generating) || (blockingFinish_ && (state_ & Finished)) || (state_ & Moving))
@@ -220,7 +220,7 @@ size_t Labyrinth2d::Player::move(Direction direction,
 
     while (movements)
     {
-        if (operationsCycle && cyclePause.count() && !(realizedMovements % operationsCycle))
+        if (cycleOperations && cyclePause.count() && !(realizedMovements % cycleOperations))
             sleep(cyclePause);
 
         size_t const iTmp(i_);
@@ -326,7 +326,7 @@ size_t Labyrinth2d::Player::move(Direction direction,
 }
 
 size_t Labyrinth2d::Player::stepBack(std::function<void(std::chrono::milliseconds)> const& sleep,
-                                     size_t movements, size_t operationsCycle,
+                                     size_t movements, size_t cycleOperations,
                                      std::chrono::milliseconds const& cyclePause)
 {
     size_t operations(0);
@@ -334,7 +334,7 @@ size_t Labyrinth2d::Player::stepBack(std::function<void(std::chrono::millisecond
     while ((!(state_ & Player::Finished) || !blockingFinish_)
            && !traceIntersections_.empty() && (!movements || (operations < movements)))
     {
-        if (operationsCycle && cyclePause.count() && !(operations % operationsCycle))
+        if (cycleOperations && cyclePause.count() && !(operations % cycleOperations))
             sleep(cyclePause);
 
         if (i_ == traceIntersections_.back().first && j_ == traceIntersections_.back().second)

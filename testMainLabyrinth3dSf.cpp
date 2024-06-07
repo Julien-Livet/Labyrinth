@@ -17,6 +17,7 @@
 #include "Labyrinth3d/Sfml/GlBlock.h"
 #include "Labyrinth3d/Sfml/GlFixedCamera.h"
 
+#include "include/Labyrinth2d/Algorithm/Algorithm.h"
 #include "include/Labyrinth3d/Labyrinth.h"
 #include "include/Labyrinth3d/Algorithm/Algorithm.h"
 #include "include/Labyrinth3d/Solver/Solver.h"
@@ -184,13 +185,17 @@ int main()
     };
 
     //Labyrinth l(2, 2, 2);
-    //Labyrinth l(3, 3, 3);
+    Labyrinth l(3, 3, 3);
     //Labyrinth l(5, 5, 5);
-    Labyrinth l(9, 9, 9);
+    //Labyrinth l(9, 9, 9);
     //Labyrinth l(15, 15, 15);
 
+    Algorithm::ShuffleSlicer<Labyrinth2d::Algorithm::CellFusion, Labyrinth2d::Algorithm::RecursiveDivision> ssa{Labyrinth2d::Algorithm::CellFusion{}, Labyrinth2d::Algorithm::RecursiveDivision{}};
+    l.generate(g, ssa, sleep, cycleOperations, cyclePause);
+/*
     Algorithm::CellFusion cfa;
     l.generate(g, cfa, sleep, cycleOperations, cyclePause);
+*/
     std::string const path{"C:/Users/juju0/AppData/Roaming/FreeCAD/Macro"};
 
     sf::Vector3f const wallsSize{5, 5, 5};
@@ -328,6 +333,7 @@ int main()
     bool backspacePressed{false};
     bool enterPressed{false};
     sf::Event::KeyEvent keyEvent{};
+    bool const displayTrace{true};
 
     std::bitset<6> directionPressed{};
     std::array<std::bitset<3>, 2> modifierPressed{};
@@ -589,7 +595,7 @@ int main()
                 auto mv{glFixedCamera.modelView()};
                 translateModelView(waysSize, wallsSize, glBlock.sides() / 2 / sfRatio, mv, player.startI(), player.startJ(), player.startK());
                 glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
-                for (size_t i{0}; i < player.finishI().size(); ++i)
+                for (size_t n{0}; n < player.finishI().size(); ++n)
                 {
                     mv = glFixedCamera.modelView();
                     glBlock.changeFacetColors(std::array<float, 6 * 4>{1.0, 0.0, 0.0, 0.25,
@@ -598,19 +604,19 @@ int main()
                                                                        1.0, 0.0, 0.0, 0.25,
                                                                        1.0, 0.0, 0.0, 0.25,
                                                                        1.0, 0.0, 0.0, 0.25});
-                    translateModelView(waysSize, wallsSize, glBlock.sides() / 2 / sfRatio, mv, player.finishI()[i], player.finishJ()[i], player.finishK()[i]);
+                    translateModelView(waysSize, wallsSize, glBlock.sides() / 2 / sfRatio, mv, player.finishI()[n], player.finishJ()[n], player.finishK()[n]);
                     glBlock.display(glFixedCamera.glmProjection(), Utility::eigenToGlm(mv), colorShader);
                 }
             }
 
             displayPlayer(waysSize, wallsSize, l, player1Id, glFixedCamera, colorShader, std::array<float, 4>{1.0, 0.0, 0.0, 1.0},
-                          false, true, std::array<float, 4>{1.0, 0.0, 0.0, 0.5});
+                          false, displayTrace, std::array<float, 4>{1.0, 0.0, 0.0, 0.5});
             displayPlayer(waysSize, wallsSize, l, player2Id, glFixedCamera, colorShader, std::array<float, 4>{0.0, 1.0, 0.0, 1.0},
                           l.player(player2Id).i() != l.player(player1Id).i() && l.player(player2Id).j() != l.player(player1Id).j() && l.player(player2Id).k() != l.player(player1Id).k(),
-                          true, std::array<float, 4>{0.0, 1.0, 0.0, 0.5});
+                          displayTrace, std::array<float, 4>{0.0, 1.0, 0.0, 0.5});
             displayPlayer(waysSize, wallsSize, l, player3Id, glFixedCamera, colorShader, std::array<float, 4>{0.0, 0.0, 1.0, 1.0},
                           l.player(player3Id).i() != l.player(player1Id).i() && l.player(player3Id).j() != l.player(player1Id).j() && l.player(player3Id).k() != l.player(player1Id).k(),
-                          true, std::array<float, 4>{0.0, 0.0, 1.0, 0.5});
+                          displayTrace, std::array<float, 4>{0.0, 0.0, 1.0, 0.5});
         }
         catch (GlException const& e)
         {
@@ -639,6 +645,12 @@ int main()
                     break;
                 case GL_STACK_OVERFLOW:
                     std::cout << "GL_STACK_OVERFLOW" << std::endl;
+                    break;
+                case GL_CONTEXT_LOST:
+                    std::cout << "GL_CONTEXT_LOST" << std::endl;
+                    break;
+                case GL_TABLE_TOO_LARGE:
+                    std::cout << "GL_TABLE_TOO_LARGE" << std::endl;
                     break;
                 default:
                     std::cout << e.glError() << std::endl;

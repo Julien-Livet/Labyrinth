@@ -123,14 +123,14 @@ namespace Labyrinth2d
              *  \param g: uniform random number generator
              *  \param algorithm: algorithm to generate the walls
              *  \param sleep: sleep function
-             *  \param operationsCycle: number of operations in each cycle
+             *  \param cycleOperations: number of operations in each cycle
              *  \param cyclePause: pause time between each cycle
              *  \param timeout: time before to abort generation
              */
             template <class URG, class Algorithm>
             void generate(URG& g, Algorithm& algorithm,
                           std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
-                          size_t operationsCycle = 0,
+                          size_t cycleOperations = 0,
                           std::chrono::milliseconds cyclePause = std::chrono::milliseconds(0),
                           std::chrono::milliseconds const* timeout = nullptr);
 
@@ -142,7 +142,7 @@ namespace Labyrinth2d
              *  \param perfectAlgorithm: perfect algorithm to generate the walls
              *  \param degenerativeAlgorithm: algorithm to destruct walls
              *  \param sleep: sleep function
-             *  \param operationsCycle: number of operations in each cycle
+             *  \param cycleOperations: number of operations in each cycle
              *  \param cyclePause: pause time between each cycle
              *  \param timeout: time before to abort generation
              */
@@ -150,7 +150,7 @@ namespace Labyrinth2d
             void generate(URG1& g1, URG2& g2, PerfectAlgorithm& perfectAlgorithm,
                           DegenerativeAlgorithm& degenerativeAlgorithm,
                           std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
-                          size_t operationsCycle = 0,
+                          size_t cycleOperations = 0,
                           std::chrono::milliseconds cyclePause = std::chrono::milliseconds(0),
                           std::chrono::milliseconds const* timeout = nullptr);
 
@@ -179,7 +179,7 @@ namespace Labyrinth2d
 template <class URG, class Algorithm>
 void Labyrinth2d::Labyrinth::generate(URG& g, Algorithm& algorithm,
                                       std::function<void(std::chrono::milliseconds)> const& sleep,
-                                      size_t operationsCycle,
+                                      size_t cycleOperations,
                                       std::chrono::milliseconds cyclePause,
                                       std::chrono::milliseconds const* timeout)
 {
@@ -204,7 +204,7 @@ void Labyrinth2d::Labyrinth::generate(URG& g, Algorithm& algorithm,
 
     try
     {
-        algorithm(g, subGrid, sleep, operationsCycle, cyclePause, timeout);
+        algorithm(g, subGrid, sleep, cycleOperations, cyclePause, timeout);
     }
     catch (Labyrinth2d::Algorithm::TimeoutException const&)
     {
@@ -231,7 +231,7 @@ template <class URG1, class URG2, class PerfectAlgorithm, class DegenerativeAlgo
 void Labyrinth2d::Labyrinth::generate(URG1& g1, URG2& g2, PerfectAlgorithm& perfectAlgorithm,
                                       DegenerativeAlgorithm& degenerativeAlgorithm,
                                       std::function<void(std::chrono::milliseconds)> const& sleep,
-                                      size_t operationsCycle,
+                                      size_t cycleOperations,
                                       std::chrono::milliseconds cyclePause,
                                       std::chrono::milliseconds const* timeout)
 {
@@ -256,7 +256,7 @@ void Labyrinth2d::Labyrinth::generate(URG1& g1, URG2& g2, PerfectAlgorithm& perf
 
     try
     {
-        perfectAlgorithm(g1, perfectSubGrid, sleep, operationsCycle, cyclePause, timeout);
+        perfectAlgorithm(g1, perfectSubGrid, sleep, cycleOperations, cyclePause, timeout);
     }
     catch (Labyrinth2d::Algorithm::TimeoutException const&)
     {
@@ -278,7 +278,7 @@ void Labyrinth2d::Labyrinth::generate(URG1& g1, URG2& g2, PerfectAlgorithm& perf
             auto const timeoutTmp(*timeout -
                                   (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t)));
 
-            degenerativeAlgorithm(g2, degenerativeSubGrid, sleep, operationsCycle, cyclePause, &timeoutTmp);
+            degenerativeAlgorithm(g2, degenerativeSubGrid, sleep, cycleOperations, cyclePause, &timeoutTmp);
         }
         catch (Labyrinth2d::Algorithm::TimeoutException const&)
         {
@@ -292,7 +292,7 @@ void Labyrinth2d::Labyrinth::generate(URG1& g1, URG2& g2, PerfectAlgorithm& perf
         }
     }
     else
-        degenerativeAlgorithm(g2, degenerativeSubGrid, sleep, operationsCycle, cyclePause);
+        degenerativeAlgorithm(g2, degenerativeSubGrid, sleep, cycleOperations, cyclePause);
 
     generationDuration_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t);
     state_ &= ~Initialized;

@@ -66,14 +66,14 @@ namespace Labyrinth3d
                  *
                  *  \param g: uniform random number generator
                  *  \param subGrid: sub-grid of labyrinth grid
-                 *  \param operationsCycle: number of operations in each cycle
+                 *  \param cycleOperations: number of operations in each cycle
                  *  \param cyclePause: pause time between each cycle
                  *  \param timeout: time before to abort generation
                  */
                 template <class URNG>
                 void operator()(URNG& g, SubGrid const& subGrid,
                     std::function<void(std::chrono::milliseconds)> const& sleep = [] (std::chrono::milliseconds const&) -> void {},
-                                size_t operationsCycle = 0,
+                                size_t cycleOperations = 0,
                                 std::chrono::milliseconds const& cyclePause = std::chrono::milliseconds(0),
                                 std::chrono::milliseconds const* timeout = nullptr);
 
@@ -133,7 +133,7 @@ template <class Algorithm>
 template <class URNG>
 void Labyrinth3d::Algorithm::Recursive<Algorithm>::operator()(URNG& g, SubGrid const& subGrid,
                                                               std::function<void(std::chrono::milliseconds)> const& sleep,
-                                                              size_t operationsCycle,
+                                                              size_t cycleOperations,
                                                               std::chrono::milliseconds const& cyclePause,
                                                               std::chrono::milliseconds const* timeout)
 {
@@ -161,7 +161,7 @@ void Labyrinth3d::Algorithm::Recursive<Algorithm>::operator()(URNG& g, SubGrid c
                                              i * (subGrid.rows() - 2 * rows) + rows,
                                              j * (subGrid.columns() - 2 * columns) + columns,
                                              k * (subGrid.floors() - 2 * floors) + floors),
-                               operationsCycle, cyclePause, timeout);
+                               cycleOperations, cyclePause, timeout);
 
         std::vector<std::tuple<size_t, size_t, size_t> > positions;
 
@@ -228,7 +228,7 @@ void Labyrinth3d::Algorithm::Recursive<Algorithm>::operator()(URNG& g, SubGrid c
         }
     }
     else
-        algorithm_(g, subGrid, sleep, operationsCycle, cyclePause, timeout);
+        algorithm_(g, subGrid, sleep, cycleOperations, cyclePause, timeout);
 }
 
 #endif // LABYRINTH3D_ALGORITHM_RECURSIVE_H

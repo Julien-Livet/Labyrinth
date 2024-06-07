@@ -36,14 +36,14 @@ namespace Labyrinth2d
                  *  \param g: uniform random number generator
                  *  \param subGrid: sub-grid of labyrinth grid
                  *  \param sleep: sleep function
-                 *  \param operationsCycle: number of operations in each cycle
+                 *  \param cycleOperations: number of operations in each cycle
                  *  \param cyclePause: pause time between each cycle
                  *  \param timeout: time before to abort generation
                  */
                 template <class URNG>
                 void operator()(URNG& g, SubGrid const& subGrid,
                                 std::function<void(std::chrono::milliseconds)> const& /*sleep*/ = [] (std::chrono::milliseconds const&) -> void {},
-                                size_t /*operationsCycle*/ = 0,
+                                size_t /*cycleOperations*/ = 0,
                                 std::chrono::milliseconds const& /*cyclePause*/ = std::chrono::milliseconds(0),
                                 std::chrono::milliseconds const* timeout = nullptr);
 
@@ -58,7 +58,7 @@ namespace Labyrinth2d
 template <class URNG>
 void Labyrinth2d::Algorithm::Fractal::operator()(URNG& g, SubGrid const& subGrid,
                                                  std::function<void(std::chrono::milliseconds)> const& /*sleep*/,
-                                                 size_t /*operationsCycle*/,
+                                                 size_t /*cycleOperations*/,
                                                  std::chrono::milliseconds const& /*cyclePause*/,
                                                  std::chrono::milliseconds const* timeout)
 {
