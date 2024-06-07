@@ -32,6 +32,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add option="-std=c++20" />
 			<Add option="-DGLM_ENABLE_EXPERIMENTAL" />
 			<Add directory="include" />
 		</Compiler>
@@ -43,6 +44,16 @@
 			<Add library="sfml-graphics" />
 			<Add library="libglm" />
 		</Linker>
+		<Unit filename="include/Labyrinth2d/Algorithm/Algorithm.h" />
+		<Unit filename="include/Labyrinth2d/Algorithm/CellFusion.h" />
+		<Unit filename="include/Labyrinth2d/Algorithm/Fractal.h" />
+		<Unit filename="include/Labyrinth2d/Algorithm/Kruskal.h" />
+		<Unit filename="include/Labyrinth2d/Algorithm/Random.h" />
+		<Unit filename="include/Labyrinth2d/Algorithm/RandomDegenerative.h" />
+		<Unit filename="include/Labyrinth2d/Algorithm/Recursive.h" />
+		<Unit filename="include/Labyrinth2d/Algorithm/RecursiveDivision.h" />
+		<Unit filename="include/Labyrinth2d/Algorithm/TimeoutException.h" />
+		<Unit filename="include/Labyrinth2d/Algorithm/WaySearch.h" />
 		<Unit filename="include/Labyrinth3d/Algorithm/Algorithm.h" />
 		<Unit filename="include/Labyrinth3d/Algorithm/CellFusion.h" />
 		<Unit filename="include/Labyrinth3d/Algorithm/Fractal.h" />
@@ -51,6 +62,7 @@
 		<Unit filename="include/Labyrinth3d/Algorithm/RandomDegenerative.h" />
 		<Unit filename="include/Labyrinth3d/Algorithm/Recursive.h" />
 		<Unit filename="include/Labyrinth3d/Algorithm/RecursiveDivision.h" />
+		<Unit filename="include/Labyrinth3d/Algorithm/ShuffleSlicer.h" />
 		<Unit filename="include/Labyrinth3d/Algorithm/TimeoutException.h" />
 		<Unit filename="include/Labyrinth3d/Algorithm/WaySearch.h" />
 		<Unit filename="include/Labyrinth3d/Grid.h" />
@@ -72,6 +84,11 @@
 		<Unit filename="include/Labyrinth3d/Solver/Solver.h" />
 		<Unit filename="include/Labyrinth3d/Solver/TimeoutException.h" />
 		<Unit filename="include/Labyrinth3d/utility.h" />
+		<Unit filename="src/Labyrinth2d/Algorithm/CellFusion.cpp" />
+		<Unit filename="src/Labyrinth2d/Algorithm/Kruskal.cpp" />
+		<Unit filename="src/Labyrinth2d/Algorithm/RandomDegenerative.cpp" />
+		<Unit filename="src/Labyrinth2d/Algorithm/TimeoutException.cpp" />
+		<Unit filename="src/Labyrinth2d/Algorithm/WaySearch.cpp" />
 		<Unit filename="src/Labyrinth3d/Algorithm/CellFusion.cpp" />
 		<Unit filename="src/Labyrinth3d/Algorithm/Kruskal.cpp" />
 		<Unit filename="src/Labyrinth3d/Algorithm/RandomDegenerative.cpp" />
