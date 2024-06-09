@@ -619,8 +619,11 @@ int main()
                 }
             }
 
-            for (size_t m{0}; m < 1 /*l.playerIds().size()*/; ++m)
+            for (size_t m{0}; m < l.playerIds().size(); ++m)
             {
+                if (m != firstPlayerId)
+                    continue;
+
                 auto const playerId{l.playerIds()[m]};
                 auto& glBlock{sfGlBlock};
                 auto const& player{l.player(playerId)};
