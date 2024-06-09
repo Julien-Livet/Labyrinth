@@ -26,7 +26,7 @@ int main(int argc, char** argv)
     size_t const cycleOperations(0 * 1);
     std::chrono::milliseconds const cyclePause(0 * 1 * 1);
     size_t const cycleOperationsSolving(1);
-    std::chrono::milliseconds const cyclePauseSolving(1 * 50);//1 * 50);
+    std::chrono::milliseconds const cyclePauseSolving(10 * 50);
 
     //size_t const seed(1717503823494194900);
     size_t const seed(std::chrono::system_clock::now().time_since_epoch().count());
@@ -44,9 +44,10 @@ int main(int argc, char** argv)
         }
     };
 
-    Labyrinth l(2, 2, 2);
+    //Labyrinth l(2, 2, 2);
+    //Labyrinth l(3, 3, 3);
     //Labyrinth l(5, 5, 5);
-    //Labyrinth l(9, 9, 9);
+    Labyrinth l(9, 9, 9);
 /*
     //Not working
     Algorithm::Kruskal ka;
@@ -112,7 +113,7 @@ int main(int argc, char** argv)
     std::thread thSolvePlayer1(&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player1Id),
                                std::ref(g), std::ref(ass), sleep, 0, 0,
                                cycleOperationsSolving, cyclePauseSolving, nullptr);
-*//*
+*/
     Solver::Blind bs;
 
     //l.player(player2Id).solve(g, bs, sleep, 0, 0, cycleOperationsSolving, cyclePauseSolving);
@@ -126,28 +127,17 @@ int main(int argc, char** argv)
     //thSolvePlayer1.detach();
     thSolvePlayer2.detach();
     thSolvePlayer3.detach();
-*/
+
+    bool constexpr displayTrace{true};
+
     GLWidget glWidget(l, wallsSize, waysSize);
     glWidget.show();
     glWidget.setFixedSize(800, 600);
-
+    glWidget.move(QRect(QPoint(), QGuiApplication::screenAt(QPoint())->size()).center() - glWidget.rect().center());
     glWidget.setClearColor(Qt::white);
-    //glWidget.makeBox(QVector3D(0.0, 0.0, 0.0), QVector3D(1.0, 1.0, 1.0));
-    //glWidget.makeBox(QVector3D(-0.2, -0.2, -0.2), QVector3D(0.0, 0.0, 0.0));
-    //glWidget.makeBox(QVector3D(0.0, 0.0, 0.0), QVector3D(0.2, 0.2, 0.2));
-    for (unsigned int i(0); i < 6; ++i)
-    {
-        glWidget.setTexture(0, i, QImage("C:/Users/juju0/Documents/GitHub/Labyrinth/resources/wall_pattern.png"));
-        QImage image(128, 128, QImage::Format_ARGB32);
-        //image.fill(Qt::black);
-        image.fill(QColor(255, float(i) / 5 * 255, 0, 255));
-        glWidget.setTexture(0, i, image);
-    }/*
-    for (unsigned int i(0); i < 6; ++i)
-        glWidget.setTexture(1, i, QImage("C:/Users/juju0/Documents/GitHub/Labyrinth/resources/wall_pattern.png"));*/
-    QMatrix4x4 cameraMatrix;
-    cameraMatrix.translate(glWidget.wallsSize() + glWidget.waysSize() / 2);
-    //glWidget.setCameraMatrix(cameraMatrix);
+    glWidget.setPlayerDisplay(player1Id, GLWidget::PlayerDisplay{QColor{255, 0, 0, 255}, displayTrace, QColor{255, 0, 0, 127}});
+    glWidget.setPlayerDisplay(player2Id, GLWidget::PlayerDisplay{QColor{0, 255, 0, 255}, displayTrace, QColor{0, 255, 0, 127}});
+    glWidget.setPlayerDisplay(player3Id, GLWidget::PlayerDisplay{QColor{0, 0, 255, 255}, displayTrace, QColor{0, 0, 255, 127}});
 
     auto const result{application.exec()};
 /*

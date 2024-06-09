@@ -19,6 +19,13 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
     Q_OBJECT
 
     public:
+        struct PlayerDisplay
+        {
+            QColor color{255, 0, 0};
+            bool displayTrace{true};
+            QColor traceColor{255, 0, 0, 128};
+        };
+
         using QOpenGLWidget::QOpenGLWidget;
         GLWidget(Labyrinth3d::Labyrinth& labyrinth, QVector3D const& wallsSize = QVector3D(5, 5, 5),
                  QVector3D const& waysSize = QVector3D(20, 20, 20));
@@ -48,7 +55,9 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
                                                                                  QImage(128, 128, QImage::Format_ARGB32),
                                                                                  QImage(128, 128, QImage::Format_ARGB32)});
         QMatrix4x4 const& cameraMatrix() const;
-        void setCameraMatrix(QMatrix4x4 const& matrix);
+        PlayerDisplay const& playerDisplay(size_t i) const;
+        PlayerDisplay& playerDisplay(size_t i);
+        void setPlayerDisplay(size_t i, PlayerDisplay const& playerDisplay);
 
     protected:
         void initializeGL() override;
@@ -69,9 +78,21 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
         QVector3D wallsSize_ = QVector3D(5, 5, 5);
         QVector3D waysSize_ = QVector3D(20, 20, 20);
         std::vector<std::pair<QVector3D, QVector3D> > boxes_;
+        size_t playerBoxId_{0};
+        float const sfRatio_{0.95}; //start and finish
+        size_t sfBoxId_{0}; // start and finish
+        float const traceRatio_{0.05};
+        std::map<size_t, PlayerDisplay> playerDisplays_;
+        size_t firstPlayerId_{0};
 
         void translateModelView(QVector3D const& offset, QMatrix4x4& mv, size_t i, size_t j, size_t k) const;
-        QVector3D sidesBox(size_t i) const;
+        QVector3D boxSides(size_t i) const;
+        void changeBox(size_t i, QVector3D const& bottom, QVector3D const& top);
+        void changeBoxSides(size_t i, QVector3D const& sides);
+        void bindBox(size_t i);
+        void displayPlayer(size_t playerId, QColor const& color, bool displayPlayer,
+                           bool displayTrace, QColor const& traceColor);
+        void displayBox(size_t i, QMatrix4x4 const& mv);
 
 };
 

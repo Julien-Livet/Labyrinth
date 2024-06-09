@@ -45,7 +45,7 @@ void displayPlayer(sf::Vector3f const& waysSize, sf::Vector3f const& wallsSize,
 {
     auto const& player{labyrinth.player(playerId)};
 
-    float const pRatio{0.25};
+    float constexpr pRatio{0.25};
     pGlBlock.changeSides(pRatio * Eigen::Vector3f{waysSize.x, waysSize.y, waysSize.z});
 
     std::array<float, 6 * 4> colors;
@@ -327,7 +327,7 @@ int main()
     bool backspacePressed{false};
     bool enterPressed{false};
     sf::Event::KeyEvent keyEvent{};
-    bool const displayTrace{true};
+    bool constexpr displayTrace{true};
 
     std::bitset<6> directionPressed{};
     std::array<std::bitset<3>, 2> modifierPressed{};
@@ -337,7 +337,7 @@ int main()
     std::vector<GlBlock> traceGlBlocks;
     traceGlBlocks.reserve(2 * 2 * 2);
 
-    float const traceRatio{0.05};
+    float constexpr traceRatio{0.05};
 
     for (size_t k{0}; k < 2; ++k)
     {
@@ -353,10 +353,30 @@ int main()
                     v[2] = traceRatio * (k % 2 ? waysSize.z : wallsSize.z);
                     traceGlBlocks.emplace_back(v);
                 }
-                traceGlBlocks[(k * 2 + i) * 2 + j].changeFacetColors(colors);
             }
         }
     }
+
+    auto const firstPlayerId{player1Id};
+
+    struct PlayerDisplay
+    {
+        std::array<float, 4> color{1.0, 0.0, 0.0, 1.0};
+        bool displayTrace{true};
+        std::array<float, 4> traceColor{1.0, 0.0, 0.0, 0.5};
+    };
+
+    std::map<size_t, PlayerDisplay> playerDisplays;
+
+    playerDisplays[player1Id] = PlayerDisplay{std::array<float, 4>{1.0, 0.0, 0.0, 1.0},
+                                              displayTrace,
+                                              std::array<float, 4>{1.0, 0.0, 0.0, 0.5}};
+    playerDisplays[player2Id] = PlayerDisplay{std::array<float, 4>{0.0, 1.0, 0.0, 1.0},
+                                              displayTrace,
+                                              std::array<float, 4>{0.0, 1.0, 0.0, 0.5}};
+    playerDisplays[player3Id] = PlayerDisplay{std::array<float, 4>{0.0, 0.0, 1.0, 1.0},
+                                              displayTrace,
+                                              std::array<float, 4>{0.0, 0.0, 1.0, 0.5}};
 
     while (running)
     {
@@ -561,9 +581,9 @@ int main()
 
         try
         {
-            auto const i{l.player(l.playerIds().front()).i()};
-            auto const j{l.player(l.playerIds().front()).j()};
-            auto const k{l.player(l.playerIds().front()).k()};
+            auto const i{l.player(firstPlayerId).i()};
+            auto const j{l.player(firstPlayerId).j()};
+            auto const k{l.player(firstPlayerId).k()};
 
             Eigen::Transform<float, 3, Eigen::Affine> modelView{Eigen::Transform<float, 3, Eigen::Affine>::Identity()};
             modelView.translation().x() = (j + 1) / 2 * wallsSize.x + j / 2 * waysSize.x + (j % 2 ? waysSize.x : wallsSize.x) / 2;
@@ -576,14 +596,6 @@ int main()
                                                                 modelView.translation().y() + modelView.linear().col(0)[1],
                                                                 modelView.translation().z() + modelView.linear().col(0)[2]},
                                                       glm::vec3{modelView.linear().col(2)[0], modelView.linear().col(2)[1], modelView.linear().col(2)[2]}));
-
-            Eigen::IOFormat heavyFmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
-            std::cout << "hop" << std::endl;
-            std::cout << modelView.matrix().format(heavyFmt) << std::endl;
-            auto const m{Utility::glmToEigen(glm::lookAt(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1)))};
-            std::cout << m.format(heavyFmt) << std::endl;
-            std::cout << glFixedCamera.projection().matrix().format(heavyFmt) << std::endl;
-            std::cout << glFixedCamera.view().format(heavyFmt) << std::endl;
 
             glClearColor(1.0, 1.0, 1.0, 1.0);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -635,14 +647,12 @@ int main()
                 }
             }
 
-            displayPlayer(waysSize, wallsSize, l, player1Id, glFixedCamera, colorShader, std::array<float, 4>{1.0, 0.0, 0.0, 1.0},
-                          false, displayTrace, std::array<float, 4>{1.0, 0.0, 0.0, 0.5}, pGlBlock, traceGlBlocks);
-            displayPlayer(waysSize, wallsSize, l, player2Id, glFixedCamera, colorShader, std::array<float, 4>{0.0, 1.0, 0.0, 1.0},
-                          l.player(player2Id).i() != l.player(player1Id).i() || l.player(player2Id).j() != l.player(player1Id).j() || l.player(player2Id).k() != l.player(player1Id).k(),
-                          displayTrace, std::array<float, 4>{0.0, 1.0, 0.0, 0.5}, pGlBlock, traceGlBlocks);
-            displayPlayer(waysSize, wallsSize, l, player3Id, glFixedCamera, colorShader, std::array<float, 4>{0.0, 0.0, 1.0, 1.0},
-                          l.player(player3Id).i() != l.player(player1Id).i() || l.player(player3Id).j() != l.player(player1Id).j() || l.player(player3Id).k() != l.player(player1Id).k(),
-                          displayTrace, std::array<float, 4>{0.0, 0.0, 1.0, 0.5}, pGlBlock, traceGlBlocks);
+            for (auto it{playerDisplays.begin()}; it != playerDisplays.end(); ++it)
+                displayPlayer(waysSize, wallsSize, l, it->first, glFixedCamera, colorShader, it->second.color,
+                              it->first == firstPlayerId ? false : (l.player(it->first).i() != l.player(firstPlayerId).i()
+                                                                    || l.player(it->first).j() != l.player(firstPlayerId).j()
+                                                                    || l.player(it->first).k() != l.player(firstPlayerId).k()),
+                              it->second.displayTrace, it->second.traceColor, pGlBlock, traceGlBlocks);
         }
         catch (GlException const& e)
         {
