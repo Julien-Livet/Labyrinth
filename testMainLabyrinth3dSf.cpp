@@ -39,12 +39,14 @@ void displayPlayer(sf::Vector3f const& waysSize, sf::Vector3f const& wallsSize,
                    std::array<float, 4> const& color,
                    bool displayPlayer,
                    bool displayTrace,
-                   std::array<float, 4> const& traceColor)
+                   std::array<float, 4> const& traceColor,
+                   GlBlock& pGlBlock,
+                   std::vector<GlBlock>& traceGlBlocks)
 {
     auto const& player{labyrinth.player(playerId)};
 
     float const pRatio{0.25};
-    GlBlock pGlBlock{pRatio * Eigen::Vector3f{waysSize.x, waysSize.y, waysSize.z}}; //player
+    pGlBlock.changeSides(pRatio * Eigen::Vector3f{waysSize.x, waysSize.y, waysSize.z});
 
     std::array<float, 6 * 4> colors;
 
@@ -67,9 +69,6 @@ void displayPlayer(sf::Vector3f const& waysSize, sf::Vector3f const& wallsSize,
     {
         if (!player.traceIntersections().empty())
         {
-            std::vector<GlBlock> traceGlBlocks;
-            traceGlBlocks.reserve(2 * 2 * 2);
-
             for (size_t i{0}; i < 6; ++i)
             {
                 for (size_t j{0}; j < 4; ++j)
@@ -83,14 +82,7 @@ void displayPlayer(sf::Vector3f const& waysSize, sf::Vector3f const& wallsSize,
                 for (size_t i{0}; i < 2; ++i)
                 {
                     for (size_t j{0}; j < 2; ++j)
-                    {
-                        Eigen::Vector3f v;
-                        v[0] = traceRatio * (j % 2 ? waysSize.x : wallsSize.x);
-                        v[1] = traceRatio * (i % 2 ? waysSize.y : wallsSize.y);
-                        v[2] = traceRatio * (k % 2 ? waysSize.z : wallsSize.z);
-                        traceGlBlocks.emplace_back(v);
-                        traceGlBlocks.back().changeFacetColors(colors);
-                    }
+                        traceGlBlocks[(k * 2 + i) * 2 + j].changeFacetColors(colors);
                 }
             }
 
@@ -167,7 +159,7 @@ int main()
     size_t const cycleOperations(0 * 1);
     std::chrono::milliseconds const cyclePause(0 * 1 * 1);
     size_t const cycleOperationsSolving(1);
-    std::chrono::milliseconds const cyclePauseSolving(5 * 50);
+    std::chrono::milliseconds const cyclePauseSolving(10 * 50);
 
     //size_t const seed(1717503823494194900);
     size_t const seed(std::chrono::system_clock::now().time_since_epoch().count());
@@ -190,7 +182,9 @@ int main()
     //Labyrinth l(9, 9, 9);
     //Labyrinth l(15, 15, 15);
 
-    Algorithm::ShuffleSlicer<Labyrinth2d::Algorithm::CellFusion, Labyrinth2d::Algorithm::RecursiveDivision> ssa{Labyrinth2d::Algorithm::CellFusion{}, Labyrinth2d::Algorithm::RecursiveDivision{}};
+    Labyrinth2d::Algorithm::CellFusion cfa{};
+    Labyrinth2d::Algorithm::RecursiveDivision rda{};
+    Algorithm::RandomSlicer<Labyrinth2d::Algorithm::CellFusion, Labyrinth2d::Algorithm::RecursiveDivision> ssa{cfa, rda};
     l.generate(g, ssa, sleep, cycleOperations, cyclePause);
 /*
     Algorithm::CellFusion cfa;
@@ -339,6 +333,30 @@ int main()
     std::array<std::bitset<3>, 2> modifierPressed{};
 
     Eigen::Matrix3f rotation{Eigen::Matrix3f::Identity()};
+    GlBlock pGlBlock{Eigen::Vector3f{1.0, 1.0, 1.0}}; //player
+    std::vector<GlBlock> traceGlBlocks;
+    traceGlBlocks.reserve(2 * 2 * 2);
+
+    float const traceRatio{0.05};
+
+    for (size_t k{0}; k < 2; ++k)
+    {
+        for (size_t i{0}; i < 2; ++i)
+        {
+            for (size_t j{0}; j < 2; ++j)
+            {
+                if (traceGlBlocks.size() != 8)
+                {
+                    Eigen::Vector3f v;
+                    v[0] = traceRatio * (j % 2 ? waysSize.x : wallsSize.x);
+                    v[1] = traceRatio * (i % 2 ? waysSize.y : wallsSize.y);
+                    v[2] = traceRatio * (k % 2 ? waysSize.z : wallsSize.z);
+                    traceGlBlocks.emplace_back(v);
+                }
+                traceGlBlocks[(k * 2 + i) * 2 + j].changeFacetColors(colors);
+            }
+        }
+    }
 
     while (running)
     {
@@ -432,7 +450,7 @@ int main()
 
                 glFixedCamera.perspective(Utility::Double::radians(70.0),
                                           static_cast<double>(event.size.width) / static_cast<double>(event.size.height),
-                                          0.1, 100.0);
+                                          1.0, 1000.0);
             }
         }
 
@@ -445,42 +463,42 @@ int main()
         bool const risingEdgeBackspacePressed{backspacePressed && !previousBackspacePressed};
 
         auto move{
-            [&l, player1Id] (Eigen::Vector3f const& u, Direction d)
+            [&l, player1Id] (Eigen::Vector3f const& u, Labyrinth3d::Direction d)
             {
                 switch (d)
                 {
-                    case Front:
-                    case Left:
-                    case Up:
+                    case Labyrinth3d::Front:
+                    case Labyrinth3d::Left:
+                    case Labyrinth3d::Up:
                         if ((u - Eigen::Vector3f::UnitX()).isZero())
-                            l.player(player1Id).move(Direction::Front);
+                            l.player(player1Id).move(Labyrinth3d::Front);
                         else if ((u + Eigen::Vector3f::UnitX()).isZero())
-                            l.player(player1Id).move(Direction::Back);
+                            l.player(player1Id).move(Labyrinth3d::Back);
                         else if ((u - Eigen::Vector3f::UnitY()).isZero())
-                            l.player(player1Id).move(Direction::Left);
+                            l.player(player1Id).move(Labyrinth3d::Left);
                         else if ((u + Eigen::Vector3f::UnitY()).isZero())
-                            l.player(player1Id).move(Direction::Right);
+                            l.player(player1Id).move(Labyrinth3d::Right);
                         else if ((u - Eigen::Vector3f::UnitZ()).isZero())
-                            l.player(player1Id).move(Direction::Up);
+                            l.player(player1Id).move(Labyrinth3d::Up);
                         else if ((u + Eigen::Vector3f::UnitZ()).isZero())
-                            l.player(player1Id).move(Direction::Down);
+                            l.player(player1Id).move(Labyrinth3d::Down);
                         break;
 
-                    case Back:
-                    case Right:
-                    case Down:
+                    case Labyrinth3d::Back:
+                    case Labyrinth3d::Right:
+                    case Labyrinth3d::Down:
                         if ((u - Eigen::Vector3f::UnitX()).isZero())
-                            l.player(player1Id).move(Direction::Back);
+                            l.player(player1Id).move(Labyrinth3d::Back);
                         else if ((u + Eigen::Vector3f::UnitX()).isZero())
-                            l.player(player1Id).move(Direction::Front);
+                            l.player(player1Id).move(Labyrinth3d::Front);
                         else if ((u - Eigen::Vector3f::UnitY()).isZero())
-                            l.player(player1Id).move(Direction::Right);
+                            l.player(player1Id).move(Labyrinth3d::Right);
                         else if ((u + Eigen::Vector3f::UnitY()).isZero())
-                            l.player(player1Id).move(Direction::Left);
+                            l.player(player1Id).move(Labyrinth3d::Left);
                         else if ((u - Eigen::Vector3f::UnitZ()).isZero())
-                            l.player(player1Id).move(Direction::Down);
+                            l.player(player1Id).move(Labyrinth3d::Down);
                         else if ((u + Eigen::Vector3f::UnitZ()).isZero())
-                            l.player(player1Id).move(Direction::Up);
+                            l.player(player1Id).move(Labyrinth3d::Up);
                         break;
                 }
             }
@@ -494,7 +512,7 @@ int main()
                 rotation *= Eigen::AngleAxisf{Utility::Float::radians(-stepAngle),
                                               Eigen::Vector3f::UnitY()}.toRotationMatrix();
             else
-                move(rotation.col(0), Direction::Front);
+                move(rotation.col(0), Labyrinth3d::Front);
         }
         if (risingEdgeDirectionPressed[1])
         {
@@ -502,7 +520,7 @@ int main()
                 rotation *= Eigen::AngleAxisf{Utility::Float::radians(stepAngle),
                                               Eigen::Vector3f::UnitY()}.toRotationMatrix();
             else
-                move(rotation.col(0), Direction::Back);
+                move(rotation.col(0), Labyrinth3d::Back);
         }
         if (risingEdgeDirectionPressed[2])
         {
@@ -510,7 +528,7 @@ int main()
                 rotation *= Eigen::AngleAxisf{Utility::Float::radians(stepAngle),
                                               Eigen::Vector3f::UnitZ()}.toRotationMatrix();
             else
-                move(rotation.col(1), Direction::Left);
+                move(rotation.col(1), Labyrinth3d::Left);
         }
         if (risingEdgeDirectionPressed[3])
         {
@@ -518,7 +536,7 @@ int main()
                 rotation *= Eigen::AngleAxisf{Utility::Float::radians(-stepAngle),
                                               Eigen::Vector3f::UnitZ()}.toRotationMatrix();
             else
-                move(rotation.col(1), Direction::Right);
+                move(rotation.col(1), Labyrinth3d::Right);
         }
         if (risingEdgeDirectionPressed[4])
         {
@@ -526,7 +544,7 @@ int main()
                 rotation *= Eigen::AngleAxisf{Utility::Float::radians(stepAngle),
                                               Eigen::Vector3f::UnitX()}.toRotationMatrix();
             else
-                move(rotation.col(2), Direction::Up);
+                move(rotation.col(2), Labyrinth3d::Up);
         }
         if (risingEdgeDirectionPressed[5])
         {
@@ -534,7 +552,7 @@ int main()
                 rotation *= Eigen::AngleAxisf{Utility::Float::radians(-45.0),
                                               Eigen::Vector3f::UnitX()}.toRotationMatrix();
             else
-                move(rotation.col(2), Direction::Down);
+                move(rotation.col(2), Labyrinth3d::Down);
         }
         if (risingEdgeBackspacePressed)
             l.player(player1Id).stepBack();
@@ -559,6 +577,14 @@ int main()
                                                                 modelView.translation().z() + modelView.linear().col(0)[2]},
                                                       glm::vec3{modelView.linear().col(2)[0], modelView.linear().col(2)[1], modelView.linear().col(2)[2]}));
 
+            Eigen::IOFormat heavyFmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
+            std::cout << "hop" << std::endl;
+            std::cout << modelView.matrix().format(heavyFmt) << std::endl;
+            auto const m{Utility::glmToEigen(glm::lookAt(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1)))};
+            std::cout << m.format(heavyFmt) << std::endl;
+            std::cout << glFixedCamera.projection().matrix().format(heavyFmt) << std::endl;
+            std::cout << glFixedCamera.view().format(heavyFmt) << std::endl;
+
             glClearColor(1.0, 1.0, 1.0, 1.0);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -581,7 +607,7 @@ int main()
                 }
             }
 
-            for (size_t m{0}; m < l.playerIds().size(); ++m)
+            for (size_t m{0}; m < 1 /*l.playerIds().size()*/; ++m)
             {
                 auto const playerId{l.playerIds()[m]};
                 auto& glBlock{sfGlBlock};
@@ -610,13 +636,13 @@ int main()
             }
 
             displayPlayer(waysSize, wallsSize, l, player1Id, glFixedCamera, colorShader, std::array<float, 4>{1.0, 0.0, 0.0, 1.0},
-                          false, displayTrace, std::array<float, 4>{1.0, 0.0, 0.0, 0.5});
+                          false, displayTrace, std::array<float, 4>{1.0, 0.0, 0.0, 0.5}, pGlBlock, traceGlBlocks);
             displayPlayer(waysSize, wallsSize, l, player2Id, glFixedCamera, colorShader, std::array<float, 4>{0.0, 1.0, 0.0, 1.0},
-                          l.player(player2Id).i() != l.player(player1Id).i() && l.player(player2Id).j() != l.player(player1Id).j() && l.player(player2Id).k() != l.player(player1Id).k(),
-                          displayTrace, std::array<float, 4>{0.0, 1.0, 0.0, 0.5});
+                          l.player(player2Id).i() != l.player(player1Id).i() || l.player(player2Id).j() != l.player(player1Id).j() || l.player(player2Id).k() != l.player(player1Id).k(),
+                          displayTrace, std::array<float, 4>{0.0, 1.0, 0.0, 0.5}, pGlBlock, traceGlBlocks);
             displayPlayer(waysSize, wallsSize, l, player3Id, glFixedCamera, colorShader, std::array<float, 4>{0.0, 0.0, 1.0, 1.0},
-                          l.player(player3Id).i() != l.player(player1Id).i() && l.player(player3Id).j() != l.player(player1Id).j() && l.player(player3Id).k() != l.player(player1Id).k(),
-                          displayTrace, std::array<float, 4>{0.0, 0.0, 1.0, 0.5});
+                          l.player(player3Id).i() != l.player(player1Id).i() || l.player(player3Id).j() != l.player(player1Id).j() || l.player(player3Id).k() != l.player(player1Id).k(),
+                          displayTrace, std::array<float, 4>{0.0, 0.0, 1.0, 0.5}, pGlBlock, traceGlBlocks);
         }
         catch (GlException const& e)
         {

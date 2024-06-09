@@ -1,9 +1,9 @@
-#ifndef LABYRINTH3D_ALGORITHM_SHUFFLESLICER_H
-#define LABYRINTH3D_ALGORITHM_SHUFFLESLICER_H
+#ifndef LABYRINTH3D_ALGORITHM_RANDOMSLICER_H
+#define LABYRINTH3D_ALGORITHM_RANDOMSLICER_H
 
 /*!
- *  \file ShuffleSlicer.h
- *  \brief Generate a perfect labyrinth with shuffle slicer of 2D algorithms
+ *  \file RandomSlicer.h
+ *  \brief Generate a perfect labyrinth with random slicer of 2D algorithms
  *  \author Julien LIVET
  *  \version 1.0
  *  \date 07/06/2024
@@ -41,12 +41,14 @@ namespace Labyrinth3d
          *  \brief Generate a perfect labyrinth by randomly generating 2D labyrinth at each floor
          */
         template<typename... Algorithms>
-        struct ShuffleSlicer
+        struct RandomSlicer
         {
             /*!
              *  \brief Constructor
+			 *
+			 *  \param a: algorithms used to generate the labyrinth
              */
-            ShuffleSlicer(Algorithms const& ...a) : algorithms{std::forward_as_tuple(a...)}
+            RandomSlicer(Algorithms const& ...a) : algorithms{std::forward_as_tuple(a...)}
             {
             }
 
@@ -120,4 +122,4 @@ namespace Labyrinth3d
     }
 }
 
-#endif // LABYRINTH3D_ALGORITHM_SHUFFLESLICER_H
+#endif // LABYRINTH3D_ALGORITHM_RANDOMSLICER_H

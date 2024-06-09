@@ -13,6 +13,6 @@
 #include "Random.h"
 #include "RandomDegenerative.h"
 #include "Recursive.h"
-#include "ShuffleSlicer.h"
+#include "RandomSlicer.h"
 
 #endif // LABYRINTH3D_ALGORITHM_ALGORITHM_H

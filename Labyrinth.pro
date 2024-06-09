@@ -100,6 +100,7 @@ HEADERS += \
     include/Labyrinth3d/Algorithm/Kruskal.h \
     include/Labyrinth3d/Algorithm/Random.h \
     include/Labyrinth3d/Algorithm/RandomDegenerative.h \
+    include/Labyrinth3d/Algorithm/RandomSlicer.h \
     include/Labyrinth3d/Algorithm/Recursive.h \
     include/Labyrinth3d/Algorithm/RecursiveDivision.h \
     include/Labyrinth3d/Algorithm/TimeoutException.h \

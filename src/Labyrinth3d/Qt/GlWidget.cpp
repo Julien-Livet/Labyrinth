@@ -94,29 +94,22 @@ void GLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
-    for (size_t k{0}; k < labyrinth_.grid().depth(); ++k)
+    for (size_t k{0}; k < 2; ++k)
     {
-        for (size_t i{0}; i < labyrinth_.grid().height(); ++i)
+        for (size_t i{0}; i < 2; ++i)
         {
-            for (size_t j{0}; j < labyrinth_.grid().width(); ++j)
+            for (size_t j{0}; j < 2; ++j)
             {
-                if (!(i % 2) || !(j % 2) || !(k % 2))
+                makeBox(QVector3D(j % 2 ? waysSize_.x() : wallsSize_.x(),
+                                  i % 2 ? waysSize_.y() : wallsSize_.y(),
+                                  k % 2 ? waysSize_.z() : wallsSize_.z()));
+                for (unsigned int l(0); l < 6; ++l)
                 {
-                    QVector3D const bottom{(j + 1) / 2 * wallsSize_.x() + j / 2 * waysSize_.x(),
-                                           (i + 1) / 2 * wallsSize_.y() + i / 2 * waysSize_.y(),
-                                           (k + 1) / 2 * wallsSize_.z() + k / 2 * waysSize_.z()};
-                    makeBox(bottom,
-                            bottom + QVector3D(j % 2 ? waysSize_.x() : wallsSize_.x(),
-                                               i % 2 ? waysSize_.y() : wallsSize_.y(),
-                                               k % 2 ? waysSize_.z() : wallsSize_.z()));
-                    for (unsigned int l(0); l < 6; ++l)
-                    {
-                        //setTexture(textures_.size() - 1, l, QImage("C:/Users/juju0/Documents/GitHub/Labyrinth/resources/wall_pattern.png"));
-                        QImage image(128, 128, QImage::Format_ARGB32);
-                        //image.fill(Qt::black);
-                        image.fill(QColor(255, float(l) / 5 * 255, 0, 255));
-                        setTexture(textures_.size() - 1, l, image);
-                    }
+                    //setTexture(textures_.size() - 1, l, QImage("C:/Users/juju0/Documents/GitHub/Labyrinth/resources/wall_pattern.png"));
+                    QImage image(128, 128, QImage::Format_ARGB32);
+                    //image.fill(Qt::black);
+                    image.fill(QColor(255, float(l) / 5 * 255, 0, 255));
+                    setTexture(textures_.size() - 1, l, image);
                 }
             }
         }
@@ -165,16 +158,12 @@ void GLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     QMatrix4x4 matrix;
-    matrix.perspective(70, (double)width() / height(), 0.1, 100.0);
-    //matrix.scale(-1, 1, 1);
-/*
-    matrix.setToIdentity();
-    matrix.ortho(-0.5f, +0.5f, +0.5f, -0.5f, 4.0f, 15.0f);
-    matrix.translate(0.0f, 0.0f, 0.0f);
-*/
+    matrix.perspective(70.0, (double)width() / height(), 1.0, 1000.0);
+
     if (!labyrinth_.playerIds().empty())
     {
         cameraMatrix_ = QMatrix4x4();
@@ -188,33 +177,21 @@ void GLWidget::paintGL()
         cameraMatrix_.setColumn(0, rotationMatrix_.column(0));
         cameraMatrix_.setColumn(1, rotationMatrix_.column(1));
         cameraMatrix_.setColumn(2, rotationMatrix_.column(2));
-        QMatrix4x4 rotation;
-        rotation.rotate(rzCamera_, QVector3D(0, 0, 1));
-        rotation.rotate(ryCamera_, QVector3D(0, 1, 0));
-        rotation.rotate(rxCamera_, QVector3D(1, 0, 0));/*
-        cameraMatrix_.setToIdentity();
+
+        qDebug() << "hop";
+        qDebug() << cameraMatrix_;
+        cameraMatrix_ = matrix;
         cameraMatrix_.lookAt(point,
-                             point + rotation.column(0).toVector3D(),
-                             rotation.column(1).toVector3D());*/
-    }/*
-    //cameraMatrix_.translate(xCamera_, yCamera_, zCamera_);
-    cameraMatrix_.rotate(rzCamera_, QVector3D(0, 0, 1));
-    cameraMatrix_.rotate(ryCamera_, QVector3D(0, 1, 0));
-    cameraMatrix_.rotate(rxCamera_, QVector3D(1, 0, 0));*/
-    xCamera_ = 0;
-    yCamera_ = 0;
-    zCamera_ = 0;
-    rxCamera_ = 0;
-    ryCamera_ = 0;
-    rzCamera_ = 0;
+                             point + rotationMatrix_.column(0).toVector3D(),
+                             rotationMatrix_.column(2).toVector3D());
 
-    qDebug() << cameraMatrix_;
-
-    matrix *= cameraMatrix_;
+        QMatrix4x4 m;
+        m.lookAt(QVector3D(0, 0, 0), QVector3D(1, 0, 0), QVector3D(0, 0, 1));
+        qDebug() << m;
+    }
 
     qDebug() << matrix;
-
-    size_t count{0};
+    qDebug() << cameraMatrix_;
 
     for (size_t k{0}; k < labyrinth_.grid().depth(); ++k)
     {
@@ -224,9 +201,12 @@ void GLWidget::paintGL()
             {
                 if (labyrinth_.grid().at(i, j, k))
                 {
+                    QMatrix4x4 m{cameraMatrix_};
+                    translateModelView(sidesBox(((k % 2) * 2 + i % 2) * 2 + j % 2) / 2, m, i, j, k);
+
                     vbo.bind();
                     program->bind();
-                    program->setUniformValue("matrix", matrix);
+                    program->setUniformValue("matrix", matrix * m);
                     program->enableAttributeArray(PROGRAM_VERTEX_ATTRIBUTE);
                     program->enableAttributeArray(PROGRAM_TEXCOORD_ATTRIBUTE);
                     program->setAttributeBuffer(PROGRAM_VERTEX_ATTRIBUTE, GL_FLOAT, 0, 3, 5 * sizeof(GLfloat));
@@ -239,9 +219,6 @@ void GLWidget::paintGL()
                         glDrawArrays(GL_TRIANGLE_FAN, l * 4, 4);
                     }
                 }
-
-                if (!(i % 2) || !(j % 2) || !(k % 2))
-                    ++count;
             }
         }
     }
@@ -255,6 +232,8 @@ void GLWidget::resizeGL(int width, int height)
 
 void GLWidget::makeBox(QVector3D const& bottom, QVector3D const& top, std::array<QImage, 6> const& images)
 {
+    boxes_.emplace_back(std::make_pair(bottom, top));
+
     coords_.emplace_back(
     std::array<std::array<std::array<float, 3>, 4>, 6>{
         std::array<std::array<float, 3>, 4>{
@@ -325,6 +304,13 @@ void GLWidget::makeBox(QVector3D const& bottom, QVector3D const& top, std::array
     vbo.allocate(vertData.constData(), vertData.count() * sizeof(GLfloat));
 }
 
+void GLWidget::makeBox(QVector3D const& sides, std::array<QImage, 6> const& images)
+{
+    assert(sides.x() > 0.0 && sides.y() > 0.0 && sides.z() > 0.0);
+
+    makeBox(-sides / 2, sides / 2, images);
+}
+
 void GLWidget::keyPressEvent(QKeyEvent* event)
 {
     QOpenGLWidget::keyPressEvent(event);
@@ -334,31 +320,76 @@ void GLWidget::keyPressEvent(QKeyEvent* event)
 
     if (!event->modifiers().testFlag(Qt::ShiftModifier))
     {
+        auto move{
+            [this] (QVector4D const& u, Labyrinth3d::Direction d)
+            {
+                auto& l{this->labyrinth_};
+                auto const player1Id{l.playerIds().front()};
+
+                switch (d)
+                {
+                    case Labyrinth3d::Front:
+                    case Labyrinth3d::Left:
+                    case Labyrinth3d::Up:
+                        if ((u - QVector4D(1, 0, 0, 0)).isNull())
+                            l.player(player1Id).move(Labyrinth3d::Front);
+                        else if ((u + QVector4D(1, 0, 0, 0)).isNull())
+                            l.player(player1Id).move(Labyrinth3d::Back);
+                        else if ((u - QVector4D(0, 1, 0, 0)).isNull())
+                            l.player(player1Id).move(Labyrinth3d::Left);
+                        else if ((u + QVector4D(0, 1, 0, 0)).isNull())
+                            l.player(player1Id).move(Labyrinth3d::Right);
+                        else if ((u - QVector4D(0, 0, 1, 0)).isNull())
+                            l.player(player1Id).move(Labyrinth3d::Up);
+                        else if ((u + QVector4D(0, 0, 1, 0)).isNull())
+                            l.player(player1Id).move(Labyrinth3d::Down);
+                        break;
+
+                    case Labyrinth3d::Back:
+                    case Labyrinth3d::Right:
+                    case Labyrinth3d::Down:
+                        if ((u - QVector4D(1, 0, 0, 0)).isNull())
+                            l.player(player1Id).move(Labyrinth3d::Back);
+                        else if ((u + QVector4D(1, 0, 0, 0)).isNull())
+                            l.player(player1Id).move(Labyrinth3d::Front);
+                        else if ((u - QVector4D(0, 1, 0, 0)).isNull())
+                            l.player(player1Id).move(Labyrinth3d::Right);
+                        else if ((u + QVector4D(0, 1, 0, 0)).isNull())
+                            l.player(player1Id).move(Labyrinth3d::Left);
+                        else if ((u - QVector4D(0, 0, 1, 0)).isNull())
+                            l.player(player1Id).move(Labyrinth3d::Down);
+                        else if ((u + QVector4D(0, 0, 1, 0)).isNull())
+                            l.player(player1Id).move(Labyrinth3d::Up);
+                        break;
+                }
+            }
+        };
+
         switch (event->key())
         {
             case Qt::Key_Right:
-                labyrinth_.player(labyrinth_.playerIds().front()).move(Labyrinth3d::Right);
-                xCamera_ = -1.0e-2;
+                move(rotationMatrix_.column(0), Labyrinth3d::Right);
                 break;
             case Qt::Key_Left:
-                labyrinth_.player(labyrinth_.playerIds().front()).move(Labyrinth3d::Left);
-                xCamera_ = 1.0e-2;
+                move(rotationMatrix_.column(1), Labyrinth3d::Left);
                 break;
             case Qt::Key_Down:
-                labyrinth_.player(labyrinth_.playerIds().front()).move(Labyrinth3d::Back);
-                yCamera_ = -1.0e-2;
+                move(rotationMatrix_.column(0), Labyrinth3d::Back);
                 break;
             case Qt::Key_Up:
-                labyrinth_.player(labyrinth_.playerIds().front()).move(Labyrinth3d::Front);
-                yCamera_ = 1.0e-2;
+                move(rotationMatrix_.column(0), Labyrinth3d::Front);
                 break;
             case Qt::Key_PageDown:
-                labyrinth_.player(labyrinth_.playerIds().front()).move(Labyrinth3d::Down);
-                zCamera_ = 1.0e-2;
+                move(rotationMatrix_.column(2), Labyrinth3d::Down);
                 break;
             case Qt::Key_PageUp:
-                labyrinth_.player(labyrinth_.playerIds().front()).move(Labyrinth3d::Up);
-                zCamera_ = -1.0e-2;
+                move(rotationMatrix_.column(2), Labyrinth3d::Up);
+                break;
+            case Qt::Key_Enter:
+                rotationMatrix_.setToIdentity();
+                break;
+            case Qt::Key_Escape:
+                qApp->quit();
                 break;
             default:
                 break;
@@ -366,40 +397,30 @@ void GLWidget::keyPressEvent(QKeyEvent* event)
     }
     else
     {
+        float const stepAngle{90.0 / 2.0};
+
         switch (event->key())
         {
-        case Qt::Key_Right:
-            ryCamera_ = 1.0;
-            ryCamera_ = 90.0;
-            rotationMatrix_.rotate(-90.0, QVector3D(0, 1, 0));
-            break;
-        case Qt::Key_Left:
-            ryCamera_ = -1.0;
-            ryCamera_ = -90.0;
-            rotationMatrix_.rotate(90.0, QVector3D(0, 1, 0));
-            break;
-        case Qt::Key_Down:
-            rxCamera_ = -1.0;
-            rxCamera_ = -90.0;
-            rotationMatrix_.rotate(-90.0, QVector3D(1, 0, 0));
-            break;
-        case Qt::Key_Up:
-            rxCamera_ = 1.0;
-            rxCamera_ = 90.0;
-            rotationMatrix_.rotate(90.0, QVector3D(1, 0, 0));
-            break;
-        case Qt::Key_PageDown:
-            rzCamera_ = -1.0;
-            rzCamera_ = -90.0;
-            rotationMatrix_.rotate(-90.0, QVector3D(0, 0, 1));
-            break;
-        case Qt::Key_PageUp:
-            rzCamera_ = 1.0;
-            rzCamera_ = 90.0;
-            rotationMatrix_.rotate(90.0, QVector3D(0, 0, 1));
-            break;
-        default:
-            break;
+            case Qt::Key_Right:
+                rotationMatrix_.rotate(-stepAngle, QVector3D(0, 0, 1));
+                break;
+            case Qt::Key_Left:
+                rotationMatrix_.rotate(stepAngle, QVector3D(0, 0, 1));
+                break;
+            case Qt::Key_Down:
+                rotationMatrix_.rotate(stepAngle, QVector3D(0, 1, 0));
+                break;
+            case Qt::Key_Up:
+                rotationMatrix_.rotate(-stepAngle, QVector3D(0, 1, 0));
+                break;
+            case Qt::Key_PageDown:
+                rotationMatrix_.rotate(-stepAngle, QVector3D(1, 0, 0));
+                break;
+            case Qt::Key_PageUp:
+                rotationMatrix_.rotate(stepAngle, QVector3D(1, 0, 0));
+                break;
+            default:
+                break;
         }
     }
 
@@ -414,4 +435,18 @@ QMatrix4x4 const& GLWidget::cameraMatrix() const
 void GLWidget::setCameraMatrix(QMatrix4x4 const& matrix)
 {
     cameraMatrix_ = matrix;
+}
+
+void GLWidget::translateModelView(QVector3D const& offset, QMatrix4x4& mv, size_t i, size_t j, size_t k) const
+{
+    mv.translate((j / 2) * waysSize_.x() + ((j + 1) / 2) * wallsSize_.x() + offset.x(),
+                 (i / 2) * waysSize_.y() + ((i + 1) / 2) * wallsSize_.y() + offset.y(),
+                 (k / 2) * waysSize_.z() + ((k + 1) / 2) * wallsSize_.z() + offset.z());
+}
+
+QVector3D GLWidget::sidesBox(size_t i) const
+{
+    assert(i < boxes_.size());
+
+    return boxes_[i].second - boxes_[i].first;
 }

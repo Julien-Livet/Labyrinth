@@ -32,8 +32,15 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
         void setClearColor(const QColor& color);
         void setTexture(unsigned int i, unsigned int j, const QImage& image);
         const QImage& imageTexture(unsigned int i, unsigned int j) const;
-        void makeBox(QVector3D const& bottom = QVector3D(-0.2, -0.2, -0.2),
-                     QVector3D const& top = QVector3D(0.2, 0.2, 0.2),
+        void makeBox(QVector3D const& bottom,
+                     QVector3D const& top,
+                     std::array<QImage, 6> const& images = std::array<QImage, 6>{QImage(128, 128, QImage::Format_ARGB32),
+                                                                                 QImage(128, 128, QImage::Format_ARGB32),
+                                                                                 QImage(128, 128, QImage::Format_ARGB32),
+                                                                                 QImage(128, 128, QImage::Format_ARGB32),
+                                                                                 QImage(128, 128, QImage::Format_ARGB32),
+                                                                                 QImage(128, 128, QImage::Format_ARGB32)});
+        void makeBox(QVector3D const& sides,
                      std::array<QImage, 6> const& images = std::array<QImage, 6>{QImage(128, 128, QImage::Format_ARGB32),
                                                                                  QImage(128, 128, QImage::Format_ARGB32),
                                                                                  QImage(128, 128, QImage::Format_ARGB32),
@@ -57,16 +64,15 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
         QOpenGLShaderProgram *program = nullptr;
         QOpenGLBuffer vbo;
         std::vector<std::array<std::array<std::array<float, 3>, 4>, 6> > coords_;
-        float xCamera_ = 0;
-        float yCamera_ = 0;
-        float zCamera_ = 0;
-        float rxCamera_ = 0;
-        float ryCamera_ = 0;
-        float rzCamera_ = 0;
         QMatrix4x4 cameraMatrix_;
         QMatrix4x4 rotationMatrix_;
         QVector3D wallsSize_ = QVector3D(5, 5, 5);
         QVector3D waysSize_ = QVector3D(20, 20, 20);
+        std::vector<std::pair<QVector3D, QVector3D> > boxes_;
+
+        void translateModelView(QVector3D const& offset, QMatrix4x4& mv, size_t i, size_t j, size_t k) const;
+        QVector3D sidesBox(size_t i) const;
+
 };
 
 #endif
