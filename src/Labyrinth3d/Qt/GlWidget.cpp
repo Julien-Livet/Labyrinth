@@ -530,7 +530,7 @@ void GLWidget::displayPlayer(size_t playerId, QColor const& color, bool displayP
                         {
                             QImage image(128, 128, QImage::Format_ARGB32);
                             image.fill(traceColor);
-                            setTexture(sfBoxId_ + 1 + (k * 2 + i) * 2 + j, i, image);
+                            setTexture(sfBoxId_ + 1 + (k * 2 + i) * 2 + j, l, image);
                         }
                     }
                 }
