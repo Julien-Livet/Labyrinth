@@ -258,7 +258,7 @@ void GLWidget::paintGL()
 
 void GLWidget::resizeGL(int width, int height)
 {
-    int side = qMin(width, height);
+    int const side = qMin(width, height);
     glViewport((width - side) / 2, (height - side) / 2, side, side);
 }
 
@@ -439,16 +439,13 @@ void GLWidget::keyPressEvent(QKeyEvent* event)
             case Qt::Key_Enter:
                 rotationMatrix_.setToIdentity();
                 break;
-            case Qt::Key_Escape:
-                qApp->quit();
-                break;
             default:
                 break;
         }
     }
     else
     {
-        float const stepAngle{90.0 / 2.0};
+        float constexpr stepAngle{90.0 / 2.0};
 
         switch (event->key())
         {

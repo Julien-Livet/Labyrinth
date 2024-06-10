@@ -158,7 +158,7 @@ class QLabyrinth : public QWidget
         void charger(QDataStream &data, bool &chrono, int &ms, QString &musique, bool &muet, bool &labySeulement, bool &adaptationTailleEcran, bool &adaptationTaillePapier);
         ModeLabyrinthe getModeLabyrinthe() const;
         Algorithme getAlgorithme() const;
-        qreal getNombreDeplacement() const;
+        size_t getNombreDeplacement() const;
         void passerEnModeEcranDeVeille();
         bool enModeEcranDeVeille() const;
         void quitterModeEcranDeVeille();
@@ -168,6 +168,7 @@ class QLabyrinth : public QWidget
         bool getArretResolution() const;
         void setTypeResolution(unsigned int type);
         unsigned getTypeResolution() const;
+        Labyrinth2d::Labyrinth const& getLabyrinth() const;
 
     signals:
         void partieCommencee();
@@ -180,15 +181,7 @@ class QLabyrinth : public QWidget
 		QList<QList<int> > labyrinthe; // to be unused
         Labyrinth2d::Labyrinth* labyrinth;
         Labyrinth2d::Mover::QKeyPress* qKeyPress;
-		size_t playerId;
-        //int xEntree;
-        //int yEntree;
-        //int xSortie;
-        //int ySortie;
-        //int largeur;
-        //int longueur;
-        //int emplacementXJoueur;
-        //int emplacementYJoueur;
+        size_t playerId;
         bool enResolution;
         bool resolutionProgressive;
         //bool effacerChemin;
@@ -213,7 +206,7 @@ class QLabyrinth : public QWidget
         QSize s;
         QByteArray state;
         ModeLabyrinthe modeLabyrinthe;
-        qreal nombreDeplacement;
+        size_t nombreDeplacement;
         Algorithme algorithme;
         qreal angle;
         int intervalleRotation;

@@ -1,45 +1,19 @@
-#include <math.h>
+#include <cmath>
+#include <random>
+
 #include <GL/glu.h>
 
 #include <QTimer>
+#include <QTest>
 
 #include "Labyrinth2d/Qt/GLLabyrinth.h"
 #include "Labyrinth2d/Qt/QLabyrinth.h"
 #include "Labyrinth2d/Qt/constants.h"
+#include "Labyrinth2d/Solver/Solver.h"
 
 GLLabyrinth::GLLabyrinth(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(parent, f), QOpenGLFunctions()
 {
     labyrinth = 0;
-    xCamera = 0;
-    yCamera = 0;
-    zCamera = 0;
-    angleRotationZCamera = 0;
-    toucheDroiteAppuyee = false;
-    toucheGaucheAppuyee = false;
-    toucheBasAppuyee = false;
-    toucheHautAppuyee = false;
-    glIDMotifFond = 0;
-    glIDImageFond = 0;
-    glIDMotifMur = 0;
-    glIDImageMur = 0;
-    glIDMotifParcours = 0;
-    glIDImageParcours = 0;
-    directionAtteinte = false;
-    pasAngle = PASANGLEJEU;
-    pasDistance = PASDISTANCEJEU;
-    typeResolution_ = 0;
-
-    timer = new QTimer(this);
-    timer->setInterval(25);
-    timer->setSingleShot(false);
-
-    connect(timer, SIGNAL(timeout()), this, SLOT(toucheAppuyee()));
-
-    timerResolution = new QTimer(this);
-    timerResolution->setInterval(100);
-    timerResolution->setSingleShot(false);
-
-    connect(timerResolution, SIGNAL(timeout()), this, SLOT(resolutionLabyrinthe()));
 
     setFocusPolicy(Qt::StrongFocus);
     setContextMenuPolicy(Qt::NoContextMenu);
@@ -50,9 +24,7 @@ GLLabyrinth::~GLLabyrinth()
 {
     makeCurrent();
     libererTextures();
-    for (auto& g : geometries)
-        delete g;
-    geometries.clear();
+    delete program;
     doneCurrent();
 }
 
@@ -64,24 +36,6 @@ void GLLabyrinth::setLabyrinth(Labyrinth2d::Labyrinth *l)
 
     if (!lab)
         return;
-
-    QSize const tailleCase = lab->getTailleCase();
-    int const hauteurMur = 2 * qMax(tailleCase.width(), tailleCase.height());
-
-    xCamera = (GLdouble)(lab->getEmplacementXJoueur() + 1.0 / 2.0) * tailleCase.width();
-    yCamera = (GLdouble)(lab->getEmplacementYJoueur() + 1.0 / 2.0) * tailleCase.height();
-    zCamera = (GLdouble)(hauteurMur / 2);//3
-    if (!lab->getEmplacementXJoueur())
-        angleRotationZCamera = 0;
-    else if (lab->getEmplacementXJoueur() == lab->getLongueur() - 1)
-        angleRotationZCamera = 2.0 * M_PI;
-    else if (!lab->getEmplacementYJoueur())
-        angleRotationZCamera = M_PI_2;
-    else if (lab->getEmplacementYJoueur() == lab->getLargeur() - 1)
-        angleRotationZCamera = -M_PI_2;
-    pasAngle = PASANGLEJEU;
-    pasDistance = PASDISTANCEJEU;
-    timerResolution->setInterval(100);
 
     if (lab->getModeLabyrinthe().mode & QLabyrinth::Obscurite)
     {/*
@@ -106,25 +60,87 @@ void GLLabyrinth::tailleCaseChangee()
     if (!lab)
         return;
 
-    QSize const tailleCase = lab->getTailleCase();
-    int const hauteurMur = 2 * qMax(tailleCase.width(), tailleCase.height());
+    wallsSize_.setX(lab->wallsSize().width());
+    wallsSize_.setY(lab->wallsSize().height());
+    wallsSize_.setZ(qMax(wallsSize_.x(), wallsSize_.y()));
+    waysSize_.setX(lab->waysSize().width());
+    waysSize_.setY(lab->waysSize().height());
+    waysSize_.setZ(qMax(waysSize_.x(), waysSize_.y()));
 
-    xCamera = (GLdouble)(lab->getEmplacementXJoueur() + 1.0 / 2.0) * tailleCase.width();
-    yCamera = (GLdouble)(lab->getEmplacementYJoueur() + 1.0 / 2.0) * tailleCase.height();
-    zCamera = (GLdouble)(hauteurMur / 2);//3
-    angleRotationZCamera = 0;
+    for (size_t i{0}; i < 2; ++i)
+    {
+        for (size_t j{0}; j < 2; ++j)
+            changeBoxSides(i * 2 + j, QVector3D(j % 2 ? waysSize_.x() : wallsSize_.x(),
+                                                i % 2 ? waysSize_.y() : wallsSize_.y(),
+                                                waysSize_.z()));
+    }
 }
 
 void GLLabyrinth::initializeGL()
 {
     initializeOpenGLFunctions();
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    for (size_t i{0}; i < 2; ++i)
+    {
+        for (size_t j{0}; j < 2; ++j)
+        {
+            makeBox(QVector3D(j % 2 ? waysSize_.x() : wallsSize_.x(),
+                              i % 2 ? waysSize_.y() : wallsSize_.y(),
+                              waysSize_.z()));
+            for (unsigned int l(0); l < 6; ++l)
+                setTexture(textures_.size() - 1, l, pixmapMotifMur.toImage());
+        }
+    }
 
-    initShaders();
-    initTextures();
+    makeBox(QVector3D(1, 1, 1));
+    playerBoxId_ = boxes_.size() - 1;
+
+    makeBox(sfRatio_ * waysSize_);
+    sfBoxId_ = boxes_.size() - 1;
+
+    for (size_t i{0}; i < 2; ++i)
+    {
+        for (size_t j{0}; j < 2; ++j)
+            makeBox(traceRatio_ * QVector3D(j % 2 ? waysSize_.x() : wallsSize_.x(),
+                                            i % 2 ? waysSize_.y() : wallsSize_.y(),
+                                            waysSize_.z()));
+    }
+
+#define PROGRAM_VERTEX_ATTRIBUTE 0
+#define PROGRAM_TEXCOORD_ATTRIBUTE 1
+
+    QOpenGLShader* vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
+    const char* vsrc =
+        "attribute highp vec4 vertex;\n"
+        "attribute mediump vec4 texCoord;\n"
+        "varying mediump vec4 texc;\n"
+        "uniform mediump mat4 matrix;\n"
+        "void main(void)\n"
+        "{\n"
+        "    gl_Position = matrix * vertex;\n"
+        "    texc = texCoord;\n"
+        "}\n";
+    vshader->compileSourceCode(vsrc);
+
+    QOpenGLShader* fshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
+    const char* fsrc =
+        "uniform sampler2D texture;\n"
+        "varying mediump vec4 texc;\n"
+        "void main(void)\n"
+        "{\n"
+        "    gl_FragColor = texture2D(texture, texc.st);\n"
+        "}\n";
+    fshader->compileSourceCode(fsrc);
+
+    program = new QOpenGLShaderProgram;
+    program->addShader(vshader);
+    program->addShader(fshader);
+    program->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
+    program->bindAttributeLocation("texCoord", PROGRAM_TEXCOORD_ATTRIBUTE);
+    program->link();
+
+    program->bind();
+    program->setUniformValue("texture", 0);
 
     QLabyrinth* lab = qobject_cast<QLabyrinth*>(parentWidget());
 
@@ -132,36 +148,12 @@ void GLLabyrinth::initializeGL()
         return;
 
     if (lab->getModeLabyrinthe().mode & QLabyrinth::Obscurite)
-    {/*
-        //glEnable(GL_COLOR_MATERIAL);
-        glEnable(GL_LIGHTING);
-        glEnable(GL_LIGHT0);*/
+    {
         glEnable(GL_FOG);
     }
     else
-    {/*
-        //glDisable(GL_COLOR_MATERIAL);
-        glDisable(GL_LIGHTING);
-        glDisable(GL_LIGHT0);*/
-        glDisable(GL_FOG);
-    }
-
-    for (size_t i(0); i < labyrinth->grid().height(); ++i)
     {
-        for (size_t j(0); j < labyrinth->grid().width(); ++j)
-        {
-            if (labyrinth->grid().at(i, j))
-            {
-                QVector3D const bottom((j + 1) / 2 * lab->wallsSize().width() + j / 2 * lab->waysSize().width(),
-                                       (i + 1) / 2 * lab->wallsSize().height() + i / 2 * lab->waysSize().height(),
-                                       0);
-                geometries << new GeometryEngine(bottom,
-                                                 bottom +
-                                                 QVector3D(lab->wallsSize().width(),
-                                                           lab->wallsSize().height(),
-                                                           2 * qMax(lab->wallsSize().width(), lab->wallsSize().height())));
-            }
-        }
+        glDisable(GL_FOG);
     }
 }
 
@@ -172,29 +164,14 @@ void GLLabyrinth::paintGL()
     if (!l)
         return;
 
-    QSize const tailleCase = l->getTailleCase();
-    int const hauteurMur = 2 * qMax(tailleCase.width(), tailleCase.height());
-    QLabyrinth::Texture textures[3] = {l->getTextureFond(), l->getTextureMur(), l->getTextureParcours()};
+    QLabyrinth::Texture const textures[3] = {l->getTextureFond(), l->getTextureMur(), l->getTextureParcours()};
 
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
-    // Enable back face culling
-    glEnable(GL_CULL_FACE);
-/*
-    for (auto const& t : textures_)
-        t->bind();*/
-    textures_[2]->bind();
-    program.bind();
-
-    // Reset projection
-    projection.setToIdentity();
-
-    // Set perspective projection
-    projection.perspective(70, (double)width() / height(), 0.1,
-                           qMax((l->getLongueur() + 1) * tailleCase.width(),
-                                (l->getLargeur() + 1) * tailleCase.height()));
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     if (l->getModeLabyrinthe().mode & QLabyrinth::Obscurite)
     {
@@ -205,37 +182,7 @@ void GLLabyrinth::paintGL()
         glClearColor(textures[0].couleur.redF(), textures[0].couleur.greenF(), textures[0].couleur.blueF(), textures[0].couleur.alphaF());
 
     QMatrix4x4 matrix;
-
-    matrix.scale(-1, 1, 1);
-
-    if ((l->getEmplacementXJoueur() == l->getXSortie() && l->getEmplacementYJoueur() == l->getYSortie()) || (!l->getResolutionProgressive() && l->getEnResolution()))
-        matrix.lookAt(QVector3D(l->getLongueur() * tailleCase.width() / 2,
-                                l->getLargeur() * tailleCase.height() / 2,
-                                qMax(l->getLongueur() * tailleCase.width(),
-                                     l->getLargeur() * tailleCase.height()) * 2 / 3),
-                      QVector3D(l->getLongueur() * tailleCase.width() / 2,
-                                l->getLargeur() * tailleCase.height() / 2,
-                                0),
-                      QVector3D(0, -1, 0));
-    else
-        matrix.lookAt(QVector3D(xCamera, yCamera, zCamera),
-                      QVector3D(xCamera + 10.0 * cos(angleRotationZCamera),
-                                yCamera + 10.0 * sin(angleRotationZCamera),
-                                zCamera),
-                      QVector3D(0, 0, 1));
-
-    matrix.scale(tailleCase.width(), tailleCase.height(), hauteurMur);
-
-    // Set modelview-projection matrix
-    program.setUniformValue("mvp_matrix", projection * matrix);
-
-    // Use texture unit 2 which contains pattern of walls
-    program.setUniformValue("texture", 2);
-
-    for (auto&g : geometries)
-        g->drawCubeGeometry(&program);
-
-    return;
+    matrix.perspective(70.0, (double)width() / height(), 1.0, 1000.0);
 
     if (l->getModeLabyrinthe().mode & QLabyrinth::Obscurite)
     {/*
@@ -319,533 +266,83 @@ void GLLabyrinth::paintGL()
         glFogfv(GL_FOG_COLOR, couleur);**/
     }
 
-    if (!glIDMotifFond && !glIDImageFond && !glIDMotifMur && !glIDImageMur && !glIDMotifParcours && !glIDImageParcours)
-        rechargerTextures();
+    auto const playerId{labyrinth->playerIds().front()};
 
-    //Dessin du fond
-    if (textures[0].typeTexture == QLabyrinth::TextureMotif && !pixmapMotifFond.isNull())
+    if (!labyrinth->playerIds().empty())
     {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, glIDMotifFond);/**Convert into GL2:
-        glBegin(GL_QUADS);
+        cameraMatrix_ = QMatrix4x4();
+        auto const i{labyrinth->player(playerId).i()};
+        auto const j{labyrinth->player(playerId).j()};
+        QVector3D const point((j + 1) / 2 * wallsSize_.x() + j / 2 * waysSize_.x() + (j % 2 ? waysSize_.x() : wallsSize_.x()) / 2,
+                              (i + 1) / 2 * wallsSize_.y() + i / 2 * waysSize_.y() + (i % 2 ? waysSize_.y() : wallsSize_.y()) / 2,
+                              waysSize_.z() / 2);
+        cameraMatrix_.translate(point);
+        cameraMatrix_.setColumn(0, rotationMatrix_.column(0));
+        cameraMatrix_.setColumn(1, rotationMatrix_.column(1));
+        cameraMatrix_.setColumn(2, rotationMatrix_.column(2));
 
-        //Face inférieure du cube
-        glTexCoord2i(0, 0);
-        glVertex3d(0, 0, 0);
-        glTexCoord2i(0, pixmapMotifFond.height() / tailleCase.height());
-        glVertex3d(l->getLongueur(), 0, 0);
-        glTexCoord2i(pixmapMotifFond.width() / tailleCase.width(), pixmapMotifFond.height() / tailleCase.height());
-        glVertex3d(l->getLongueur(), l->getLargeur(), 0);
-        glTexCoord2i(pixmapMotifFond.width() / tailleCase.width(), 0);
-        glVertex3d(0, l->getLargeur(), 0);
-
-        glEnd();**/
-        glDisable(GL_TEXTURE_2D);
-    }
-    else if (textures[0].typeTexture == QLabyrinth::TextureImage && !pixmapImageFond.isNull())
-    {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, glIDImageFond);/**Convert into GL2:
-        glBegin(GL_QUADS);
-
-        //Face inférieure du cube
-        glTexCoord2i(0, 0);
-        glVertex3d(0, 0, 0);
-        glTexCoord2i(0, pixmapImageFond.height() / tailleCase.height());
-        glVertex3d(l->getLongueur(), 0, 0);
-        glTexCoord2i(pixmapImageFond.width() / tailleCase.width(), pixmapImageFond.height() / tailleCase.height());
-        glVertex3d(l->getLongueur(), l->getLargeur(), 0);
-        glTexCoord2i(pixmapImageFond.width() / tailleCase.width(), 0);
-        glVertex3d(0, l->getLargeur(), 0);
-
-        glEnd();**/
-        glDisable(GL_TEXTURE_2D);
-    }
-    else// if (textures[0].typeTexture == QLabyrinth::TextureCouleur)
-    {/**Convert into GL2:
-        glBegin(GL_QUADS);
-
-        glColor3ub(textures[0].couleur.red(), textures[0].couleur.green(), textures[0].couleur.blue());
-        glVertex3d(0, 0, 0);
-        glVertex3d(l->getLongueur(), 0, 0);
-        glVertex3d(l->getLongueur(), l->getLargeur(), 0);
-        glVertex3d(0, l->getLargeur(), 0);
-
-        glEnd();**/
+        cameraMatrix_ = matrix;
+        cameraMatrix_.lookAt(point,
+                             point + rotationMatrix_.column(0).toVector3D(),
+                             rotationMatrix_.column(2).toVector3D());
     }
 
-	auto const& grid{labyrinth->grid()};
-
-    //Dessin du mur
-    if (textures[1].typeTexture == QLabyrinth::TextureMotif && !pixmapMotifMur.isNull())
+    for (size_t i{0}; i < labyrinth->grid().height(); ++i)
     {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, glIDMotifMur);/**Convert into GL2:
-        glBegin(GL_QUADS);
-        for (int i = 0; i < l->getLargeur(); i++)
+        for (size_t j{0}; j < labyrinth->grid().width(); ++j)
         {
-            for (int j = 0; j < l->getLongueur(); j++)
+            if (labyrinth->grid().at(i, j))
             {
-                if (grid.at(i, j) == 1)
-                {
-                    //Face avant du cube
-                    glTexCoord2i(0, 0);
-                    glVertex3d(j, i, 1);
-                    glTexCoord2i(0, pixmapMotifMur.height() / tailleCase.height());
-                    glVertex3d(j, i, 0);
-                    glTexCoord2i(pixmapMotifMur.width() / tailleCase.width(), pixmapMotifMur.height() / tailleCase.height());
-                    glVertex3d(j + 1, i, 0);
-                    glTexCoord2i(pixmapMotifMur.width() / tailleCase.width(), 0);
-                    glVertex3d(j + 1, i, 1);
-
-                    //Face latérale gauche du cube
-                    glTexCoord2i(0, 0);
-                    glVertex3d(j, i + 1, 1);
-                    glTexCoord2i(0, pixmapMotifMur.height() / tailleCase.height());
-                    glVertex3d(j, i + 1, 0);
-                    glTexCoord2i(pixmapMotifMur.width() / tailleCase.width(), pixmapMotifMur.height() / tailleCase.height());
-                    glVertex3d(j, i, 0);
-                    glTexCoord2i(pixmapMotifMur.width() / tailleCase.width(), 0);
-                    glVertex3d(j, i, 1);
-
-                    //Face arrière du cube
-                    glTexCoord2i(0, 0);
-                    glVertex3d(j, i + 1, 1);
-                    glTexCoord2i(0, pixmapMotifMur.height() / tailleCase.height());
-                    glVertex3d(j, i + 1, 0);
-                    glTexCoord2i(pixmapMotifMur.width() / tailleCase.width(), pixmapMotifMur.height() / tailleCase.height());
-                    glVertex3d(j + 1, i + 1, 0);
-                    glTexCoord2i(pixmapMotifMur.width() / tailleCase.width(), 0);
-                    glVertex3d(j + 1, i + 1, 1);
-
-                    //Face latérale droite du cube
-                    glTexCoord2i(0, 0);
-                    glVertex3d(j + 1, i + 1, 1);
-                    glTexCoord2i(0, pixmapMotifMur.height() / tailleCase.height());
-                    glVertex3d(j + 1, i + 1, 0);
-                    glTexCoord2i(pixmapMotifMur.width() / tailleCase.width(), pixmapMotifMur.height() / tailleCase.height());
-                    glVertex3d(j + 1, i, 0);
-                    glTexCoord2i(pixmapMotifMur.width() / tailleCase.width(), 0);
-                    glVertex3d(j + 1, i, 1);
-
-                    if (l->getPartieTerminee())
-                    {
-                        //Face supérieure du cube
-                        glTexCoord2i(0, 0);
-                        glVertex3d(j, i, 0);
-                        glTexCoord2i(0, pixmapMotifMur.height() / tailleCase.height());
-                        glVertex3d(j + 1, i, 0);
-                        glTexCoord2i(pixmapMotifMur.width() / tailleCase.width(), pixmapMotifMur.height() / tailleCase.height());
-                        glVertex3d(j + 1, i + 1, 0);
-                        glTexCoord2i(pixmapMotifMur.width() / tailleCase.width(), 0);
-                        glVertex3d(j, i + 1, 0);
-
-                        //Face inférieure du cube
-                        glTexCoord2i(0, 0);
-                        glVertex3d(j, i, 1);
-                        glTexCoord2i(0, pixmapMotifMur.height() / tailleCase.height());
-                        glVertex3d(j + 1, i, 1);
-                        glTexCoord2i(pixmapMotifMur.width() / tailleCase.width(), pixmapMotifMur.height() / tailleCase.height());
-                        glVertex3d(j + 1, i + 1, 1);
-                        glTexCoord2i(pixmapMotifMur.width() / tailleCase.width(), 0);
-                        glVertex3d(j, i + 1, 1);
-                    }
-                }
+                QMatrix4x4 m{cameraMatrix_};
+                translateModelView(boxSides((i % 2) * 2 + j % 2) / 2, m, i, j);
+                displayBox((i % 2) * 2 + j % 2, m);
             }
         }
-        glEnd();**/
-        glDisable(GL_TEXTURE_2D);
     }
-    else if (textures[1].typeTexture == QLabyrinth::TextureImage && !pixmapImageMur.isNull())
+
+    for (size_t m{0}; m < 1; ++m)
     {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, glIDImageMur);/**Convert into GL2:
-        glBegin(GL_QUADS);
-        for (int i = 0; i < l->getLargeur(); i++)
+        auto const playerId{labyrinth->playerIds()[m]};
+        auto const& player{labyrinth->player(playerId)};
+        for (size_t n{0}; n < 6; ++n)
         {
-            for (int j = 0; j < l->getLongueur(); j++)
+            QImage image(128, 128, QImage::Format_ARGB32);
+            image.fill(QColor{0, 255, 0, 63});
+            setTexture(sfBoxId_, n, image);
+        }
+        auto mv{cameraMatrix_};
+        translateModelView(boxSides(sfBoxId_) / 2 / sfRatio_, mv, player.startI(), player.startJ());
+        displayBox(sfBoxId_, mv);
+
+        for (size_t n{0}; n < player.finishI().size(); ++n)
+        {
+            mv = cameraMatrix_;
+            for (size_t o{0}; o < 6; ++o)
             {
-                if (grid.at(i, j) == 1)
-                {
-                    //Face avant du cube
-                    glTexCoord2i(0, 0);
-                    glVertex3d(j, i, 1);
-                    glTexCoord2i(0, pixmapImageMur.height() / tailleCase.height());
-                    glVertex3d(j, i, 0);
-                    glTexCoord2i(pixmapImageMur.width() / tailleCase.width(), pixmapImageMur.height() / tailleCase.height());
-                    glVertex3d(j + 1, i, 0);
-                    glTexCoord2i(pixmapImageMur.width() / tailleCase.width(), 0);
-                    glVertex3d(j + 1, i, 1);
-
-                    //Face latérale gauche du cube
-                    glTexCoord2i(0, 0);
-                    glVertex3d(j, i + 1, 1);
-                    glTexCoord2i(0, pixmapImageMur.height() / tailleCase.height());
-                    glVertex3d(j, i + 1, 0);
-                    glTexCoord2i(pixmapImageMur.width() / tailleCase.width(), pixmapImageMur.height() / tailleCase.height());
-                    glVertex3d(j, i, 0);
-                    glTexCoord2i(pixmapImageMur.width() / tailleCase.width(), 0);
-                    glVertex3d(j, i, 1);
-
-                    //Face arrière du cube
-                    glTexCoord2i(0, 0);
-                    glVertex3d(j, i + 1, 1);
-                    glTexCoord2i(0, pixmapImageMur.height() / tailleCase.height());
-                    glVertex3d(j, i+1, 0);
-                    glTexCoord2i(pixmapImageMur.width() / tailleCase.width(), pixmapImageMur.height() / tailleCase.height());
-                    glVertex3d(j + 1, i + 1, 0);
-                    glTexCoord2i(pixmapImageMur.width() / tailleCase.width(), 0);
-                    glVertex3d(j + 1, i + 1, 1);
-
-                    //Face latérale droite du cube
-                    glTexCoord2i(0, 0);
-                    glVertex3d(j + 1, i + 1, 1);
-                    glTexCoord2i(0, pixmapImageMur.height() / tailleCase.height());
-                    glVertex3d(j + 1, i + 1, 0);
-                    glTexCoord2i(pixmapImageMur.width() / tailleCase.width(), pixmapImageMur.height() / tailleCase.height());
-                    glVertex3d(j + 1, i, 0);
-                    glTexCoord2i(pixmapImageMur.width() / tailleCase.width(), 0);
-                    glVertex3d(j + 1, i, 1);
-
-                    if (l->getPartieTerminee())
-                    {
-                        //Face supérieure du cube
-                        glTexCoord2i(0, 0);
-                        glVertex3d(j, i, 0);
-                        glTexCoord2i(0, pixmapImageMur.height() / tailleCase.height());
-                        glVertex3d(j + 1, i, 0);
-                        glTexCoord2i(pixmapImageMur.width() / tailleCase.width(), pixmapImageMur.height() / tailleCase.height());
-                        glVertex3d(j + 1, i + 1, 0);
-                        glTexCoord2i(pixmapImageMur.width() / tailleCase.width(), 0);
-                        glVertex3d(j, i + 1, 0);
-
-                        //Face inférieure du cube
-                        glTexCoord2i(0, 0);
-                        glVertex3d(j, i, 1);
-                        glTexCoord2i(0, pixmapImageMur.height() / tailleCase.height());
-                        glVertex3d(j + 1, i, 1);
-                        glTexCoord2i(pixmapImageMur.width() / tailleCase.width(), pixmapImageMur.height() / tailleCase.height());
-                        glVertex3d(j + 1, i + 1, 1);
-                        glTexCoord2i(pixmapImageMur.width() / tailleCase.width(), 0);
-                        glVertex3d(j, i + 1, 1);
-                    }
-                }
+                QImage image(128, 128, QImage::Format_ARGB32);
+                image.fill(QColor{255, 0, 0, 63});
+                setTexture(sfBoxId_, o, image);
             }
+            translateModelView(boxSides(sfBoxId_) / 2 / sfRatio_, mv, player.finishI()[n], player.finishJ()[n]);
+            displayBox(sfBoxId_, mv);
         }
-        glEnd();**/
-        glDisable(GL_TEXTURE_2D);
-    }
-    else// if (textures[1].typeTexture == QLabyrinth::TextureCouleur)
-    {/**Convert into GL2:
-        glBegin(GL_QUADS);
-        glColor3ub(textures[1].couleur.red(), textures[1].couleur.green(), textures[1].couleur.blue());
-        for (int i = 0; i < l->getLargeur(); i++)
-        {
-            for (int j = 0; j < l->getLongueur(); j++)
-            {
-                if (grid.at(i, j) == 1)
-                {
-                    //Face avant du cube
-                    glVertex3d(j, i, 1);
-                    glVertex3d(j, i, 0);
-                    glVertex3d(j + 1, i, 0);
-                    glVertex3d(j + 1, i, 1);
-
-                    //Face latérale gauche du cube
-                    glVertex3d(j, i + 1, 1);
-                    glVertex3d(j, i + 1, 0);
-                    glVertex3d(j, i, 0);
-                    glVertex3d(j, i, 1);
-
-                    //Face arrière du cube
-                    glVertex3d(j, i + 1, 1);
-                    glVertex3d(j, i + 1, 0);
-                    glVertex3d(j + 1, i + 1, 0);
-                    glVertex3d(j + 1, i + 1, 1);
-
-                    //Face latérale droite du cube
-                    glVertex3d(j + 1, i + 1, 1);
-                    glVertex3d(j + 1, i + 1, 0);
-                    glVertex3d(j + 1, i, 0);
-                    glVertex3d(j + 1, i, 1);
-
-                    if (l->getPartieTerminee())
-                    {
-                        //Face supérieure du cube
-                        glVertex3d(j, i, 0);
-                        glVertex3d(j + 1, i, 0);
-                        glVertex3d(j + 1, i + 1, 0);
-                        glVertex3d(j, i + 1, 0);
-
-                        //Face inférieure du cube
-                        glVertex3d(j, i, 1);
-                        glVertex3d(j + 1, i, 1);
-                        glVertex3d(j + 1, i + 1, 1);
-                        glVertex3d(j, i + 1, 1);
-                    }
-                }
-            }
-        }
-        glEnd();**/
     }
 
-    //Dessin du parcours
-    if (textures[2].typeTexture == QLabyrinth::TextureMotif && !pixmapMotifParcours.isNull())
-    {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, glIDMotifParcours);/**Convert into GL2:
-        glBegin(GL_QUADS);
-        if (l->getAfficherTrace())
-        {
-			auto const& player{labyrinth->player(labyrinth->playerIds().front())};
-			auto traceIntersections{player.traceIntersections()};
-			traceIntersections.emplace_back(std::make_pair<size_t, size_t>(player.i(), player.j()));
-			auto i{traceIntersections.front().first};
-			auto j{traceIntersections.front().second};
-			
-			for (size_t k{0}; k < traceIntersections.size() - 1; ++k)
-			{
-				while (i != traceIntersections[k + 1].first && j != traceIntersections[k + 1].second) 
-				{
-					//Face inférieure du cube
-                    if (static_cast<int>(i) != l->getEmplacementYJoueur() || static_cast<int>(j) != l->getEmplacementXJoueur())
-						glColor4ub(255, 255, 255, textures[2].couleur.alpha() / 2);
-					else
-						glColor4ub(255, 255, 255, textures[2].couleur.alpha());
-					glTexCoord2i(0, 0);
-					glVertex3d(j, i, 0.001);
-					glTexCoord2i(0, pixmapMotifParcours.height() / tailleCase.height());
-					glVertex3d(j + 1, i, 0.001);
-                    glTexCoord2i(pixmapMotifParcours.width() / tailleCase.width(), pixmapMotifParcours.height() / tailleCase.height());
-					glVertex3d(j + 1, i + 1, 0.001);
-					glTexCoord2i(pixmapMotifParcours.width() / tailleCase.width(), 0);
-					glVertex3d(j, i + 1, 0.001);
-					
-					if (i < traceIntersections[k + 1].first)
-						++i;
-					else if (traceIntersections[k + 1].first > i)
-						--i;
-					else if (j < traceIntersections[k + 1].second)
-						++j;
-					else if (traceIntersections[k + 1].second > j)
-						--j;
-				}
-			}
-        }
-        else
-        {
-            //Face inférieure du cube
-            glColor4ub(255, 255, 255, textures[2].couleur.alpha());
-            glTexCoord2i(0, 0);
-            glVertex3d(l->getEmplacementXJoueur(), l->getEmplacementYJoueur(), 0.001);
-            glTexCoord2i(0, pixmapMotifParcours.height() / tailleCase.height());
-            glVertex3d(l->getEmplacementXJoueur() + 1, l->getEmplacementYJoueur(), 0.001);
-            glTexCoord2i(pixmapMotifParcours.width() / tailleCase.width(), pixmapMotifParcours.height() / tailleCase.height());
-            glVertex3d(l->getEmplacementXJoueur() + 1, l->getEmplacementYJoueur() + 1, 0.001);
-            glTexCoord2i(pixmapMotifParcours.width() / tailleCase.width(), 0);
-            glVertex3d(l->getEmplacementXJoueur(), l->getEmplacementYJoueur() + 1, 0.001);
-        }
-        glEnd();**/
-        glDisable(GL_TEXTURE_2D);
-    }
-    else if (textures[2].typeTexture == QLabyrinth::TextureImage && !pixmapImageParcours.isNull())
-    {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, glIDImageParcours);
-        ///Convert into GL2: glBegin(GL_QUADS);
-        if (l->getAfficherTrace())
-        {
-			auto const& player{labyrinth->player(labyrinth->playerIds().front())};
-			auto traceIntersections{player.traceIntersections()};
-			traceIntersections.emplace_back(std::make_pair<size_t, size_t>(player.i(), player.j()));
-			auto i{traceIntersections.front().first};
-			auto j{traceIntersections.front().second};
-			
-			for (size_t k{0}; k < traceIntersections.size() - 1; ++k)
-			{
-				while (i != traceIntersections[k + 1].first && j != traceIntersections[k + 1].second) 
-                {/**Convert into GL2:
-					//Face inférieure du cube
-                    if (static_cast<int>(i) != l->getEmplacementYJoueur() || static_cast<int>(j) != l->getEmplacementXJoueur())
-						glColor4ub(255, 255, 255, textures[2].couleur.alpha() / 2);
-					else
-						glColor4ub(255, 255, 255, textures[2].couleur.alpha());
-					glTexCoord2i(0, 0);
-					glVertex3d(j, i, 0.001);
-					glTexCoord2i(0, pixmapImageParcours.height() / tailleCase.height());
-					glVertex3d(j + 1, i, 0.001);
-					glTexCoord2i(pixmapImageParcours.width() / tailleCase.width(), pixmapImageParcours.height() / tailleCase.height());
-					glVertex3d(j + 1, i + 1, 0.001);
-					glTexCoord2i(pixmapImageParcours.width() / tailleCase.width(), 0);
-                    glVertex3d(j, i + 1, 0.001);**/
-					
-					if (i < traceIntersections[k + 1].first)
-						++i;
-					else if (traceIntersections[k + 1].first > i)
-						--i;
-					else if (j < traceIntersections[k + 1].second)
-						++j;
-					else if (traceIntersections[k + 1].second > j)
-						--j;
-				}
-			}
-        }
-        else
-        {/**Convert into GL2:
-            //Face inférieure du cube
-            glColor4ub(255, 255, 255, textures[2].couleur.alpha());
-            glTexCoord2i(0, 0);
-            glVertex3d(l->getEmplacementXJoueur(), l->getEmplacementYJoueur(), 0.001);
-            glTexCoord2i(0, pixmapImageParcours.height() / tailleCase.height());
-            glVertex3d(l->getEmplacementXJoueur() + 1, l->getEmplacementYJoueur(), 0.001);
-            glTexCoord2i(pixmapImageParcours.width() / tailleCase.width(), pixmapImageParcours.height() / tailleCase.height());
-            glVertex3d(l->getEmplacementXJoueur() + 1, l->getEmplacementYJoueur() + 1, 0.001);
-            glTexCoord2i(pixmapImageParcours.width() / tailleCase.width(), 0);
-            glVertex3d(l->getEmplacementXJoueur(), l->getEmplacementYJoueur() + 1, 0.001);**/
-        }
-        ///Convert into GL2: glEnd();
-        glDisable(GL_TEXTURE_2D);
-    }
-    else// if (textures[2].typeTexture == QLabyrinth::TextureCouleur)
-    {
-        ///Convert into GL2: glBegin(GL_QUADS);
-        if (l->getAfficherTrace())
-        {
-			auto const& player{labyrinth->player(labyrinth->playerIds().front())};
-			auto traceIntersections{player.traceIntersections()};
-			traceIntersections.emplace_back(std::make_pair<size_t, size_t>(player.i(), player.j()));
-			auto i{traceIntersections.front().first};
-			auto j{traceIntersections.front().second};
-			
-			for (size_t k{0}; k < traceIntersections.size() - 1; ++k)
-			{
-				while (i != traceIntersections[k + 1].first && j != traceIntersections[k + 1].second) 
-                {/**Convert into GL2:
-					//Face inférieure du cube
-                    if (static_cast<int>(i) != l->getEmplacementYJoueur() || static_cast<int>(j) != l->getEmplacementXJoueur())
-						glColor4ub(textures[2].couleur.red(), textures[2].couleur.green(), textures[2].couleur.blue(), textures[2].couleur.alpha() / 2);
-					else
-						glColor4ub(textures[2].couleur.red(), textures[2].couleur.green(), textures[2].couleur.blue(), textures[2].couleur.alpha());
-					glVertex3d(j, i, 0.001);
-					glVertex3d(j + 1, i, 0.001);
-					glVertex3d(j + 1, i + 1, 0.001);
-                    glVertex3d(j, i + 1, 0.001);**/
-					
-					if (i < traceIntersections[k + 1].first)
-						++i;
-					else if (traceIntersections[k + 1].first > i)
-						--i;
-					else if (j < traceIntersections[k + 1].second)
-						++j;
-					else if (traceIntersections[k + 1].second > j)
-						--j;
-				}
-			}
-        }
-        else
-        {/**Convert into GL2:
-            //Face inférieure du cube
-            glColor4ub(textures[2].couleur.red(), textures[2].couleur.green(), textures[2].couleur.blue(), textures[2].couleur.alpha());
-            glVertex3d(l->getEmplacementXJoueur(), l->getEmplacementYJoueur(), 0.001);
-            glVertex3d(l->getEmplacementXJoueur() + 1, l->getEmplacementYJoueur(), 0.001);
-            glVertex3d(l->getEmplacementXJoueur() + 1, l->getEmplacementYJoueur() + 1, 0.001);
-            glVertex3d(l->getEmplacementXJoueur(), l->getEmplacementYJoueur() + 1, 0.001);**/
-        }
-        ///Convert into GL2: glEnd();
-    }
-/**Convert into GL2:
-    glBegin(GL_QUADS);
-
-    //Face inférieure du cube
-    glColor4ub(0, 255, 0, 128);
-    glVertex3d(l->getXEntree(), l->getYEntree(), 0.002);
-    glVertex3d(l->getXEntree() + 1, l->getYEntree(), 0.002);
-    glVertex3d(l->getXEntree() + 1, l->getYEntree() + 1, 0.002);
-    glVertex3d(l->getXEntree(), l->getYEntree() + 1, 0.002);
-
-    glColor4ub(0, 255, 0, 255);**/
-    dessinerMurEntreeSortie(l->getXEntree(), l->getYEntree());
-/**Convert into GL2:
-    //Face inférieure du cube
-    glColor4ub(255, 0, 0, 128);
-    glVertex3d(l->getXSortie(), l->getYSortie(), 0.002);
-    glVertex3d(l->getXSortie() + 1, l->getYSortie(), 0.002);
-    glVertex3d(l->getXSortie() + 1, l->getYSortie() + 1, 0.002);
-    glVertex3d(l->getXSortie(), l->getYSortie() + 1, 0.002);
-
-    glColor4ub(255, 0, 0, 255);**/
-    dessinerMurEntreeSortie(l->getXSortie(), l->getYSortie());
-
-    ///Convert into GL2: glEnd();
-/**
-    if (l->getModeLabyrinthe().mode & QLabyrinth::Obscurite)
-    {
-        glPushMatrix();
-        glTranslated(xCamera / tailleCase.width(), yCamera / tailleCase.height(), zCamera / hauteurMur);
-        QColor c = l->getModeLabyrinthe().couleurObscurite;
-        GLdouble rayon = qMax(tailleCase.width(), tailleCase.height()) * l->getModeLabyrinthe().rayonObscurite;
-        GLUquadric *params = gluNewQuadric();
-        for (int i = 255; i >= 0; i -= 1)
-        {
-            glColor4ub(c.red(), c.green(), c.blue(), i);
-            gluSphere(params, (double)rayon * i / 255, 50, 50);
-        }
-        gluDeleteQuadric(params);
-
-        glPopMatrix();
-    }
-**/
-    //On efface la couleur
-    ///Convert into GL2: glColor4ub(255, 255, 255, 255);
-}
-
-void GLLabyrinth::dessinerMurEntreeSortie(int x, int y)
-{
-    QLabyrinth* l = qobject_cast<QLabyrinth*>(parentWidget());
-/**Convert into GL2:
-    if (!x)
-    {
-        glVertex3d(0, y + 1, 1);
-        glVertex3d(0, y + 1, 0);
-        glVertex3d(0, y, 0);
-        glVertex3d(0, y, 1);
-    }
-    else if (x == l->getLongueur() - 1)
-    {
-        glVertex3d(x + 1, y + 1, 1);
-        glVertex3d(x + 1, y + 1, 0);
-        glVertex3d(x + 1, y, 0);
-        glVertex3d(x + 1, y, 1);
-    }
-    else if (!y)
-    {
-        glVertex3d(x, 0, 1);
-        glVertex3d(x, 0, 0);
-        glVertex3d(x + 1, 0, 0);
-        glVertex3d(x + 1, 0, 1);
-    }
-    else if (y == l->getLargeur() - 1)
-    {
-        glVertex3d(x, y + 1, 1);
-        glVertex3d(x, y + 1, 0);
-        glVertex3d(x + 1, y + 1, 0);
-        glVertex3d(x + 1, y + 1, 1);
-    }**/
+    QColor traceColor{l->getTextureParcours().couleur};
+    traceColor.setAlphaF(0.5);
+    displayPlayer(playerId, l->getTextureParcours().couleur, false, l->getAfficherTrace(), traceColor);
 }
 
 void GLLabyrinth::resizeGL(int width, int height)
 {
-    glViewport(0, 0, width, height);
+    int const side = qMin(width, height);
+    glViewport((width - side) / 2, (height - side) / 2, side, side);
 
-    update();
 }
 
 void GLLabyrinth::keyPressEvent(QKeyEvent *event)
 {
     QOpenGLWidget::keyPressEvent(event);
-
-    if (event->isAutoRepeat())
-        return;
 
     QLabyrinth* l = qobject_cast<QLabyrinth*>(parentWidget());
 
@@ -858,204 +355,88 @@ void GLLabyrinth::keyPressEvent(QKeyEvent *event)
     if (l->getPartieEnPause() || (l->getEmplacementXJoueur() == l->getXSortie() && l->getEmplacementYJoueur() == l->getYSortie()) || l->getEnResolution())
         return;
 
-    switch (event->key())
-    {
-        case Qt::Key_Right:
-            toucheDroiteAppuyee = true;
-            if (!timer->isActive())
-                toucheAppuyee();
-            break;
-        case Qt::Key_Left:
-            toucheGaucheAppuyee = true;
-            if (!timer->isActive())
-                toucheAppuyee();
-            break;
-        case Qt::Key_Down:
-            toucheBasAppuyee = true;
-            if (!timer->isActive())
-                toucheAppuyee();
-            break;
-        case Qt::Key_Up:
-            toucheHautAppuyee = true;
-            if (!timer->isActive())
-                toucheAppuyee();
-            break;
-        default:
-            break;
-    }
-}
-
-void GLLabyrinth::keyReleaseEvent(QKeyEvent *event)
-{
-    QOpenGLWidget::keyReleaseEvent(event);
-
-    if (event->isAutoRepeat())
+    if (labyrinth->playerIds().empty())
         return;
 
-    switch (event->key())
+    auto const i{labyrinth->player(labyrinth->playerIds().front()).i()};
+    auto const j{labyrinth->player(labyrinth->playerIds().front()).j()};
+
+    if (!event->modifiers().testFlag(Qt::ShiftModifier))
     {
-        case Qt::Key_Right:
-            toucheDroiteAppuyee = false;
-            break;
-        case Qt::Key_Left:
-            toucheGaucheAppuyee = false;
-            break;
-        case Qt::Key_Down:
-            toucheBasAppuyee = false;
-            break;
-        case Qt::Key_Up:
-            toucheHautAppuyee = false;
-            break;
-        default:
-            break;
-    }
-}
+        auto move{
+            [this, l] (QVector4D const& u, Labyrinth2d::Direction d)
+            {
+                auto const player1Id{labyrinth->playerIds().front()};
+                float constexpr epsilon{1e-6};
 
-void GLLabyrinth::toucheAppuyee()
-{
-    QLabyrinth* l = qobject_cast<QLabyrinth*>(parentWidget());
+                switch (d)
+                {
+                    case Labyrinth2d::Left:
+                    case Labyrinth2d::Up:
+                        if ((u - QVector4D(1, 0, 0, 0)).length() < epsilon)
+                            labyrinth->player(player1Id).move(Labyrinth2d::Right);
+                        else if ((u + QVector4D(1, 0, 0, 0)).length() < epsilon)
+                            labyrinth->player(player1Id).move(Labyrinth2d::Left);
+                        else if ((u - QVector4D(0, 1, 0, 0)).length() < epsilon)
+                            labyrinth->player(player1Id).move(Labyrinth2d::Down);
+                        else if ((u + QVector4D(0, 1, 0, 0)).length() < epsilon)
+                            labyrinth->player(player1Id).move(Labyrinth2d::Up);
+                        break;
 
-    if (!l)
-        return;
+                    case Labyrinth2d::Right:
+                    case Labyrinth2d::Down:
+                        if ((u - QVector4D(1, 0, 0, 0)).length() < epsilon)
+                            labyrinth->player(player1Id).move(Labyrinth2d::Left);
+                        else if ((u + QVector4D(1, 0, 0, 0)).length() < epsilon)
+                            labyrinth->player(player1Id).move(Labyrinth2d::Right);
+                        else if ((u - QVector4D(0, 1, 0, 0)).length() < epsilon)
+                            labyrinth->player(player1Id).move(Labyrinth2d::Up);
+                        else if ((u + QVector4D(0, 1, 0, 0)).length() < epsilon)
+                            labyrinth->player(player1Id).move(Labyrinth2d::Down);
+                        break;
+                }
+            }
+        };
 
-    if (l->getPartieTerminee() || l->getPartieEnPause())
-    {
-        timer->stop();
-        toucheDroiteAppuyee = false;
-        toucheGaucheAppuyee = false;
-        toucheBasAppuyee = false;
-        toucheHautAppuyee = false;
-        return;
-    }
-
-    routineDeplacement();
-}
-
-bool GLLabyrinth::routineDeplacement()
-{
-    QLabyrinth* l = qobject_cast<QLabyrinth*>(parentWidget());
-
-    if (!l)
-        return false;
-
-    QSize tailleCase = l->getTailleCase();
-    GLdouble x = xCamera;
-    GLdouble y = yCamera;
-    int deplacementX = 0;
-    int deplacementY = 0;
-
-    bool lancerTimer = false;
-
-    if (toucheDroiteAppuyee)
-    {
-        angleRotationZCamera += pasAngle * M_PI / 180.0;
-        lancerTimer = true;
-        if (angleRotationZCamera)
-            while (fabs(angleRotationZCamera) >= M_PI)
-                angleRotationZCamera -= angleRotationZCamera / fabs(angleRotationZCamera) * 2.0 * M_PI;
-    }
-    if (toucheGaucheAppuyee)
-    {
-        angleRotationZCamera -= pasAngle * M_PI / 180.0;
-        lancerTimer = true;
-    }
-    bool b = false;
-    if (toucheBasAppuyee)
-    {
-        x -= pasDistance * cos(angleRotationZCamera);
-        y -= pasDistance * sin(angleRotationZCamera);
-        b = true;
-    }
-    if (toucheHautAppuyee)
-    {
-        x += pasDistance * cos(angleRotationZCamera);
-        y += pasDistance * sin(angleRotationZCamera);
-        b = true;
-    }
-    if (b)
-    {
-        if (l->getEmplacementXJoueur() * tailleCase.width() + 1 <= x && x <= (l->getEmplacementXJoueur() + 1) * tailleCase.width() - 1 &&
-            l->getEmplacementYJoueur() * tailleCase.height() + 1 <= y && y <= (l->getEmplacementYJoueur() + 1) * tailleCase.height() - 1)
+        switch (event->key())
         {
-            deplacementX = 0;
-            deplacementY = 0;
+            case Qt::Key_Right:
+                move(rotationMatrix_.column(1), Labyrinth2d::Right);
+                break;
+            case Qt::Key_Left:
+                move(rotationMatrix_.column(1), Labyrinth2d::Left);
+                break;
+            case Qt::Key_Down:
+                move(rotationMatrix_.column(0), Labyrinth2d::Down);
+                break;
+            case Qt::Key_Up:
+                move(rotationMatrix_.column(0), Labyrinth2d::Up);
+                break;
+            default:
+                break;
         }
-        else
-        {
-			auto const& grid{labyrinth->grid()};
-			
-            if (x < l->getEmplacementXJoueur() * tailleCase.width() + 1)
-            {
-                if (!l->getEmplacementXJoueur()
-                    || grid.at(l->getEmplacementYJoueur(), l->getEmplacementXJoueur() - 1) == 1)
-                    x = xCamera;
-                else if (x < l->getEmplacementXJoueur() * tailleCase.width())
-                    deplacementX = -1;
-            }
-            else if ((l->getEmplacementXJoueur() + 1) * tailleCase.width() - 1 < x)
-            {
-                if (l->getEmplacementXJoueur() == l->getLongueur()-1
-                    || grid.at(l->getEmplacementYJoueur(), l->getEmplacementXJoueur() + 1) == 1)
-                    x = xCamera;
-                else if ((l->getEmplacementXJoueur() + 1) * tailleCase.width() < x)
-                    deplacementX = 1;
-            }
-            if (y < l->getEmplacementYJoueur() * tailleCase.height()+1)
-            {
-                if (!l->getEmplacementYJoueur()
-                    || grid.at(l->getEmplacementYJoueur() - 1, l->getEmplacementXJoueur()) == 1)
-                    y = yCamera;
-                else if (y < l->getEmplacementYJoueur() * tailleCase.height())
-                    deplacementY = -1;
-            }
-            else if ((l->getEmplacementYJoueur() + 1) * tailleCase.height() - 1 < y)
-            {
-                if (l->getEmplacementYJoueur() == l->getLargeur() - 1
-                    || grid.at(l->getEmplacementYJoueur() + 1, l->getEmplacementXJoueur()) == 1)
-                    y = yCamera;
-                else if ((l->getEmplacementYJoueur() + 1) * tailleCase.height() < y)
-                    deplacementY = 1;
-            }
-            if (fabs(deplacementX) && fabs(deplacementY))
-            {
-                deplacementX = 0;
-                deplacementY = 0;
-                x = xCamera;
-                y = yCamera;
-            }
-        }
-
-        if (l->getEmplacementXJoueur() + deplacementX == l->getXSortie()
-            && l->getEmplacementYJoueur() + deplacementY == l->getYSortie())
-        {
-            timer->stop();
-            toucheDroiteAppuyee = false;
-            toucheGaucheAppuyee = false;
-            toucheBasAppuyee = false;
-            toucheHautAppuyee = false;
-        }
-
-        xCamera = x;
-        yCamera = y;
-        lancerTimer = true;
     }
+    else
+    {
+        float constexpr stepAngle{90.0 / 2.0};
+
+        switch (event->key())
+        {
+            case Qt::Key_Right:
+                rotationMatrix_.rotate(-stepAngle, QVector3D(0, 0, 1));
+                break;
+            case Qt::Key_Left:
+                rotationMatrix_.rotate(stepAngle, QVector3D(0, 0, 1));
+                break;
+            default:
+                break;
+        }
+    }
+
+    emit deplacementJoueur(labyrinth->player(labyrinth->playerIds().front()).j() - j,
+                           labyrinth->player(labyrinth->playerIds().front()).i() - i);
 
     update();
-
-    emit deplacementJoueur(deplacementX, deplacementY);
-
-    if (!l->getEnResolution())
-    {
-        if (lancerTimer)
-        {
-            if (!timer->isActive())
-                timer->start();
-        }
-        else
-            timer->stop();
-    }
-
-    return (deplacementX || deplacementY);
 }
 
 void GLLabyrinth::rechargerTextures()
@@ -1077,45 +458,24 @@ void GLLabyrinth::rechargerTextures()
 
     libererTextures();
 
-    initTextures();
+    for (size_t i{0}; i < boxes_.size(); ++i)
+    {
+        for (size_t j{0}; j < boxes_.size(); ++j)
+            setTexture(i, j, pixmapMotifMur.toImage().mirrored());
+    }
 }
 
 void GLLabyrinth::libererTextures()
 {
-    for (auto const& t : textures_)
-        delete t;
+    for (auto& t : textures_)
+    {
+        for (unsigned int i(0); i < 6; ++i)
+        {
+            if (t[i])
+                delete t[i];
+        }
+    }
     textures_.clear();
-/*
-    if (glIDMotifFond)
-    {
-        glDeleteTextures(1, &glIDMotifFond);
-        glIDMotifFond = 0;
-    }
-    if (glIDImageFond)
-    {
-        glDeleteTextures(1, &glIDImageFond);
-        glIDImageFond = 0;
-    }
-    if (glIDMotifMur)
-    {
-        glDeleteTextures(1, &glIDMotifMur);
-        glIDMotifMur = 0;
-    }
-    if (glIDImageMur)
-    {
-        glDeleteTextures(1, &glIDImageMur);
-        glIDImageMur = 0;
-    }
-    if (glIDMotifParcours)
-    {
-        glDeleteTextures(1, &glIDMotifParcours);
-        glIDMotifParcours = 0;
-    }
-    if (glIDImageParcours)
-    {
-        glDeleteTextures(1, &glIDImageParcours);
-        glIDImageParcours = 0;
-    }*/
 }
 
 void GLLabyrinth::solveLabyrinth()
@@ -1125,14 +485,10 @@ void GLLabyrinth::solveLabyrinth()
     if (!l)
         return;
 
-    QSize const tailleCase = l->getTailleCase();
-    int const hauteurMur = 2 * qMax(tailleCase.width(), tailleCase.height());
     int const emplacementXJoueur = l->getEmplacementXJoueur();
     int const emplacementYJoueur = l->getEmplacementYJoueur();
     int const xSortie = l->getXSortie();
     int const ySortie = l->getYSortie();
-    int const longueur = l->getLongueur();
-    int const largeur = l->getLargeur();
 
     if (emplacementXJoueur == xSortie && emplacementYJoueur == ySortie)
     {
@@ -1143,326 +499,52 @@ void GLLabyrinth::solveLabyrinth()
         return;
     }
 
-    xCamera = (GLdouble)(emplacementXJoueur + 1.0 / 2.0) * tailleCase.width();
-    yCamera = (GLdouble)(emplacementYJoueur + 1.0 / 2.0) * tailleCase.height();
-    zCamera = (GLdouble)(hauteurMur / 2);//3
+    size_t const seed(std::chrono::system_clock::now().time_since_epoch().count());
+    std::default_random_engine g(seed);
+    //std::random_device g;
 
-    toucheDroiteAppuyee = false;
-    toucheGaucheAppuyee = false;
-    toucheHautAppuyee = false;
-    toucheBasAppuyee = false;
-    directionAtteinte = false;
-    pasAngle = PASANGLERESOLUTION;
-    pasDistance = PASDISTANCERESOLUTION;
-    timerResolution->setInterval(1);
-
-    int nombrePossibilites = 0;
-
-    direction = -1;
-
-	auto const& grid{labyrinth->grid()};
-
-    if (emplacementXJoueur)
-    {
-        if (!grid.at(emplacementYJoueur, emplacementXJoueur - 1))
-            nombrePossibilites++;
-        bool b = true;
-        if (emplacementYJoueur == ySortie)
+    auto const sleep{
+        [this] (std::chrono::milliseconds const& ms) -> void
         {
-            for (int i = emplacementXJoueur - 1; i >= 0; i--)
-            {
-                if (grid.at(emplacementYJoueur, i) == 1)
-                {
-                    b = false;
-                    break;
-                }
-                else if (i == xSortie)
-                    break;
-            }
+            QTest::qWait(ms);
+            this->update();
         }
-        else
-            b = false;
-        if (b)
-            direction = 1;
-    }
+    };
 
-    if (emplacementXJoueur + 1 < longueur)
+    size_t const cycleOperationsSolving(1);
+    std::chrono::milliseconds const cyclePauseSolving(100 * 50);
+
+    auto const playerId{labyrinth->playerIds().front()};
+
+    if (typeResolution_ == 0)
     {
-        if (!grid.at(emplacementYJoueur, emplacementXJoueur + 1))
-            nombrePossibilites++;
-        bool b = true;
-        if (emplacementYJoueur == ySortie)
-        {
-            for (int i = emplacementXJoueur + 1; i < longueur; i++)
-            {
-                if (grid.at(emplacementYJoueur, i) == 1)
-                {
-                    b = false;
-                    break;
-                }
-                else if (i == xSortie)
-                    break;
-            }
-        }
-        else
-            b = false;
-        if (b)
-            direction = 3;
+        Labyrinth2d::Solver::AStar ass;
+        labyrinth->player(playerId).solve(g, ass, sleep, 0, 0, cycleOperationsSolving,
+                                          cyclePauseSolving, nullptr);
     }
-
-    if (emplacementYJoueur)
+    else if (typeResolution_ == 1)
     {
-        if (!grid.at(emplacementYJoueur - 1, emplacementXJoueur))
-            nombrePossibilites++;
-        bool b = true;
-        if (emplacementXJoueur == xSortie)
-        {
-            for (int j = emplacementYJoueur - 1; j >= 0; j--)
-            {
-                if (grid.at(j, emplacementXJoueur) == 1)
-                {
-                    b = false;
-                    break;
-                }
-                else if (j == ySortie)
-                    break;
-            }
-        }
-        else
-            b = false;
-        if (b)
-            direction = 0;
+        Labyrinth2d::Solver::WallHand whs{Labyrinth2d::Solver::WallHand::Right};
+        labyrinth->player(playerId).solve(g, whs, sleep, 0, 0, cycleOperationsSolving,
+                                          cyclePauseSolving, nullptr);
     }
-
-    if (emplacementYJoueur + 1 < largeur)
+    else if (typeResolution_ == 2)
     {
-        if (!grid.at(emplacementYJoueur + 1, emplacementXJoueur))
-            nombrePossibilites++;
-        bool b = true;
-        if (emplacementXJoueur == xSortie)
-        {
-            for (int j = emplacementYJoueur + 1; j < largeur; j++)
-            {
-                if (grid.at(j, emplacementXJoueur) == 1)
-                {
-                    b = false;
-                    break;
-                }
-                else if (j == ySortie)
-                    break;
-            }
-        }
-        else
-            b = false;
-        if (b)
-            direction = 2;
+        Labyrinth2d::Solver::WallHand whs{Labyrinth2d::Solver::WallHand::Left};
+        labyrinth->player(playerId).solve(g, whs, sleep, 0, 0, cycleOperationsSolving,
+                                          cyclePauseSolving, nullptr);
     }
-
-    if (direction == -1)
+    else //if (typeResolution_ == 3)
     {
-        if (nombrePossibilites)
-        {
-            int directionHorizontale = 0, directionVerticale = 0;
-
-            do
-            {
-                if (!(rand() % 2))
-                    directionHorizontale = 0;
-                else
-                {
-                    if (!(rand() % 2))
-                        directionHorizontale = -1;
-                    else
-                        directionHorizontale = 1;
-                }
-
-                if (!directionHorizontale)
-                {
-                    if (!(rand() % 2))
-                        directionVerticale = -1;
-                    else
-                        directionVerticale = 1;
-                }
-                else
-                    directionVerticale = 0;
-            } while (emplacementXJoueur + directionHorizontale < 0 || emplacementXJoueur + directionHorizontale >= longueur || emplacementYJoueur + directionVerticale < 0 || emplacementYJoueur + directionVerticale >= largeur || grid.at(emplacementYJoueur + directionVerticale, emplacementXJoueur + directionHorizontale));
-
-            if (directionHorizontale)
-                direction = 2 + directionHorizontale;
-            else// if (directionVerticale
-                direction = 1 + directionVerticale;
-        }/*
-        else
-        {
-            //Correct comparison with 2
-            bool b = true;
-
-            if (emplacementXJoueur)
-            {
-                if (grid.at(emplacementYJoueur, emplacementXJoueur - 1) == 2)
-                {
-                    direction = 1;
-                    b = false;
-                }
-            }
-
-            if (b && emplacementXJoueur + 1 < longueur)
-            {
-                if (grid.at(emplacementYJoueur, emplacementXJoueur + 1) == 2)
-                {
-                    direction = 3;
-                    b = false;
-                }
-            }
-
-            if (b && emplacementYJoueur)
-            {
-                if (grid.at(emplacementYJoueur - 1, emplacementXJoueur) == 2)
-                {
-                    direction = 0;
-                    b = false;
-                }
-            }
-
-            if (b && emplacementYJoueur + 1 < largeur)
-            {
-                if (grid.at(emplacementYJoueur + 1, emplacementXJoueur) == 2)
-                    direction = 2;
-            }
-        }*/
+        Labyrinth2d::Solver::Blind bs;
+        labyrinth->player(playerId).solve(g, bs, sleep, 0, 0, cycleOperationsSolving,
+                                          cyclePauseSolving, nullptr);
     }
-
-    timerResolution->start();
 }
 
 void GLLabyrinth::arreterResolution()
 {
-    timerResolution->stop();
-}
-
-void GLLabyrinth::resolutionLabyrinthe()
-{
-    QLabyrinth* l = qobject_cast<QLabyrinth*>(parentWidget());
-
-    if (!l)
-        return;
-
-    if (l->getEnResolution() && !l->getResolutionProgressive())
-    {
-        timerResolution->stop();
-        update();
-        l->resoudre();
-    }
-
-    if (!l->getArretResolution() && (l->getEmplacementXJoueur() != l->getXSortie() || l->getEmplacementYJoueur() != l->getYSortie()) && l->getEnResolution())
-    {
-        switch (direction)
-        {
-            case 0://y--
-                if (fabs(angleRotationZCamera + M_PI_2) > 0.005)
-                {
-                    if (angleRotationZCamera <= M_PI_2 && angleRotationZCamera >= -M_PI_2)
-                        toucheGaucheAppuyee = true;
-                    else
-                        toucheDroiteAppuyee = true;
-                }
-                else
-                {
-                    angleRotationZCamera = -M_PI_2;
-                    toucheGaucheAppuyee = false;
-                    toucheDroiteAppuyee = false;
-                    toucheHautAppuyee = true;
-                }
-                break;
-            case 1://x--
-                if (fabs(angleRotationZCamera - M_PI) > 0.005 && fabs(angleRotationZCamera + M_PI) > 0.005)
-                {
-                    if (angleRotationZCamera <= M_PI && angleRotationZCamera >= 0)
-                        toucheDroiteAppuyee = true;
-                    else
-                        toucheGaucheAppuyee = true;
-                }
-                else
-                {
-                    angleRotationZCamera = M_PI;
-                    toucheGaucheAppuyee = false;
-                    toucheDroiteAppuyee = false;
-                    toucheHautAppuyee = true;
-                }
-                break;
-            case 2://y++
-                if (fabs(angleRotationZCamera - M_PI_2) > 0.005)
-                {
-                    if (angleRotationZCamera <= M_PI_2 && angleRotationZCamera >= -M_PI_2)
-                        toucheDroiteAppuyee = true;
-                    else
-                        toucheGaucheAppuyee = true;
-                }
-                else
-                {
-                    angleRotationZCamera = M_PI_2;
-                    toucheGaucheAppuyee = false;
-                    toucheDroiteAppuyee = false;
-                    toucheHautAppuyee = true;
-                }
-                break;
-            case 3://x++
-                if (fabs(angleRotationZCamera) > 0.005)
-                {
-                    if (angleRotationZCamera <= M_PI && angleRotationZCamera >= 0)
-                        toucheGaucheAppuyee = true;
-                    else
-                        toucheDroiteAppuyee = true;
-                }
-                else
-                {
-                    angleRotationZCamera = 0;
-                    toucheGaucheAppuyee = false;
-                    toucheDroiteAppuyee = false;
-                    toucheHautAppuyee = true;
-                }
-                break;
-            default:
-                break;
-        }
-        if (routineDeplacement())
-            directionAtteinte = true;
-        if (directionAtteinte && fabs(xCamera - (GLdouble)(l->getEmplacementXJoueur() + 1.0 / 2.0) * l->getTailleCase().width()) <= 0.01 && fabs(yCamera - (GLdouble)(l->getEmplacementYJoueur() + 1.0 / 2.0) * l->getTailleCase().height()) <= 0.01)
-        {
-            timerResolution->stop();
-            solveLabyrinth();
-        }
-    }
-    else
-        timerResolution->stop();
-}
-
-void GLLabyrinth::setCamera(GLdouble x, GLdouble y, GLdouble z, GLdouble angleRotationZ)
-{
-    xCamera = x;
-    yCamera = y;
-    zCamera = z;
-    angleRotationZCamera = angleRotationZ;
-}
-
-GLdouble GLLabyrinth::getXCamera() const
-{
-    return xCamera;
-}
-
-GLdouble GLLabyrinth::getYCamera() const
-{
-    return yCamera;
-}
-
-GLdouble GLLabyrinth::getZCamera() const
-{
-    return zCamera;
-}
-
-GLdouble GLLabyrinth::getAngleRotationZCamera() const
-{
-    return angleRotationZCamera;
+    labyrinth->player(labyrinth->playerIds().front()).stopSolving();
 }
 
 void GLLabyrinth::setTypeResolution(unsigned int type)
@@ -1516,66 +598,260 @@ void GLLabyrinth::wheelEvent(QWheelEvent* event)
     QOpenGLWidget::wheelEvent(event);
 }
 
-void GLLabyrinth::loadTexture(QImage const& image, GLuint& id)
+void GLLabyrinth::translateModelView(QVector3D const& offset, QMatrix4x4& mv, size_t i, size_t j) const
 {
-    auto const im{image.mirrored()};
-
-    glGenTextures(1, &id);
-
-    glBindTexture(GL_TEXTURE_2D, id);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, im.width(), im.height(),
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, im.constBits());
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
+    mv.translate((j / 2) * waysSize_.x() + ((j + 1) / 2) * wallsSize_.x() + offset.x(),
+                 (i / 2) * waysSize_.y() + ((i + 1) / 2) * wallsSize_.y() + offset.y(),
+                 offset.z());
 }
 
-QOpenGLTexture* GLLabyrinth::loadTexture(QImage const& image)
+QVector3D GLLabyrinth::boxSides(size_t i) const
 {
-    // Loadimage
-    QOpenGLTexture* texture = new QOpenGLTexture(image.mirrored());
+    assert(i < boxes_.size());
 
-    // Set nearest filtering mode for texture minification
-    texture->setMinificationFilter(QOpenGLTexture::Nearest);
-
-    // Set bilinear filtering mode for texture magnification
-    texture->setMagnificationFilter(QOpenGLTexture::Linear);
-
-    // Wrap texture coordinates by repeating
-    // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
-    texture->setWrapMode(QOpenGLTexture::Repeat);
-
-    return texture;
+    return boxes_[i].second - boxes_[i].first;
 }
 
-void GLLabyrinth::initShaders()
+void GLLabyrinth::displayPlayer(size_t playerId, QColor const& color, bool displayPlayer,
+                                bool displayTrace, QColor const& traceColor)
 {
-    // Compile vertex shader
-    if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/Shaders/resources/vshader.glsl"))
-        close();
+    auto const& player{labyrinth->player(playerId)};
 
-    // Compile fragment shader
-    if (!program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/Shaders/resources/fshader.glsl"))
-        close();
+    float constexpr pRatio{0.25};
+    changeBoxSides(playerBoxId_, pRatio * waysSize_);
 
-    // Link shader pipeline
-    if (!program.link())
-        close();
+    if (displayPlayer)
+    {
+        for (size_t i{0}; i < 6; ++i)
+        {
+            QImage image(128, 128, QImage::Format_ARGB32);
+            image.fill(color);
+            setTexture(playerBoxId_, i, image);
+        }
 
-    // Bind shader pipeline for use
-    if (!program.bind())
-        close();
+        auto mv{cameraMatrix_};
+        translateModelView(boxSides(playerBoxId_) / 2 / pRatio, mv, player.i(), player.j());
+        displayBox(playerBoxId_, mv);
+    }
+
+    if (displayTrace)
+    {
+        if (!player.traceIntersections().empty())
+        {
+            for (size_t k{0}; k < 2; ++k)
+            {
+                for (size_t i{0}; i < 2; ++i)
+                {
+                    for (size_t j{0}; j < 2; ++j)
+                    {
+                        for (size_t l{0}; l < 6; ++l)
+                        {
+                            QImage image(128, 128, QImage::Format_ARGB32);
+                            image.fill(traceColor);
+                            setTexture(sfBoxId_ + 1 + i * 2 + j, i, image);
+                        }
+                    }
+                }
+            }
+
+            for (size_t l{0}; l < player.traceIntersections().size() - 1; ++l)
+            {
+                size_t i1(player.traceIntersections()[l].first);
+                size_t j1(player.traceIntersections()[l].second);
+                size_t const i2(player.traceIntersections()[l + 1].first);
+                size_t const j2(player.traceIntersections()[l + 1].second);
+                long di(i2 - i1);
+                long dj(j2 - j1);
+
+                if (di)
+                    di /= std::abs(di);
+                if (dj)
+                    dj /= std::abs(dj);
+
+                while (i1 != i2 || j1 != j2)
+                {
+                    auto const index{sfBoxId_ + 1 + (i1 % 2) * 2 + j1 % 2};
+                    auto mv{cameraMatrix_};
+                    translateModelView(boxSides(index) / 2 / traceRatio_, mv, i1, j1);
+                    displayBox(index, mv);
+
+                    i1 += di;
+                    j1 += dj;
+                }
+            }
+
+            {
+                size_t i1(player.traceIntersections().back().first);
+                size_t j1(player.traceIntersections().back().second);
+                size_t const i2(player.i());
+                size_t const j2(player.j());
+                long di(i2 - i1);
+                long dj(j2 - j1);
+
+                if (di)
+                    di /= std::abs(di);
+                if (dj)
+                    dj /= std::abs(dj);
+
+                while (i1 != i2 || j1 != j2)
+                {
+                    auto const index{sfBoxId_ + 1 + (i1 % 2) * 2 + j1 % 2};
+                    auto mv{cameraMatrix_};
+                    translateModelView(boxSides(index) / 2 / traceRatio_, mv, i1, j1);
+                    displayBox(index, mv);
+
+                    i1 += di;
+                    j1 += dj;
+                }
+            }
+        }
+    }
 }
 
-void GLLabyrinth::initTextures()
+void GLLabyrinth::displayBox(size_t i, QMatrix4x4 const& mv)
 {
-    textures_ << loadTexture(pixmapMotifFond.toImage());
-    textures_ << loadTexture(pixmapImageFond.toImage());
-    textures_ << loadTexture(pixmapMotifMur.toImage());
-    textures_ << loadTexture(pixmapImageMur.toImage());
-    textures_ << loadTexture(pixmapMotifParcours.toImage());
-    textures_ << loadTexture(pixmapImageParcours.toImage());
+    assert(i < boxes_.size());
+
+    bindBox(i);
+
+    vbo.bind();
+    program->bind();
+    program->setUniformValue("matrix", mv);
+    program->enableAttributeArray(PROGRAM_VERTEX_ATTRIBUTE);
+    program->enableAttributeArray(PROGRAM_TEXCOORD_ATTRIBUTE);
+    program->setAttributeBuffer(PROGRAM_VERTEX_ATTRIBUTE, GL_FLOAT, 0, 3, 5 * sizeof(GLfloat));
+    program->setAttributeBuffer(PROGRAM_TEXCOORD_ATTRIBUTE, GL_FLOAT, 3 * sizeof(GLfloat), 2, 5 * sizeof(GLfloat));
+
+    for (int l = 0; l < 6; ++l)
+    {
+        textures_[i][l]->bind();
+        glDrawArrays(GL_TRIANGLE_FAN, l * 4, 4);
+    }
+}
+
+void GLLabyrinth::makeBox(QVector3D const& bottom, QVector3D const& top, std::array<QImage, 6> const& images)
+{
+    boxes_.emplace_back(std::make_pair(bottom, top));
+
+    images_.emplace_back(images);
+    textures_.emplace_back(std::array<QOpenGLTexture*, 6>{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr});
+    for (int j = 0; j < 6; ++j)
+        textures_.back()[j] = new QOpenGLTexture(images_.back()[j].mirrored());
+}
+
+void GLLabyrinth::changeBox(size_t i, QVector3D const& bottom, QVector3D const& top)
+{
+    assert(i < boxes_.size());
+
+    boxes_[i].first = bottom;
+    boxes_[i].second = top;
+}
+
+void GLLabyrinth::changeBoxSides(size_t i, QVector3D const& sides)
+{
+    changeBox(i, -sides / 2, sides / 2);
+}
+
+void GLLabyrinth::bindBox(size_t i)
+{
+    assert(i < boxes_.size());
+
+    auto const& bottom{boxes_[i].first};
+    auto const& top{boxes_[i].second};
+
+    std::array<std::array<std::array<float, 3>, 4>, 6> const coords{
+        std::array<std::array<float, 3>, 4>{
+            std::array<float, 3>{top.x(), bottom.y(), bottom.z()},
+            std::array<float, 3>{bottom.x(), bottom.y(), bottom.z()},
+            std::array<float, 3>{bottom.x(), top.y(), bottom.z()},
+            std::array<float, 3>{top.x(), top.y(), bottom.z()}
+        },
+        std::array<std::array<float, 3>, 4>{
+            std::array<float, 3>{top.x(), top.y(), bottom.z()},
+            std::array<float, 3>{bottom.x(), top.y(), bottom.z()},
+            std::array<float, 3>{bottom.x(), top.y(), top.z()},
+            std::array<float, 3>{top.x(), top.y(), top.z()}
+        },
+        std::array<std::array<float, 3>, 4>{
+            std::array<float, 3>{top.x(), bottom.y(), top.z()},
+            std::array<float, 3>{top.x(), bottom.y(), bottom.z()},
+            std::array<float, 3>{top.x(), top.y(), bottom.z()},
+            std::array<float, 3>{top.x(), top.y(), top.z()}
+        },
+        std::array<std::array<float, 3>, 4>{
+            std::array<float, 3>{bottom.x(), bottom.y(), bottom.z()},
+            std::array<float, 3>{bottom.x(), bottom.y(), top.z()},
+            std::array<float, 3>{bottom.x(), top.y(), top.z()},
+            std::array<float, 3>{bottom.x(), top.y(), bottom.z()}
+        },
+        std::array<std::array<float, 3>, 4>{
+            std::array<float, 3>{top.x(), bottom.y(), top.z()},
+            std::array<float, 3>{bottom.x(), bottom.y(), top.z()},
+            std::array<float, 3>{bottom.x(), bottom.y(), bottom.z()},
+            std::array<float, 3>{top.x(), bottom.y(), bottom.z()}
+        },
+        std::array<std::array<float, 3>, 4>{
+            std::array<float, 3>{bottom.x(), bottom.y(), top.z()},
+            std::array<float, 3>{top.x(), bottom.y(), top.z()},
+            std::array<float, 3>{top.x(), top.y(), top.z()},
+            std::array<float, 3>{bottom.x(), top.y(), top.z()}
+        }
+    };
+
+    QList<GLfloat> vertData;
+
+    for (int i = 0; i < 6; ++i)
+    {
+        for (int j = 0; j < 4; ++j)
+        {
+            // vertex position
+            vertData.append(coords[i][j][0]);
+            vertData.append(coords[i][j][1]);
+            vertData.append(coords[i][j][2]);
+            // texture coordinate
+            vertData.append(j == 0 || j == 3);
+            vertData.append(j == 0 || j == 1);
+        }
+    }
+
+    if (vbo.isCreated())
+        vbo.destroy();
+    vbo.create();
+    vbo.bind();
+    vbo.allocate(vertData.constData(), vertData.count() * sizeof(GLfloat));
+}
+
+void GLLabyrinth::makeBox(QVector3D const& sides, std::array<QImage, 6> const& images)
+{
+    assert(sides.x() > 0.0 && sides.y() > 0.0 && sides.z() > 0.0);
+
+    makeBox(-sides / 2, sides / 2, images);
+}
+
+void GLLabyrinth::setTexture(unsigned int i, unsigned int j, const QImage& image)
+{
+    assert(i < images_.size());
+    assert(j < 6);
+
+    images_[i][j] = image;
+
+    if (textures_[i][j])
+        delete textures_[i][j];
+
+    textures_[i][j] = new QOpenGLTexture(images_[i][j].mirrored());
+
+    update();
+}
+
+const QImage& GLLabyrinth::imageTexture(unsigned int i, unsigned int j) const
+{
+    assert(i < images_.size());
+    assert(j < 6);
+
+    return images_[i][j];
+}
+
+void GLLabyrinth::resolutionLabyrinthe()
+{
+    solveLabyrinth();
 }

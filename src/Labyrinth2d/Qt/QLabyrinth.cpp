@@ -1339,7 +1339,7 @@ bool QLabyrinth::resoudre(int nombreFois)
         labyrinth->player(playerId).solve(g, whs, sleep, 0, 0, cycleOperationsSolving,
                                           cyclePauseSolving, nullptr);
     }
-    else //if (type == 3)
+    else //if (typeResolution_ == 3)
     {
         Labyrinth2d::Solver::Blind bs;
         labyrinth->player(playerId).solve(g, bs, sleep, 0, 0, cycleOperationsSolving,
@@ -2617,7 +2617,7 @@ void QLabyrinth::nouveau(Niveau n, int longueurLabyrinthe, int largeurLabyrinthe
     algorithme = a;
     angle = 0;
     numeroQuart = 1;
-    //nombreDeplacement = 0;
+    nombreDeplacement = 0;
     typeLabyrinthe = type;
     formeLabyrinthe = forme;
     unsigned int ancienMode = modeLabyrinthe.mode;
@@ -2829,7 +2829,8 @@ void QLabyrinth::nouveau(Niveau n, int longueurLabyrinthe, int largeurLabyrinthe
     {
         if (!glLabyrinth)
         {
-            glLabyrinth = new GLLabyrinth;
+            glLabyrinth = new GLLabyrinth(this);
+            glLabyrinth->rechargerTextures();
             QHBoxLayout *hBoxLayout = new QHBoxLayout;
             hBoxLayout->setContentsMargins(0, 0, 0, 0);
             hBoxLayout->addWidget(glLabyrinth);
@@ -3556,20 +3557,6 @@ void QLabyrinth::enregistrer(QDataStream &data, bool chrono, int ms, bool pauseI
     data << modeLabyrinthe.cisaillementSynchronise;
     data << modeLabyrinthe.cisaillementSynchroniseAuHasard;
     data << typeResolution_;
-    if (glLabyrinth)
-    {
-        data << (double)glLabyrinth->getXCamera();
-        data << (double)glLabyrinth->getYCamera();
-        data << (double)glLabyrinth->getZCamera();
-        data << (double)glLabyrinth->getAngleRotationZCamera();
-    }
-    else
-    {
-        data << (double)0;
-        data << (double)0;
-        data << (double)0;
-        data << (double)0;
-    }
 
     enregistre = true;
     emit enregistrementChange();
@@ -3673,11 +3660,6 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
     data >> modeLabyrinthe.cisaillementSynchronise;
     data >> modeLabyrinthe.cisaillementSynchroniseAuHasard;
     data >> typeResolution_;
-    double x, y, z, angleRotationZ;
-    data >> x;
-    data >> y;
-    data >> z;
-    data >> angleRotationZ;
 
     b = (getLongueur() != lon || getLargeur() != lar);
 
@@ -3690,7 +3672,8 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
     {
         if (!glLabyrinth)
         {
-            glLabyrinth = new GLLabyrinth;
+            glLabyrinth = new GLLabyrinth(this);
+            glLabyrinth->rechargerTextures();
             QHBoxLayout *hBoxLayout = new QHBoxLayout;
             hBoxLayout->setContentsMargins(0, 0, 0, 0);
             hBoxLayout->addWidget(glLabyrinth);
@@ -3706,7 +3689,6 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
         }
 
         glLabyrinth->setLabyrinth(labyrinth);
-        glLabyrinth->setCamera(x, y, z, angleRotationZ);
         glLabyrinth->show();
     }
     else
@@ -4030,7 +4012,7 @@ void QLabyrinth::timerEvent(QTimerEvent *event)
     calculerTransformation();
 }
 
-qreal QLabyrinth::getNombreDeplacement() const
+size_t QLabyrinth::getNombreDeplacement() const
 {
     return nombreDeplacement;
 }
@@ -4416,4 +4398,10 @@ void QLabyrinth::setTypeResolution(unsigned int type)
 unsigned int QLabyrinth::getTypeResolution() const
 {
     return typeResolution_;
+}
+
+
+Labyrinth2d::Labyrinth const& QLabyrinth::getLabyrinth() const
+{
+    return *labyrinth;
 }

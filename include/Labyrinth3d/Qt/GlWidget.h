@@ -72,7 +72,6 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
         std::vector<std::array<QOpenGLTexture*, 6> > textures_;
         QOpenGLShaderProgram *program = nullptr;
         QOpenGLBuffer vbo;
-        std::vector<std::array<std::array<std::array<float, 3>, 4>, 6> > coords_;
         QMatrix4x4 cameraMatrix_;
         QMatrix4x4 rotationMatrix_;
         QVector3D wallsSize_ = QVector3D(5, 5, 5);

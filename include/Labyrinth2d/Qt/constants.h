@@ -67,10 +67,6 @@
 
 //Constantes pour le labyrinthe 3D
 
-#define PASANGLEJEU 5.0
-#define PASDISTANCEJEU 1.0
-#define PASANGLERESOLUTION 2.5
-#define PASDISTANCERESOLUTION 0.4
 #define HAUTEURFACILE 51
 #define HAUTEURMOYEN 71
 #define HAUTEURDIFFICILE 91
