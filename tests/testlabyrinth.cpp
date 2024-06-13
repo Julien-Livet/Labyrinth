@@ -23,6 +23,7 @@ class TestLabyrinth : public QObject
         void solveAStarVerticalWalls2x2();
         void solveAStarHorizontalWalls2x2();
         void solveAStarHorizontalAndHorizontalWalls2x2();
+        void solveAStarEmpty8x8();
         void generateEmpty1x1x1();
         void solveAStarEmpty1x1x1();
         void solveBlindEmpty1x1x1();
@@ -40,6 +41,7 @@ class TestLabyrinth : public QObject
         void solveBlindEmpty1x2x2();
         void solveAStarEmpty2x2x2();
         void solveBlindEmpty2x2x2();
+        void solveAStarEmpty8x8x8();
 };
 
 #include "Labyrinth2d/Labyrinth.h"
@@ -318,6 +320,16 @@ void TestLabyrinth::solveAStarHorizontalAndHorizontalWalls2x2()
     }
 }
 
+void TestLabyrinth::solveAStarEmpty8x8()
+{
+    Labyrinth2d::Labyrinth l{8, 8};
+    auto const playerId{l.addPlayer(0, 0, {7}, {7})};
+    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    Labyrinth2d::Solver::AStar ass;
+
+    QCOMPARE(l.player(playerId).solve(g, ass), true);
+}
+
 #include "Labyrinth3d/Labyrinth.h"
 #include "Labyrinth3d/Solver/Solver.h"
 
@@ -513,6 +525,16 @@ void TestLabyrinth::solveBlindEmpty2x2x2()
     Labyrinth3d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
+}
+
+void TestLabyrinth::solveAStarEmpty8x8x8()
+{
+    Labyrinth3d::Labyrinth l{8, 8, 8};
+    auto const playerId{l.addPlayer(0, 0, 0, {7}, {7}, {7})};
+    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    Labyrinth3d::Solver::AStar ass;
+
+    QCOMPARE(l.player(playerId).solve(g, ass), true);
 }
 
 QTEST_MAIN(TestLabyrinth)

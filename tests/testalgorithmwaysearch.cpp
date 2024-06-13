@@ -29,6 +29,9 @@ class TestAlgorithmWaySearch : public QObject
         void solveHuntAndKillLeftWallHand2x2();
         void solveHuntAndKillRightWallHand2x2();
         void solveHuntAndKillBlind2x2();
+        void solveDepthFirstSearch8x8();
+        void solvePrim8x8();
+        void solveHuntAndKill8x8();
 };
 
 #include "Labyrinth2d/Labyrinth.h"
@@ -382,6 +385,48 @@ void TestAlgorithmWaySearch::solveHuntAndKillBlind2x2()
     Labyrinth2d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
+}
+
+void TestAlgorithmWaySearch::solveDepthFirstSearch8x8()
+{
+    Labyrinth2d::Labyrinth l{8, 8};
+    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::DepthFirstSearch};
+
+    l.generate(g, wsa);
+
+    auto const playerId{l.addPlayer(0, 0, {7}, {7})};
+    Labyrinth2d::Solver::AStar ass;
+
+    QCOMPARE(l.player(playerId).solve(g, ass), true);
+}
+
+void TestAlgorithmWaySearch::solvePrim8x8()
+{
+    Labyrinth2d::Labyrinth l{8, 8};
+    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
+
+    l.generate(g, wsa);
+
+    auto const playerId{l.addPlayer(0, 0, {7}, {7})};
+    Labyrinth2d::Solver::AStar ass;
+
+    QCOMPARE(l.player(playerId).solve(g, ass), true);
+}
+
+void TestAlgorithmWaySearch::solveHuntAndKill8x8()
+{
+    Labyrinth2d::Labyrinth l{8, 8};
+    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::HuntAndKill};
+
+    l.generate(g, wsa);
+
+    auto const playerId{l.addPlayer(0, 0, {7}, {7})};
+    Labyrinth2d::Solver::AStar ass;
+
+    QCOMPARE(l.player(playerId).solve(g, ass), true);
 }
 
 QTEST_MAIN(TestAlgorithmWaySearch)

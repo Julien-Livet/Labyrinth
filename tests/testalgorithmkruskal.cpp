@@ -21,6 +21,8 @@ class TestAlgorithmKruskal : public QObject
         void solveIterativeLeftWallHand2x2();
         void solveIterativeRightWallHand2x2();
         void solveIterativeBlind2x2();
+        void solveRecursive8x8();
+        void solveIterative8x8();
 };
 
 #include "Labyrinth2d/Labyrinth.h"
@@ -259,6 +261,34 @@ void TestAlgorithmKruskal::solveIterativeBlind2x2()
     Labyrinth2d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
+}
+
+void TestAlgorithmKruskal::solveRecursive8x8()
+{
+    Labyrinth2d::Labyrinth l{8, 8};
+    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Recursive};
+
+    l.generate(g, ka);
+
+    auto const playerId{l.addPlayer(0, 0, {7}, {7})};
+    Labyrinth2d::Solver::AStar ass;
+
+    QCOMPARE(l.player(playerId).solve(g, ass), true);
+}
+
+void TestAlgorithmKruskal::solveIterative8x8()
+{
+    Labyrinth2d::Labyrinth l{8, 8};
+    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Iterative};
+
+    l.generate(g, ka);
+
+    auto const playerId{l.addPlayer(0, 0, {7}, {7})};
+    Labyrinth2d::Solver::AStar ass;
+
+    QCOMPARE(l.player(playerId).solve(g, ass), true);
 }
 
 QTEST_MAIN(TestAlgorithmKruskal)

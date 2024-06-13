@@ -13,6 +13,7 @@ class TestAlgorithmRecursiveDivision : public QObject
         void solveLeftWallHand2x2();
         void solveRightWallHand2x2();
         void solveBlind2x2();
+        void solve8x8();
 };
 
 #include "Labyrinth2d/Labyrinth.h"
@@ -136,6 +137,20 @@ void TestAlgorithmRecursiveDivision::solveBlind2x2()
     Labyrinth2d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
+}
+
+void TestAlgorithmRecursiveDivision::solve8x8()
+{
+    Labyrinth2d::Labyrinth l{8, 8};
+    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    Labyrinth2d::Algorithm::RecursiveDivision rda;
+
+    l.generate(g, rda);
+
+    auto const playerId{l.addPlayer(0, 0, {7}, {7})};
+    Labyrinth2d::Solver::AStar ass;
+
+    QCOMPARE(l.player(playerId).solve(g, ass), true);
 }
 
 QTEST_MAIN(TestAlgorithmRecursiveDivision)
