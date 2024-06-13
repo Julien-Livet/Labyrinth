@@ -3,7 +3,6 @@
 
 #include "Labyrinth2d/Labyrinth.h"
 #include "Labyrinth2d/utility.h"
-#include "Labyrinth2d/Algorithm/Algorithm.h"
 
 Labyrinth2d::Labyrinth::Labyrinth(size_t rows, size_t columns) : grid_(*this, rows, columns), state_(Initialized),
                                                                  idCounter_(0)

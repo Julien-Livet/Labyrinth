@@ -1,6 +1,7 @@
-﻿#include <stdexcept>
+﻿#include <algorithm>
 #include <cassert>
-#include <algorithm>
+#include <cmath>
+#include <stdexcept>
 
 #include <QPainterPath>
 
@@ -331,7 +332,7 @@ void Labyrinth2d::Renderer::QPainter::renderWalls(::QPainter* painter,  QRegion 
                 }
 
                 painter->setPen(QPen(texture.brush(), texture.linePercentage() / 100.0
-                                                           * static_cast<qreal>(std::min(wallsSize_.width(), wallsSize_.height())),
+                                                      * static_cast<qreal>(std::min(wallsSize_.width(), wallsSize_.height())),
                                      texture.penStyle(), texture.penCapStyle(), texture.penJoinStyle()));
 
                 painter->drawLines(lines.data(), lines.size());
@@ -1222,16 +1223,66 @@ void Labyrinth2d::Renderer::QPainter::displayCells(::QPainter* painter, Texture 
                 size_t const& i(c.first);
                 size_t const& j(c.second);
                 QPointF const pos(static_cast<qreal>((j + 1) / 2 * evenColumnWidth + j / 2 * oddColumnWidth)
-                                 + static_cast<qreal>(j % 2 ? oddColumnWidth : evenColumnWidth) / 2.0,
-                                 static_cast<qreal>((i + 1) / 2 * evenRowHeight + i / 2 * oddRowHeight)
-                                 + static_cast<qreal>(i % 2 ? oddRowHeight : evenRowHeight) / 2.0);
+                                  + static_cast<qreal>(j % 2 ? oddColumnWidth : evenColumnWidth) / 2.0,
+                                  static_cast<qreal>((i + 1) / 2 * evenRowHeight + i / 2 * oddRowHeight)
+                                  + static_cast<qreal>(i % 2 ? oddRowHeight : evenRowHeight) / 2.0);
                 QSizeF const s(QSizeF(static_cast<qreal>((j % 2) * oddColumnWidth + (1 - j % 2) * evenColumnWidth),
                                       static_cast<qreal>((i % 2) * oddRowHeight + (1 - i % 2) * evenRowHeight)));
                 QRectF const r(QRectF(QRectF(QPointF(), pixmap.size()).center()
                                - rect().center() + pos - QRectF(QPointF(), s).center() / 2.0,
-                                s).intersected(QRectF(QPointF(), pixmap.size())));
-
-                pixmapFragments.push_back(::QPainter::PixmapFragment::create(pos, r));
+                               s).intersected(QRectF(QPointF(), pixmap.size())));
+                QPointF const p1{pos};
+                QSizeF const s1{s};
+                QRectF const r1{QRectF{p1, s1}.intersected(QRectF(QPointF(), pixmap.size()))};
+                QPointF p2{pos};
+                QSizeF s2{s};
+                p2.setX(0);
+                int quo2;
+                double const rem2{std::remquo(p1.x() + s1.width(), pixmap.width(), &quo2)};
+                s2.setWidth(rem2);
+                QRectF const r2{QRectF{p2, s2}.intersected(QRectF(QPointF(), pixmap.size()))};
+                QPointF p3{pos};
+                QSizeF s3{s};
+                p3.setY(0);
+                int quo3;
+                double const rem3{std::remquo(p1.y() + s1.height(), pixmap.height(), &quo3)};
+                s3.setHeight(rem3);
+                QRectF const r3{QRectF{p3, s3}.intersected(QRectF(QPointF(), pixmap.size()))};
+                QPointF p4{pos};
+                QSizeF s4{s};
+                p4.setX(0);
+                s4.setWidth(rem2);
+                p4.setY(0);
+                s4.setHeight(rem3);
+                QRectF const r4{QRectF{p4, s4}.intersected(QRectF(QPointF(), pixmap.size()))};
+/*
+                if (r.isValid())
+                    pixmapFragments.push_back(::QPainter::PixmapFragment::create(pos, r));*/
+                if (r1.isValid())
+                    pixmapFragments.push_back(::QPainter::PixmapFragment::create(p1, r1));
+                if (r1.width() != s1.width() && r2.isValid())
+                    pixmapFragments.push_back(::QPainter::PixmapFragment::create(QPointF(pixmap.width() * quo2, p1.y()), r2));
+                if (r1.height() != s1.height() && r3.isValid())
+                    pixmapFragments.push_back(::QPainter::PixmapFragment::create(QPointF(p1.x(), pixmap.height() * quo3), r3));
+                if (r1.width() != s1.width() && r1.height() != s1.height() && r4.isValid())
+                    pixmapFragments.push_back(::QPainter::PixmapFragment::create(QPointF(pixmap.width() * quo2,
+                                                                                         pixmap.height() * quo3), r4));/*
+                if (r.height() != s.height())
+                {
+                    QPointF p{pos};
+                    p.setY(0);
+                    QRectF re{r};
+                    re.setHeight(s.height() - r.height());
+                    pixmapFragments.push_back(::QPainter::PixmapFragment::create(p, re));
+                }
+                if (r.width() != s.width())
+                {
+                    QPointF p{pos};
+                    p.setX(0);
+                    QRectF re{r};
+                    re.setWidth(s.width() - r.width());
+                    pixmapFragments.push_back(::QPainter::PixmapFragment::create(p, re));
+                }*/
             }
 
             painter->drawPixmapFragments(pixmapFragments.data(),

@@ -1424,17 +1424,33 @@ void QLabyrinth::setTextureParcours(const Texture &texture)
 
     textures[2] = texture;
 
-    if (texture.typeTexture == QLabyrinth::TextureCouleur)
-        qPainterRenderer_->changeWaysTexture(Labyrinth2d::Renderer::QPainter::Texture(texture.couleur, 50.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    else if (texture.typeTexture == QLabyrinth::TextureMotif)
-        qPainterRenderer_->changeWaysTexture(Labyrinth2d::Renderer::QPainter::Texture(QPixmap(texture.motif), Labyrinth2d::Renderer::QPainter::Texture::Pattern, Qt::IgnoreAspectRatio));
-    else// if (texture.typeTexture == QLabyrinth::TextureImage)
-        qPainterRenderer_->changeWaysTexture(Labyrinth2d::Renderer::QPainter::Texture(QPixmap(texture.image), Labyrinth2d::Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
+    actualiserTextureParcours();
 
     if (glLabyrinth)
         glLabyrinth->rechargerTextures();
 
     rafraichir();
+}
+
+void QLabyrinth::actualiserTextureParcours()
+{
+    auto const texture{textures[2]};
+
+    if (texture.typeTexture == QLabyrinth::TextureCouleur)
+    {
+        //qPainterRenderer_->changeWaysTexture(Labyrinth2d::Renderer::QPainter::Texture(texture.couleur, 50.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        qPainterRenderer_->playerRenderers[labyrinth->playerIds().front()].playerTexture.change(texture.couleur, 75.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    }
+    else if (texture.typeTexture == QLabyrinth::TextureMotif)
+    {
+        //qPainterRenderer_->changeWaysTexture(Labyrinth2d::Renderer::QPainter::Texture(QPixmap(texture.motif), Labyrinth2d::Renderer::QPainter::Texture::Pattern, Qt::IgnoreAspectRatio));
+        qPainterRenderer_->playerRenderers[labyrinth->playerIds().front()].playerTexture.change(QPixmap(texture.motif), Labyrinth2d::Renderer::QPainter::Texture::Pattern, Qt::IgnoreAspectRatio);
+    }
+    else// if (texture.typeTexture == QLabyrinth::TextureImage)
+    {
+        //qPainterRenderer_->changeWaysTexture(Labyrinth2d::Renderer::QPainter::Texture(QPixmap(texture.image), Labyrinth2d::Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
+        qPainterRenderer_->playerRenderers[labyrinth->playerIds().front()].playerTexture.change(QPixmap(texture.image), Labyrinth2d::Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding);
+    }
 }
 
 QLabyrinth::Texture QLabyrinth::getTextureMur() const
@@ -1455,17 +1471,24 @@ void QLabyrinth::setTextureMur(const Texture &texture)
 
     textures[1] = texture;
 
-    if (texture.typeTexture == QLabyrinth::TextureCouleur)
-        qPainterRenderer_->changeWallsTexture(Labyrinth2d::Renderer::QPainter::Texture(texture.couleur, 50.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    else if (texture.typeTexture == QLabyrinth::TextureMotif)
-        qPainterRenderer_->changeWallsTexture(Labyrinth2d::Renderer::QPainter::Texture(QPixmap(texture.motif), Labyrinth2d::Renderer::QPainter::Texture::Pattern, Qt::IgnoreAspectRatio));
-    else// if (texture.typeTexture == QLabyrinth::TextureImage)
-        qPainterRenderer_->changeWallsTexture(Labyrinth2d::Renderer::QPainter::Texture(QPixmap(texture.image), Labyrinth2d::Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
+    actualiserTextureMur();
 
     if (glLabyrinth)
         glLabyrinth->rechargerTextures();
 
     rafraichir();
+}
+
+void QLabyrinth::actualiserTextureMur()
+{
+    auto const texture{textures[1]};
+
+    if (texture.typeTexture == QLabyrinth::TextureCouleur)
+        qPainterRenderer_->changeWallsTexture(Labyrinth2d::Renderer::QPainter::Texture(texture.couleur, 100.0, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin));
+    else if (texture.typeTexture == QLabyrinth::TextureMotif)
+        qPainterRenderer_->changeWallsTexture(Labyrinth2d::Renderer::QPainter::Texture(QPixmap(texture.motif), Labyrinth2d::Renderer::QPainter::Texture::Pattern, Qt::IgnoreAspectRatio));
+    else// if (texture.typeTexture == QLabyrinth::TextureImage)
+        qPainterRenderer_->changeWallsTexture(Labyrinth2d::Renderer::QPainter::Texture(QPixmap(texture.image), Labyrinth2d::Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
 }
 
 QLabyrinth::Texture QLabyrinth::getTextureFond() const
@@ -1486,12 +1509,7 @@ void QLabyrinth::setTextureFond(const Texture &texture)
 
     textures[0] = texture;
 
-    if (texture.typeTexture == QLabyrinth::TextureCouleur)
-        qPainterRenderer_->changeBackgroundTexture(Labyrinth2d::Renderer::QPainter::Texture(texture.couleur, 50.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    else if (texture.typeTexture == QLabyrinth::TextureMotif)
-        qPainterRenderer_->changeBackgroundTexture(Labyrinth2d::Renderer::QPainter::Texture(QPixmap(texture.motif), Labyrinth2d::Renderer::QPainter::Texture::Pattern, Qt::IgnoreAspectRatio));
-    else// if (texture.typeTexture == QLabyrinth::TextureImage)
-        qPainterRenderer_->changeBackgroundTexture(Labyrinth2d::Renderer::QPainter::Texture(QPixmap(texture.image), Labyrinth2d::Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
+    actualiserTextureFond();
 
     QPalette p = scrollArea->palette();
 
@@ -1506,6 +1524,18 @@ void QLabyrinth::setTextureFond(const Texture &texture)
         glLabyrinth->rechargerTextures();
 
     rafraichir();
+}
+
+void QLabyrinth::actualiserTextureFond()
+{
+    auto const texture{textures[0]};
+
+    if (texture.typeTexture == QLabyrinth::TextureCouleur)
+        qPainterRenderer_->changeBackgroundTexture(Labyrinth2d::Renderer::QPainter::Texture(texture.couleur, 100.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    else if (texture.typeTexture == QLabyrinth::TextureMotif)
+        qPainterRenderer_->changeBackgroundTexture(Labyrinth2d::Renderer::QPainter::Texture(QPixmap(texture.motif), Labyrinth2d::Renderer::QPainter::Texture::Pattern, Qt::IgnoreAspectRatio));
+    else// if (texture.typeTexture == QLabyrinth::TextureImage)
+        qPainterRenderer_->changeBackgroundTexture(Labyrinth2d::Renderer::QPainter::Texture(QPixmap(texture.image), Labyrinth2d::Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
 }
 
 bool QLabyrinth::getPartieEnCours() const
@@ -1696,7 +1726,11 @@ void QLabyrinth::paintEvent(QPaintEvent *event)
     painter.setPen(textures[1].couleur);
     painter.setFont(f);
 
-    QRect visibleRect = visibleRegion().boundingRect();//event->rect();
+    actualiserTextureParcours();
+    actualiserTextureMur();
+    actualiserTextureFond();
+
+    QRect const visibleRect = visibleRegion().boundingRect();//event->rect();
 
     if (enConstruction)
     {
@@ -1778,446 +1812,19 @@ void QLabyrinth::apercu(QPaintDevice *device, QRect visibleRect)
 
 void QLabyrinth::apercu(QPainter *painter, QRect visibleRect)
 {
-    if (visibleRect.isNull())
-        visibleRect = visibleRegion().boundingRect();
+    QPoint const offset(QRect(QPoint(), visibleRect.size()).center()
+                        - QRect(QPoint(), qPainterRenderer_->size()).center());
 
-    //Chargement des images
-    QPixmap pixmapMotifFond = QPixmap(textures[0].motif).scaled(tailleCase);
-    QPixmap pixmapImageFond = QPixmap(textures[0].image);
-    QPixmap pixmapMotifMur = QPixmap(textures[1].motif).scaled(tailleCase);
-    QPixmap pixmapImageMur = QPixmap(textures[1].image);
-    QPixmap pixmapMotifParcours = QPixmap(textures[2].motif).scaled(tailleCase);
-    QPixmap pixmapImageParcours = QPixmap(textures[2].image);
+    (*qPainterRenderer_)(painter,
+                         visibleRect.translated(-offset).intersected(QRect(QPoint(), qPainterRenderer_->size())),
+                         offset);
 
-    //Dessin du fond
-    if (textures[0].typeTexture == TextureMotif && !pixmapMotifFond.isNull())
+    if (previousSize_ != qPainterRenderer_->size())
     {
-        for (int i = 0; i < getLargeur(); i++)
-        {
-            if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
-                break;
-            if ((i + 1) * tailleCase.height() > visibleRect.y())
-            {
-                for (int j = 0; j < getLongueur(); j++)
-                {
-                    if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
-                        break;
-                    if ((j + 1) * tailleCase.width() > visibleRect.x())
-                    {
-                        if (!labyrinth->grid().at(i, j))
-                            painter->drawPixmap(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height(), pixmapMotifFond);
-                        else
-                        {
-                            if ((textures[1].typeTexture == TextureMotif && !pixmapMotifFond.isNull() && pixmapMotifFond.hasAlpha()) || (textures[1].typeTexture == TextureImage && !pixmapImageFond.isNull() && pixmapImageFond.hasAlpha()))
-                                painter->drawPixmap(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height(), pixmapMotifFond);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    else if (textures[0].typeTexture == TextureImage && !pixmapImageFond.isNull())
-    {
-        for (int i = 0; i < getLargeur() * tailleCase.height(); i += pixmapImageFond.height())
-        {
-            if (i > visibleRect.y() + visibleRect.height())
-                break;
-            int h = pixmapImageFond.height();
-            if (i + pixmapImageFond.height() - getLargeur() * tailleCase.height() > 0)
-                h = getLargeur() * tailleCase.height() - i;
-            if (i + pixmapImageFond.width() > visibleRect.y())
-            {
-                for (int j = 0; j < getLongueur() * tailleCase.width(); j += pixmapImageFond.width())
-                {
-                    if (j > visibleRect.x() + visibleRect.width())
-                        break;
-                    int w = pixmapImageFond.width();
-                    if (j + pixmapImageFond.width() > visibleRect.x())
-                    {
-                        if (j + pixmapImageFond.width() - getLongueur() * tailleCase.width() > 0)
-                            w = getLongueur() * tailleCase.width() - j;
-                        painter->drawPixmap(QRect(j, i, w, h), pixmapImageFond, QRect(0, 0, w, h));
-                    }
-                }
-            }
-        }
-    }
-    else// if (textures[0].typeTexture == TextureCouleur)
-        painter->fillRect(0, 0, getLongueur() * tailleCase.width(), getLargeur() * tailleCase.height(), textures[0].couleur);
+        previousSize_ = qPainterRenderer_->size();
 
-    //Dessin du mur
-    if (textures[1].typeTexture == TextureMotif && !pixmapMotifMur.isNull())
-    {
-        for (int i = 0; i < getLargeur(); i++)
-        {
-            if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
-                break;
-            if ((i + 1) * tailleCase.height() > visibleRect.y())
-            {
-                for (int j = 0; j < getLongueur(); j++)
-                {
-                    if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
-                        break;
-                    if ((j + 1) * tailleCase.width() > visibleRect.x() && labyrinth->grid().at(i, j))
-                        painter->drawPixmap(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height(), pixmapMotifMur);
-                }
-            }
-        }
+        setFixedSize((QRect(QPoint(), previousSize_)).size());
     }
-    else if (textures[1].typeTexture == TextureImage && !pixmapImageMur.isNull())
-    {
-        int decalageY = 0;
-        int retrancheY = 0;
-        for (int i = 0; i < getLargeur(); i++)
-        {
-            if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
-                break;
-            if (i * tailleCase.height() - decalageY >= pixmapImageMur.height())
-                decalageY += pixmapImageMur.height();
-            if ((i + 1) * tailleCase.height() - decalageY > pixmapImageMur.height())
-                retrancheY = (i + 1) * tailleCase.height() - decalageY- pixmapImageMur.height();
-            int decalageX = 0;
-            int retrancheX = 0;
-            if ((i + 1) * tailleCase.height() > visibleRect.y())
-            {
-                int valeurY = decalageY;
-                for (int j = 0; j < getLongueur(); j++)
-                {
-                    if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
-                        break;
-                    if (j * tailleCase.width() - decalageX >= pixmapImageMur.width())
-                        decalageX += pixmapImageMur.width();
-                    if ((j + 1) * tailleCase.width() - decalageX > pixmapImageMur.width())
-                        retrancheX = (j + 1) * tailleCase.width() - decalageX - pixmapImageMur.width();
-                    if ((j + 1) * tailleCase.width() > visibleRect.x() && labyrinth->grid().at(i, j))
-                    {
-                        if (!retrancheX && !retrancheY)
-                            painter->drawPixmap(QRect(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height()), pixmapImageMur, QRect(j * tailleCase.width() - decalageX, i * tailleCase.height() - decalageY, tailleCase.width(), tailleCase.height()));
-                        else
-                        {
-                            if (retrancheY)
-                                decalageY = valeurY;
-                            int valeurX = decalageX;
-                            painter->drawPixmap(QRect(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width() - retrancheX, tailleCase.height() - retrancheY), pixmapImageMur, QRect(j * tailleCase.width() - decalageX, i * tailleCase.height() - decalageY, tailleCase.width() - retrancheX, tailleCase.height() - retrancheY));
-                            if (retrancheX)
-                                decalageX = (j + 1) * tailleCase.width();
-                            painter->drawPixmap(QRect((j + 1) * tailleCase.width() - retrancheX, i * tailleCase.height(), retrancheX, tailleCase.height() - retrancheY), pixmapImageMur, QRect((j + 1) * tailleCase.width() - decalageX, i * tailleCase.height() - decalageY, retrancheX, tailleCase.height() - retrancheY));
-                            if (retrancheY)
-                            {
-                                decalageY = (i + 1) * tailleCase.height();
-                                if (retrancheX)
-                                    decalageX = valeurX;
-                            }
-                            painter->drawPixmap(QRect(j * tailleCase.width(), (i + 1) * tailleCase.height() - retrancheY, tailleCase.width() - retrancheX, retrancheY), pixmapImageMur, QRect(j * tailleCase.width() - decalageX, (i + 1) * tailleCase.height() - decalageY, tailleCase.width() - retrancheX, retrancheY));
-                            if (retrancheY && retrancheX)
-                                decalageX = (j + 1) * tailleCase.width();
-                            painter->drawPixmap(QRect((j + 1) * tailleCase.width() - retrancheX, (i + 1) * tailleCase.height() - retrancheY, retrancheX, retrancheY), pixmapImageMur, QRect((j + 1) * tailleCase.width() - decalageX, (i + 1) * tailleCase.height() - decalageY, retrancheX, retrancheY));
-                            if (retrancheX)
-                            {
-                                decalageX -= retrancheX;
-                                retrancheX = 0;
-                            }
-                        }
-                    }
-                    else if (retrancheX)
-                    {
-                        decalageX = (j + 1) * tailleCase.width() - retrancheX;
-                        retrancheX = 0;
-                    }
-                }
-                if (retrancheY)
-                {
-                    decalageY -= retrancheY;
-                    retrancheY = 0;
-                }
-            }
-            else if (retrancheY)
-            {
-                decalageY = (i + 1) * tailleCase.height() - retrancheY;
-                retrancheY = 0;
-            }
-        }
-    }
-    else// if (textures[1].typeTexture == TextureCouleur)
-    {
-        for (int i = 0; i < getLargeur(); i++)
-        {
-            if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
-                break;
-            if ((i + 1) * tailleCase.height() > visibleRect.y())
-            {
-                for (int j = 0; j < getLongueur(); j++)
-                {
-                    if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
-                        break;
-                    if ((j + 1) * tailleCase.width() > visibleRect.x() && labyrinth->grid().at(i, j) == 1)
-                        painter->fillRect(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height(), textures[1].couleur);
-                }
-            }
-        }
-    }
-
-    //Dessin du parcours
-    if (textures[2].typeTexture == TextureMotif && !pixmapMotifParcours.isNull())
-    {
-        if (afficherTrace)
-        {
-            QImage image = QImage(textures[2].motif).scaled(tailleCase);
-            if (!image.hasAlphaChannel())
-                image = image.convertToFormat(QImage::Format_ARGB32, Qt::AutoColor | Qt::DiffuseDither | Qt::DiffuseAlphaDither | Qt::PreferDither);
-            for (int y = 0; y < image.height(); y++)
-            {
-                QRgb *scanLine = (QRgb*)image.scanLine(y);
-                for (int x = 0; x < image.width(); x++)
-                {
-                    *scanLine = qRgba(qRed(*scanLine), qGreen(*scanLine), qBlue(*scanLine), qAlpha(*scanLine) / 2);
-                    scanLine++;
-                }
-            }
-            pixmapMotifParcours = QPixmap::fromImage(image, Qt::AutoColor | Qt::DiffuseDither | Qt::DiffuseAlphaDither | Qt::PreferDither);
-            /**Correct according trace
-            for (int i = 0; i < getLargeur(); i++)
-            {
-                if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
-                    break;
-                if ((i + 1) * tailleCase.height() > visibleRect.y())
-                {
-                    for (int j = 0; j < getLongueur(); j++)
-                    {
-                        if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
-                            break;
-                        if ((j + 1) * tailleCase.width() > visibleRect.x() && (labyrinthe[i][j] == 2 || (labyrinthe[i][j] == 3 && !getEffacerChemin())))
-                        {
-                            if (i != getEmplacementYJoueur() || j != getEmplacementXJoueur())
-                                painter->drawPixmap(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height(), pixmapMotifParcours);
-                            else
-                            {
-                                pixmapMotifParcours = QPixmap(textures[2].motif).scaled(tailleCase);
-                                painter->drawPixmap(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height(), pixmapMotifParcours);
-                                pixmapMotifParcours = QPixmap::fromImage(image, Qt::AutoColor | Qt::DiffuseDither | Qt::DiffuseAlphaDither | Qt::PreferDither);
-                            }
-                        }
-                    }
-                }
-            }**/
-        }
-        else
-            painter->drawPixmap(getEmplacementXJoueur() * tailleCase.width(), getEmplacementYJoueur() * tailleCase.height(), tailleCase.width(), tailleCase.height(), pixmapMotifParcours);
-    }
-    else if (textures[2].typeTexture == TextureImage && !pixmapImageParcours.isNull())
-    {
-        if (afficherTrace)
-        {
-            QImage image = QImage(textures[2].image);
-            if (!image.hasAlphaChannel())
-                image = image.convertToFormat(QImage::Format_ARGB32, Qt::AutoColor | Qt::DiffuseDither | Qt::DiffuseAlphaDither | Qt::PreferDither);
-            for (int y = 0; y < image.height(); y++)
-            {
-                QRgb *scanLine = (QRgb*)image.scanLine(y);
-                for (int x = 0; x < image.width(); x++)
-                {
-                    *scanLine = qRgba(qRed(*scanLine), qGreen(*scanLine), qBlue(*scanLine), qAlpha(*scanLine) / 2);
-                    scanLine++;
-                }
-            }
-            pixmapImageParcours = QPixmap::fromImage(image, Qt::AutoColor | Qt::DiffuseDither | Qt::DiffuseAlphaDither | Qt::PreferDither);
-            int decalageY = 0;
-            int retrancheY = 0;
-            /**Correct according trace
-            for (int i = 0; i < getLargeur(); i++)
-            {
-                if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
-                    break;
-                if (i * tailleCase.height() - decalageY >= pixmapImageParcours.height())
-                    decalageY += pixmapImageParcours.height();
-                if ((i + 1) * tailleCase.height() - decalageY > pixmapImageParcours.height())
-                    retrancheY = (i + 1) * tailleCase.height() - decalageY - pixmapImageParcours.height();
-                int decalageX = 0;
-                int retrancheX = 0;
-                if ((i + 1) * tailleCase.height() > visibleRect.y())
-                {
-                    int valeurY = decalageY;
-                    for (int j = 0; j < getLongueur(); j++)
-                    {
-                        if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
-                            break;
-                        if (j * tailleCase.width() - decalageX >= pixmapImageParcours.width())
-                            decalageX += pixmapImageParcours.width();
-                        if ((j + 1) * tailleCase.width() - decalageX > pixmapImageParcours.width())
-                            retrancheX = (j + 1) * tailleCase.width() - decalageX - pixmapImageParcours.width();
-                        if ((j + 1) * tailleCase.width() > visibleRect.x() && (labyrinthe[i][j] == 2 || (labyrinthe[i][j] == 3 && !getEffacerChemin())))
-                        {
-                            if (i == getEmplacementYJoueur() && j == getEmplacementXJoueur())
-                                pixmapImageParcours = QPixmap(textures[2].image);
-                            if (!retrancheX && !retrancheY)
-                                painter->drawPixmap(QRect(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height()), pixmapImageParcours, QRect(j * tailleCase.width() - decalageX, i * tailleCase.height() - decalageY, tailleCase.width(), tailleCase.height()));
-                            else
-                            {
-                                if (retrancheY)
-                                    decalageY = valeurY;
-                                int valeurX = decalageX;
-                                painter->drawPixmap(QRect(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width() - retrancheX, tailleCase.height() - retrancheY), pixmapImageParcours, QRect(j * tailleCase.width() - decalageX, i * tailleCase.height() - decalageY, tailleCase.width() - retrancheX, tailleCase.height() - retrancheY));
-                                if (retrancheX)
-                                    decalageX = (j + 1) * tailleCase.width();
-                                painter->drawPixmap(QRect((j + 1) * tailleCase.width() - retrancheX, i * tailleCase.height(), retrancheX, tailleCase.height() - retrancheY), pixmapImageParcours, QRect((j + 1) * tailleCase.width() - decalageX, i * tailleCase.height() - decalageY, retrancheX, tailleCase.height() - retrancheY));
-                                if (retrancheY)
-                                {
-                                    decalageY = (i + 1) * tailleCase.height();
-                                    if (retrancheX)
-                                        decalageX = valeurX;
-                                }
-                                painter->drawPixmap(QRect(j * tailleCase.width(), (i + 1) * tailleCase.height() - retrancheY, tailleCase.width() - retrancheX, retrancheY), pixmapImageParcours, QRect(j * tailleCase.width() - decalageX, (i + 1) * tailleCase.height() - decalageY, tailleCase.width() - retrancheX, retrancheY));
-                                if (retrancheY && retrancheX)
-                                    decalageX = (j + 1) * tailleCase.width();
-                                painter->drawPixmap(QRect((j + 1) * tailleCase.width() - retrancheX, (i + 1) * tailleCase.height() - retrancheY, retrancheX, retrancheY), pixmapImageParcours, QRect((j + 1) * tailleCase.width() - decalageX, (i + 1) * tailleCase.height() - decalageY, retrancheX, retrancheY));
-                                if (retrancheX)
-                                {
-                                    decalageX -= retrancheX;
-                                    retrancheX = 0;
-                                }
-                            }
-                            if (i == getEmplacementYJoueur() && j == getEmplacementXJoueur())
-                                pixmapImageParcours = QPixmap::fromImage(image, Qt::AutoColor | Qt::DiffuseDither | Qt::DiffuseAlphaDither | Qt::PreferDither);
-                        }
-                        else if (retrancheX)
-                        {
-                            decalageX = (j + 1) * tailleCase.width() - retrancheX;
-                            retrancheX = 0;
-                        }
-                    }
-                    if (retrancheY)
-                    {
-                        decalageY -= retrancheY;
-                        retrancheY = 0;
-                    }
-                }
-                else if (retrancheY)
-                {
-                    decalageY = (i + 1) * tailleCase.height() - retrancheY;
-                    retrancheY = 0;
-                }
-            }**/
-        }
-        else
-        {
-            bool b = false;
-            int decalageY = 0;
-            int retrancheY = 0;
-            for (int i = 0; i < getLargeur(); i++)
-            {
-                if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
-                    break;
-                if (i * tailleCase.height() - decalageY >= pixmapImageParcours.height())
-                    decalageY += pixmapImageParcours.height();
-                if ((i + 1) * tailleCase.height() - decalageY > pixmapImageParcours.height())
-                    retrancheY = (i + 1) * tailleCase.height() - decalageY - pixmapImageParcours.height();
-                int decalageX = 0;
-                int retrancheX = 0;
-                if ((i + 1) * tailleCase.height() > visibleRect.y() && i == getEmplacementYJoueur())
-                {
-                    int valeurY = decalageY;
-                    for (int j = 0; j < getLongueur(); j++)
-                    {
-                        if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
-                            break;
-                        if (j * tailleCase.width() - decalageX >= pixmapImageParcours.width())
-                            decalageX += pixmapImageParcours.width();
-                        if ((j + 1) * tailleCase.width() - decalageX > pixmapImageParcours.width())
-                            retrancheX = (j + 1) * tailleCase.width() - decalageX - pixmapImageParcours.width();
-                        if ((j + 1) * tailleCase.width() > visibleRect.x() && j == getEmplacementXJoueur())
-                        {
-                            if (!retrancheX && !retrancheY)
-                                painter->drawPixmap(QRect(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height()), pixmapImageParcours, QRect(j * tailleCase.width() - decalageX, i * tailleCase.height() - decalageY, tailleCase.width(), tailleCase.height()));
-                            else
-                            {
-                                if (retrancheY)
-                                    decalageY = valeurY;
-                                int valeurX = decalageX;
-                                painter->drawPixmap(QRect(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width() - retrancheX, tailleCase.height() - retrancheY), pixmapImageParcours, QRect(j * tailleCase.width() - decalageX, i * tailleCase.height() - decalageY, tailleCase.width() - retrancheX, tailleCase.height() - retrancheY));
-                                if (retrancheX)
-                                    decalageX = (j + 1) * tailleCase.width();
-                                painter->drawPixmap(QRect((j + 1) * tailleCase.width() - retrancheX, i * tailleCase.height(), retrancheX, tailleCase.height() - retrancheY), pixmapImageParcours, QRect((j + 1) * tailleCase.width() - decalageX, i * tailleCase.height() - decalageY, retrancheX, tailleCase.height() - retrancheY));
-                                if (retrancheY)
-                                {
-                                    decalageY = (i + 1) * tailleCase.height();
-                                    if (retrancheX)
-                                        decalageX = valeurX;
-                                }
-                                painter->drawPixmap(QRect(j * tailleCase.width(), (i + 1) * tailleCase.height() - retrancheY, tailleCase.width() - retrancheX, retrancheY), pixmapImageParcours, QRect(j * tailleCase.width() - decalageX, (i + 1) * tailleCase.height() - decalageY, tailleCase.width() - retrancheX, retrancheY));
-                                if (retrancheY && retrancheX)
-                                    decalageX = (j + 1) * tailleCase.width();
-                                painter->drawPixmap(QRect((j + 1) * tailleCase.width() - retrancheX, (i + 1) * tailleCase.height() - retrancheY, retrancheX, retrancheY), pixmapImageParcours, QRect((j + 1) * tailleCase.width() - decalageX, (i + 1) * tailleCase.height() - decalageY, retrancheX, retrancheY));
-                                if (retrancheX)
-                                {
-                                    decalageX -= retrancheX;
-                                    retrancheX = 0;
-                                }
-                            }
-                            b = true;
-
-                            break;
-                        }
-                        else if (retrancheX)
-                        {
-                            decalageX = (j + 1) * tailleCase.width() - retrancheX;
-                            retrancheX = 0;
-                        }
-                    }
-                    if (retrancheY)
-                    {
-                        decalageY -= retrancheY;
-                        retrancheY = 0;
-                    }
-                    if (b)
-                        break;
-                }
-                else if (retrancheY)
-                {
-                    decalageY = (i + 1) * tailleCase.height() - retrancheY;
-                    retrancheY = 0;
-                }
-            }
-        }
-    }
-    else// if (textures[2].typeTexture == TextureCouleur)
-    {
-        QColor couleur = textures[2].couleur;
-        if (afficherTrace)
-        {
-            int a = couleur.alpha();
-            couleur.setAlpha(a/2);
-            /**Correct according trace
-            for (int i = 0; i < getLargeur(); i++)
-            {
-                if (i * tailleCase.height() > visibleRect.y() + visibleRect.height())
-                    break;
-                if ((i + 1) * tailleCase.height() > visibleRect.y())
-                {
-                    for (int j = 0; j < getLongueur(); j++)
-                    {
-                        if (j * tailleCase.width() > visibleRect.x() + visibleRect.width())
-                            break;
-                        if ((j + 1) * tailleCase.width() > visibleRect.x() && (labyrinthe[i][j] == 2 || (labyrinthe[i][j] == 3 && !getEffacerChemin())))
-                        {
-                            if (i != getEmplacementYJoueur() || j != getEmplacementXJoueur())
-                                painter->fillRect(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height(), couleur);
-                            else
-                            {
-                                couleur.setAlpha(a);
-                                painter->fillRect(j * tailleCase.width(), i * tailleCase.height(), tailleCase.width(), tailleCase.height(), couleur);
-                                couleur.setAlpha(a/2);
-                            }
-                        }
-                    }
-                }
-            }**/
-        }
-        else
-            painter->fillRect(getEmplacementXJoueur() * tailleCase.width(), getEmplacementYJoueur() * tailleCase.height(), tailleCase.width(), tailleCase.height(), couleur);
-    }
-
-    painter->fillRect(getXEntree() * tailleCase.width(), getYEntree() * tailleCase.height(), tailleCase.width(), tailleCase.height(), QColor(0, 255, 0, 128));
-    painter->fillRect(getXSortie() * tailleCase.width(), getYSortie() * tailleCase.height(), tailleCase.width(), tailleCase.height(), QColor(255, 0, 0, 128));
 }
 
 void QLabyrinth::routineDeplacement1()
@@ -3591,13 +3198,32 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
     niveau = Niveau(entier);
     data >> entier;
     typeLabyrinthe = TypeLabyrinthe(entier);
-    for (int i = 0; i < 3; i++)
     {
         data >> entier;
-        textures[i].typeTexture = TypeTexture(entier);
-        data >> textures[i].couleur;
-        data >> textures[i].motif;
-        data >> textures[i].image;
+        Texture texture;
+        texture.typeTexture = TypeTexture(entier);
+        data >> texture.couleur;
+        data >> texture.motif;
+        data >> texture.image;
+        setTextureFond(texture);
+    }
+    {
+        data >> entier;
+        Texture texture;
+        texture.typeTexture = TypeTexture(entier);
+        data >> texture.couleur;
+        data >> texture.motif;
+        data >> texture.image;
+        setTextureMur(texture);
+    }
+    {
+        data >> entier;
+        Texture texture;
+        texture.typeTexture = TypeTexture(entier);
+        data >> texture.couleur;
+        data >> texture.motif;
+        data >> texture.image;
+        setTextureParcours(texture);
     }
     data >> partieEnCours;
     data >> partieEnPause;

@@ -3,7 +3,6 @@
 
 #include "Labyrinth3d/Labyrinth.h"
 #include "Labyrinth3d/utility.h"
-#include "Labyrinth3d/Algorithm/Algorithm.h"
 
 Labyrinth3d::Labyrinth::Labyrinth(size_t rows, size_t columns, size_t floors) : grid_(*this, rows, columns, floors),
                                                                                 state_(Initialized),

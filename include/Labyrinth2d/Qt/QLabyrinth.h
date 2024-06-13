@@ -259,6 +259,7 @@ class QLabyrinth : public QWidget
         Labyrinth2d::Renderer::QPainter* qPainterRenderer_;
         QSize previousSize_;
         unsigned int typeResolution_;
+
         bool resoudre(int nombreFois);
         void construireAncienBis();
         void construireAncien();
@@ -270,6 +271,10 @@ class QLabyrinth : public QWidget
         void routineDeplacement1();
         void routineDeplacement2();
         void calculerTransformation();
+        void actualiserTextureMur();
+        void actualiserTextureParcours();
+        void actualiserTextureFond();
+        void updateWallsTexture();
 
     private slots:
         void redimensionnerFenetrePrincipale();

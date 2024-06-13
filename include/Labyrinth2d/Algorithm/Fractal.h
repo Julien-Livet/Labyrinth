@@ -10,9 +10,9 @@
  */
 
 #include <array>
+#include <chrono>
 #include <deque>
 #include <vector>
-#include <chrono>
 
 #include "../Grid.h"
 #include "../Labyrinth.h"
@@ -25,7 +25,7 @@ namespace Labyrinth2d
          *  \brief Generate a perfect labyrinth with fractals
          *
          *  A row or a column is randomly chosen while size is not reached.
-         *  This line is expanded in orthogonal direction with 5 x 5 sized labyrinths.
+         *  This line is expanded in orthogonal direction with 5 x 5 (w x h) sized labyrinths.
          */
         class Fractal
         {
@@ -62,6 +62,9 @@ void Labyrinth2d::Algorithm::Fractal::operator()(URNG& g, SubGrid const& subGrid
                                                  std::chrono::milliseconds const& /*cyclePause*/,
                                                  std::chrono::milliseconds const* timeout)
 {
+    if (subGrid.rows() < 2 || subGrid.columns() < 2)
+        return;
+
     auto const t(std::chrono::steady_clock::now());
 
     std::deque<std::deque<bool> > rows(2, {true, false, true});

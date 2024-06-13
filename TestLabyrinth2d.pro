@@ -24,6 +24,9 @@ TEMPLATE = app
 MOC_DIR = moc
 VERSION = 1.0
 
+RCC_DIR = qrc
+RESOURCES += resources.qrc
+
 INCLUDEPATH += include \
                D:\Programmes\boost_1_85_0
 

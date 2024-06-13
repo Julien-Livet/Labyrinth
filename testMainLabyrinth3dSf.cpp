@@ -228,12 +228,6 @@ int main()
     size_t const player3Id(l.addPlayer(0, l.grid().columns() - 1, l.grid().floors() - 1, {l.grid().rows() - 1}, {0}, {0}, true));
 
     Solver::AStar ass;
-/*
-    //l.player(player1d).solve(g, ass, sleep, 0, 0, cycleOperationsSolving, cyclePauseSolving);
-    std::thread thSolvePlayer1(&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player1Id),
-                               std::ref(g), std::ref(ass), sleep, 0, 0,
-                               cycleOperationsSolving, cyclePauseSolving, nullptr);
-*/
     Solver::Blind bs;
 
     //l.player(player2Id).solve(g, bs, sleep, 0, 0, cycleOperationsSolving, cyclePauseSolving);
@@ -304,7 +298,7 @@ int main()
     GlBlock sfGlBlock{sfRatio * Eigen::Vector3f{waysSize.x, waysSize.y, waysSize.z}}; //start and finish
 
     sf::Image image{};
-    image.loadFromFile("resources/wall_pattern.png");
+    image.loadFromFile("resources/wall_pattern_3.png");
     image.flipVertically();
     sf::Texture texture{};
     texture.loadFromImage(image);
@@ -326,6 +320,7 @@ int main()
     bool running{true};
     bool backspacePressed{false};
     bool enterPressed{false};
+    bool rPressed{false};
     sf::Event::KeyEvent keyEvent{};
     bool constexpr displayTrace{true};
 
@@ -391,6 +386,7 @@ int main()
 
         bool previousEnterPressed{enterPressed};
         bool previousBackspacePressed{backspacePressed};
+        bool previousRPressed{rPressed};
 
         while (window.pollEvent(event))
         {
@@ -428,6 +424,8 @@ int main()
                     backspacePressed = true;
                 else if (event.key.code == sf::Keyboard::Enter)
                     enterPressed = true;
+                else if (event.key.code == sf::Keyboard::R)
+                    rPressed = true;
             }
             else if (event.type == sf::Event::KeyReleased)
             {
@@ -461,6 +459,8 @@ int main()
                     backspacePressed = false;
                 else if (event.key.code == sf::Keyboard::Enter)
                     enterPressed = false;
+                else if (event.key.code == sf::Keyboard::R)
+                    rPressed = false;
 
                 keyEvent = event.key;
             }
@@ -481,6 +481,7 @@ int main()
 
         bool const risingEdgeEnterPressed{enterPressed && !previousEnterPressed};
         bool const risingEdgeBackspacePressed{backspacePressed && !previousBackspacePressed};
+        bool const risingEdgeRPressed{rPressed && !previousRPressed};
 
         auto move{
             [&l, player1Id] (Eigen::Vector3f const& u, Labyrinth3d::Direction d)
@@ -578,6 +579,16 @@ int main()
             l.player(player1Id).stepBack();
         if (risingEdgeEnterPressed)
             rotation = Eigen::Matrix3f::Identity();
+        if (risingEdgeRPressed)
+        {
+            std::thread thSolvePlayer1(&Labyrinth3d::Player::solve<std::default_random_engine,
+                                                                   Labyrinth3d::Solver::AStar>,
+                                       &l.player(player1Id),
+                                       std::ref(g), std::ref(ass), sleep, 0, 0,
+                                       cycleOperationsSolving, cyclePauseSolving, nullptr);
+
+            thSolvePlayer1.detach();
+        }
 
         try
         {
@@ -707,7 +718,6 @@ int main()
             std::this_thread::sleep_for(std::chrono::milliseconds{frameRate - elapsedTime});
     }
 /*
-    //thSolvePlayer1.join();
     thSolvePlayer2.join();
     thSolvePlayer3.join();
 */

@@ -48,6 +48,7 @@ int main(int argc, char** argv)
     //Labyrinth l(3, 3, 3);
     //Labyrinth l(5, 5, 5);
     Labyrinth l(9, 9, 9);
+    //Labyrinth l(20, 20, 20);
 /*
     //Not working
     Algorithm::Kruskal ka;
@@ -120,6 +121,7 @@ int main(int argc, char** argv)
     std::thread thSolvePlayer2(&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player2Id),
                                std::ref(g), std::ref(ass), sleep, 0, 0,
                                cycleOperationsSolving, cyclePauseSolving, nullptr);
+    //l.player(player3Id).solve(g, bs, sleep, 0, 0, cycleOperationsSolving, cyclePauseSolving);
     std::thread thSolvePlayer3(&Player::solve<std::default_random_engine, Solver::Blind>, &l.player(player3Id),
                                std::ref(g), std::ref(bs), sleep, 0, 0,
                                cycleOperationsSolving, cyclePauseSolving, nullptr);

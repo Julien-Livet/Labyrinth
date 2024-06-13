@@ -1,4 +1,8 @@
 #include "Labyrinth3d/Qt/GlWidget.h"
+#include "Labyrinth3d/Solver/Solver.h"
+
+#include <random>
+#include <thread>
 
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
@@ -105,7 +109,7 @@ void GLWidget::initializeGL()
                                   k % 2 ? waysSize_.z() : wallsSize_.z()));
                 for (unsigned int l(0); l < 6; ++l)
                 {
-                    setTexture(textures_.size() - 1, l, QImage(":/Images/resources/wall_pattern.png"));
+                    setTexture(textures_.size() - 1, l, QImage(":/Images/resources/wall_pattern_3.png"));
                     /*QImage image(128, 128, QImage::Format_ARGB32);
                     //image.fill(Qt::black);
                     image.fill(QColor(255, float(l) / 5 * 255, 0, 255));
@@ -439,6 +443,34 @@ void GLWidget::keyPressEvent(QKeyEvent* event)
             case Qt::Key_Enter:
                 rotationMatrix_.setToIdentity();
                 break;
+            case Qt::Key_R:
+            {
+                size_t const cycleOperationsSolving(1);
+                std::chrono::milliseconds const cyclePauseSolving(10 * 50);
+
+                size_t const seed(std::chrono::system_clock::now().time_since_epoch().count());
+                std::default_random_engine g(seed);
+
+                auto const sleep{
+                    [] (std::chrono::milliseconds const& ms) -> void
+                    {
+#if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
+                        std::this_thread::sleep_for(ms);
+#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
+                    }
+                };
+
+                Labyrinth3d::Solver::AStar ass;
+
+                std::thread thSolvePlayer1(&Labyrinth3d::Player::solve<std::default_random_engine,
+                                                                       Labyrinth3d::Solver::AStar>,
+                                           &this->labyrinth_.player(this->labyrinth_.playerIds().front()),
+                                           std::ref(g), std::ref(ass), sleep, 0, 0,
+                                           cycleOperationsSolving, cyclePauseSolving, nullptr);
+
+                thSolvePlayer1.detach();
+                break;
+            }
             default:
                 break;
         }

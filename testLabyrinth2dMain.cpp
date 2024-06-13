@@ -207,7 +207,7 @@ int main(int argc, char** argv)
 /*
     Algorithm::RecursiveDivision rda;
 
-    //l.generate(g, rda,sleep, cycleOperations, cyclePause);
+    //l.generate(g, rda, sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::RecursiveDivision>,
                            &l, std::ref(g), std::ref(rda), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
@@ -218,7 +218,7 @@ int main(int argc, char** argv)
 
     //l.generate(g, wsa, sleep, cycleOperations, cyclePause);
     std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::WaySearch>,
-        &l, std::ref(g), std::ref(wsa), sleep, cycleOperations, cyclePause, nullptr);
+                           &l, std::ref(g), std::ref(wsa), sleep, cycleOperations, cyclePause, nullptr);
     thGenerate.detach();
 *//*
     Algorithm::Fractal fa;
@@ -274,13 +274,13 @@ int main(int argc, char** argv)
     qpr.changeWaysSize(QSize(10, 10));
     qpr.changeWallsTexture(Renderer::QPainter::Texture(Qt::black, 50.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     //qpr.changeWaysTexture(Renderer::QPainter::Texture(Qt::blue, 50.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    //qpr.changeWaysTexture(Renderer::QPainter::Texture(QPixmap("ways.png"), Renderer::QPainter::Texture::Pattern, Qt::IgnoreAspectRatio));
-    //qpr.changeWallsTexture(Renderer::QPainter::Texture(QPixmap("walls.png"), Renderer::QPainter::Texture::Pattern, Qt::IgnoreAspectRatio));
-    //qpr.changeWaysTexture(Renderer::QPainter::Texture(QPixmap("background.png"), Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
-    //qpr.changeWallsTexture(Renderer::QPainter::Texture(QPixmap("background2.png"), Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
-    //qpr.changeWaysTexture(Renderer::QPainter::Texture(QPixmap("walls.png"), Renderer::QPainter::Texture::Mosaic));
-    //qpr.changeWallsTexture(Renderer::QPainter::Texture(QPixmap("walls.png"), Renderer::QPainter::Texture::Mosaic));
-    //qpr.changeBackgroundTexture(Renderer::QPainter::Texture(QPixmap("background.png"), Renderer::QPainter::Texture::Mosaic));
+    //qpr.changeWaysTexture(Renderer::QPainter::Texture(QPixmap(":/Images/resources/way_pattern.png"), Renderer::QPainter::Texture::Pattern, Qt::IgnoreAspectRatio));
+    //qpr.changeWallsTexture(Renderer::QPainter::Texture(QPixmap(":/Images/resources/wall_pattern.png"), Renderer::QPainter::Texture::Pattern, Qt::IgnoreAspectRatio));
+    //qpr.changeWaysTexture(Renderer::QPainter::Texture(QPixmap(":/Images/resources/way_image.png"), Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
+    qpr.changeWallsTexture(Renderer::QPainter::Texture(QPixmap(":/Images/resources/background_image.png"), Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
+    //qpr.changeWaysTexture(Renderer::QPainter::Texture(QPixmap(":/Images/resources/way_image.png"), Renderer::QPainter::Texture::Mosaic));
+    //qpr.changeWallsTexture(Renderer::QPainter::Texture(QPixmap(":/Images/resources/wall_image.png"), Renderer::QPainter::Texture::Mosaic));
+    //qpr.changeBackgroundTexture(Renderer::QPainter::Texture(QPixmap(":/Images/resources/background_image.png"), Renderer::QPainter::Texture::Mosaic));
     //qpr.changeBbackgroundTexture(Renderer::QPainter::Texture(Qt::green));
 
     std::string const path{"C:/Users/juju0/AppData/Roaming/FreeCAD/Macro"};

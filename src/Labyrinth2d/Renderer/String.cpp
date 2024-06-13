@@ -97,7 +97,7 @@ Labyrinth2d::Renderer::String::String(Labyrinth const& labyrinth_,
 {
 }
 
-std::string Labyrinth2d::Renderer::String::operator()()
+std::string Labyrinth2d::Renderer::String::operator()() const
 {
     auto const& grid(labyrinth.grid());
     size_t const height(grid.height());
@@ -122,7 +122,7 @@ std::string Labyrinth2d::Renderer::String::operator()()
 
                 for (auto id : labyrinth.playerIds())
                 {
-                    if (labyrinth.player(id).i() == i && labyrinth.player(id).j() == j && playerRenderers[id].displayPlayer)
+                    if (labyrinth.player(id).i() == i && labyrinth.player(id).j() == j && playerRenderers.at(id).displayPlayer)
                     {
                         playerId = id;
                         ok = true;
@@ -131,7 +131,7 @@ std::string Labyrinth2d::Renderer::String::operator()()
                 }
 
                 if (ok)
-                    c = playerRenderers[playerId].player;
+                    c = playerRenderers.at(playerId).player;
                 else
                 {
                     size_t traces(0);
@@ -145,7 +145,7 @@ std::string Labyrinth2d::Renderer::String::operator()()
                              && ((player.traceIntersections()[previousTraceIndex].second <= j && j < position.second)
                                  || (position.second < j && j <= player.traceIntersections()[previousTraceIndex].second)))
                          {
-                             if (playerRenderers[id].displayTrace)
+                            if (playerRenderers.at(id).displayTrace)
                              {
                                  if (j > position.second)
                                  {
@@ -188,7 +188,7 @@ std::string Labyrinth2d::Renderer::String::operator()()
                                   && ((player.traceIntersections()[previousTraceIndex].first <= i && i < position.first)
                                       || (position.first < i && i <= player.traceIntersections()[previousTraceIndex].first)))
                          {
-                             if (playerRenderers[id].displayTrace)
+                             if (playerRenderers.at(id).displayTrace)
                              {
                                  if (i > position.first)
                                  {
@@ -256,11 +256,11 @@ std::string Labyrinth2d::Renderer::String::operator()()
                     if (ok)
                     {
                         if (i % 2 && j % 2)
-                            c = directionCharacter_(traceDirections, traces, playerRenderers[playerId].tracesDirection);
+                            c = directionCharacter_(traceDirections, traces, playerRenderers.at(playerId).tracesDirection);
                         else if (!(i % 2) && j % 2)
-                            c = playerRenderers[playerId].tracesDirection.upDown;
+                            c = playerRenderers.at(playerId).tracesDirection.upDown;
                         else if (i % 2 && !(j % 2))
-                            c = playerRenderers[playerId].tracesDirection.rightLeft;
+                            c = playerRenderers.at(playerId).tracesDirection.rightLeft;
                         else
                             assert(0);
                     }

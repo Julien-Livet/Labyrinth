@@ -129,7 +129,7 @@ namespace Labyrinth2d
                 /*!
                  *  \brief Render the labyrinth in a string
                  */
-                std::string operator()();
+                std::string operator()() const;
 
                 /*!
                  *  \brief Swap walls and ways direction
