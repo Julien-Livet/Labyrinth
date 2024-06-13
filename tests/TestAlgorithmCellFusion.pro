@@ -28,6 +28,7 @@ HEADERS = ../include/Labyrinth2d/Algorithm/CellFusion.h \
           ../include/Labyrinth2d/Solver/AStar.h \
           ../include/Labyrinth2d/Solver/Blind.h \
           ../include/Labyrinth2d/Solver/FailureException.h \
+          ../include/Labyrinth2d/Solver/Solver.h \
           ../include/Labyrinth2d/Solver/TimeoutException.h \
           ../include/Labyrinth2d/Solver/WallHand.h \
           ../include/Labyrinth2d/Grid.h \
@@ -39,6 +40,7 @@ HEADERS = ../include/Labyrinth2d/Algorithm/CellFusion.h \
           ../include/Labyrinth3d/Solver/AStar.h \
           ../include/Labyrinth3d/Solver/Blind.h \
           ../include/Labyrinth3d/Solver/FailureException.h \
+          ../include/Labyrinth3d/Solver/Solver.h \
           ../include/Labyrinth3d/Solver/TimeoutException.h \
           ../include/Labyrinth3d/Grid.h \
           ../include/Labyrinth3d/Labyrinth.h \

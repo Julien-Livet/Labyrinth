@@ -22,6 +22,7 @@ HEADERS = ../include/Labyrinth2d/Algorithm/Kruskal.h \
           ../include/Labyrinth2d/Solver/AStar.h \
           ../include/Labyrinth2d/Solver/Blind.h \
           ../include/Labyrinth2d/Solver/FailureException.h \
+          ../include/Labyrinth2d/Solver/Solver.h \
           ../include/Labyrinth2d/Solver/TimeoutException.h \
           ../include/Labyrinth2d/Solver/WallHand.h \
           ../include/Labyrinth2d/Grid.h \
