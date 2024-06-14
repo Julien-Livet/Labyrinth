@@ -4,27 +4,27 @@ class TestAlgorithmCellFusion : public QObject
 {
     Q_OBJECT
 
-	private slots:
-        void generate1x1();
-        void generate2x1();
-        void generate1x2();
-        void generate2x2();
-        void solveAStar2x2();
-        void solveLeftWallHand2x2();
-        void solveRightWallHand2x2();
-        void solveBlind2x2();
-        void solve8x8();
-        void generate1x1x1();
-        void generate2x1x1();
-        void generate1x2x1();
-        void generate1x1x2();
-        void generate2x2x1();
-        void generate2x1x2();
-        void generate1x2x2();
-        void generate2x2x2();
-        void solveAStar2x2x2();
-        void solveBlind2x2x2();
-        void solve8x8x8();
+private slots:
+    void generate1x1();
+    void generate2x1();
+    void generate1x2();
+    void generate2x2();
+    void solveAStar2x2();
+    void solveLeftWallHand2x2();
+    void solveRightWallHand2x2();
+    void solveBlind2x2();
+    void solve8x8();
+    void generate1x1x1();
+    void generate2x1x1();
+    void generate1x2x1();
+    void generate1x1x2();
+    void generate2x2x1();
+    void generate2x1x2();
+    void generate1x2x2();
+    void generate2x2x2();
+    void solveAStar2x2x2();
+    void solveBlind2x2x2();
+    void solve8x8x8();
 };
 
 #include "Labyrinth2d/Labyrinth.h"
@@ -56,7 +56,7 @@ void TestAlgorithmCellFusion::generate2x1()
     Labyrinth2d::Labyrinth l{2, 1};
     std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
     Labyrinth2d::Algorithm::CellFusion cfa;
-	
+
     l.generate(g, cfa);
 
     Labyrinth2d::Renderer::String const sr{l, ' ', '#'};
@@ -74,7 +74,7 @@ void TestAlgorithmCellFusion::generate1x2()
     Labyrinth2d::Labyrinth l{1, 2};
     std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
     Labyrinth2d::Algorithm::CellFusion cfa;
-	
+
     l.generate(g, cfa);
 
     Labyrinth2d::Renderer::String const sr{l, ' ', '#'};

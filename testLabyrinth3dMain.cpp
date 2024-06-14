@@ -134,7 +134,7 @@ int main(int argc, char** argv)
 
     GLWidget glWidget(l, wallsSize, waysSize);
     glWidget.show();
-    glWidget.setFixedSize(800, 600);
+    glWidget.resize(800, 600);
     glWidget.move(QRect(QPoint(), QGuiApplication::screenAt(QPoint())->size()).center() - glWidget.rect().center());
     glWidget.setClearColor(Qt::white);
     glWidget.setPlayerDisplay(player1Id, GLWidget::PlayerDisplay{QColor{255, 0, 0, 255}, displayTrace, QColor{255, 0, 0, 127}});

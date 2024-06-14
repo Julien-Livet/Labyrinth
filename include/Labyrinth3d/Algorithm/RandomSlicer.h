@@ -19,9 +19,10 @@ namespace Labyrinth3d
     {
         template<class URNG, std::size_t I = 0, typename... Tp>
         inline typename std::enable_if<I == sizeof...(Tp), void>::type
-            applyAlgorithm(std::tuple<Tp...>& t, size_t n, Labyrinth2d::Labyrinth& l, URNG& g,
-                           std::function<void(std::chrono::milliseconds)> const& sleep,
-                           size_t cycleOperations, std::chrono::milliseconds const& cyclePause)
+            applyAlgorithm(std::tuple<Tp...>& /*t*/, size_t /*n*/, Labyrinth2d::Labyrinth& /*l*/, URNG& /*g*/,
+                           std::function<void(std::chrono::milliseconds)> const& /*sleep*/,
+                           size_t /*cycleOperations*/, std::chrono::milliseconds const& /*cyclePause*/,
+                           std::chrono::milliseconds const* /*timeout*/)
         {
         }
 
@@ -29,12 +30,13 @@ namespace Labyrinth3d
         inline typename std::enable_if<I < sizeof...(Tp), void>::type
             applyAlgorithm(std::tuple<Tp...>& t, size_t n, Labyrinth2d::Labyrinth& l, URNG& g,
                            std::function<void(std::chrono::milliseconds)> const& sleep,
-                           size_t cycleOperations, std::chrono::milliseconds const& cyclePause)
+                           size_t cycleOperations, std::chrono::milliseconds const& cyclePause,
+                           std::chrono::milliseconds const* timeout)
         {
             if (I == n)
-                l.generate(g, std::get<I>(t), sleep, cycleOperations, cyclePause);
+                l.generate(g, std::get<I>(t), sleep, cycleOperations, cyclePause, timeout);
             else
-                applyAlgorithm<URNG, I + 1, Tp...>(t, n, l, g, sleep, cycleOperations, cyclePause);
+                applyAlgorithm<URNG, I + 1, Tp...>(t, n, l, g, sleep, cycleOperations, cyclePause, timeout);
         }
 
         /*!
@@ -103,7 +105,7 @@ namespace Labyrinth3d
 
                 for (size_t k{0}; k < floors; ++k)
                 {
-                    applyAlgorithm(algorithms, g() % sizeof...(Algorithms), l, g, sleep, cycleOperations, cyclePause);
+                    applyAlgorithm(algorithms, g() % sizeof...(Algorithms), l, g, sleep, cycleOperations, cyclePause, timeout);
 
                     for (size_t i{1}; i < height - 1; ++i)
                     {
@@ -115,7 +117,7 @@ namespace Labyrinth3d
                     }
 
                     if (k != floors - 1)
-                        subGrid.reset((g() % (rows - 1)) * 2 + 1, (g() % (columns - 1)) * 2 + 1, 2 * (k + 1));
+                        subGrid.reset((g() % rows) * 2 + 1, (g() % columns) * 2 + 1, 2 * (k + 1));
                 }
             }
         };

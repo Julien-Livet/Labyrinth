@@ -20,10 +20,10 @@ namespace Labyrinth3d
     {
         template<class URNG, std::size_t I = 0, typename... Tp>
         inline typename std::enable_if<I == sizeof...(Tp), void>::type
-            applyAlgorithm(std::tuple<Tp...>& t, size_t n, URNG& g,
-                           std::function<void(std::chrono::milliseconds)> const& sleep,
-                           size_t cycleOperations, std::chrono::milliseconds const& cyclePause,
-                           std::chrono::milliseconds const* timeout)
+            applyAlgorithm(std::tuple<Tp...>& /*t*/, size_t /*n*/, URNG& /*g*/,
+                           std::function<void(std::chrono::milliseconds)> const& /*sleep*/,
+                           size_t /*cycleOperations*/, std::chrono::milliseconds const& /*cyclePause*/,
+                           std::chrono::milliseconds const* /*timeout*/)
         {
         }
 
