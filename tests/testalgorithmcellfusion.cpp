@@ -175,6 +175,35 @@ void TestAlgorithmCellFusion::generate1x1x1()
     Labyrinth3d::Algorithm::CellFusion cfa;
 
     l.generate(g, cfa);
+
+    for (size_t i{0}; i < l.grid().height(); ++i)
+    {
+        for (size_t j{0}; j < l.grid().width(); ++j)
+        {
+            QCOMPARE(l.grid()(i, j, 0), true);
+            QCOMPARE(l.grid()(i, j, l.grid().depth() - 1), true);
+        }
+    }
+
+    for (size_t i{0}; i < l.grid().height(); ++i)
+    {
+        for (size_t k{0}; k < l.grid().depth(); ++k)
+        {
+            QCOMPARE(l.grid()(i, 0, k), true);
+            QCOMPARE(l.grid()(i, l.grid().width() - 1, k), true);
+        }
+    }
+
+    for (size_t k{0}; k < l.grid().depth(); ++k)
+    {
+        for (size_t j{0}; j < l.grid().width(); ++j)
+        {
+            QCOMPARE(l.grid()(0, j, k), true);
+            QCOMPARE(l.grid()(l.grid().height() - 1, j, k), true);
+        }
+    }
+
+    QCOMPARE(l.grid()(1, 1, 1), false);
 }
 
 void TestAlgorithmCellFusion::generate2x1x1()
@@ -184,6 +213,37 @@ void TestAlgorithmCellFusion::generate2x1x1()
     Labyrinth3d::Algorithm::CellFusion cfa;
 
     l.generate(g, cfa);
+
+    for (size_t i{0}; i < l.grid().height(); ++i)
+    {
+        for (size_t j{0}; j < l.grid().width(); ++j)
+        {
+            QCOMPARE(l.grid()(i, j, 0), true);
+            QCOMPARE(l.grid()(i, j, l.grid().depth() - 1), true);
+        }
+    }
+
+    for (size_t i{0}; i < l.grid().height(); ++i)
+    {
+        for (size_t k{0}; k < l.grid().depth(); ++k)
+        {
+            QCOMPARE(l.grid()(i, 0, k), true);
+            QCOMPARE(l.grid()(i, l.grid().width() - 1, k), true);
+        }
+    }
+
+    for (size_t k{0}; k < l.grid().depth(); ++k)
+    {
+        for (size_t j{0}; j < l.grid().width(); ++j)
+        {
+            QCOMPARE(l.grid()(0, j, k), true);
+            QCOMPARE(l.grid()(l.grid().height() - 1, j, k), true);
+        }
+    }
+
+    QCOMPARE(l.grid()(1, 1, 1), false);
+    QCOMPARE(l.grid()(2, 1, 1), false);
+    QCOMPARE(l.grid()(3, 1, 1), false);
 }
 
 void TestAlgorithmCellFusion::generate1x2x1()
@@ -193,6 +253,37 @@ void TestAlgorithmCellFusion::generate1x2x1()
     Labyrinth3d::Algorithm::CellFusion cfa;
 
     l.generate(g, cfa);
+
+    for (size_t i{0}; i < l.grid().height(); ++i)
+    {
+        for (size_t j{0}; j < l.grid().width(); ++j)
+        {
+            QCOMPARE(l.grid()(i, j, 0), true);
+            QCOMPARE(l.grid()(i, j, l.grid().depth() - 1), true);
+        }
+    }
+
+    for (size_t i{0}; i < l.grid().height(); ++i)
+    {
+        for (size_t k{0}; k < l.grid().depth(); ++k)
+        {
+            QCOMPARE(l.grid()(i, 0, k), true);
+            QCOMPARE(l.grid()(i, l.grid().width() - 1, k), true);
+        }
+    }
+
+    for (size_t k{0}; k < l.grid().depth(); ++k)
+    {
+        for (size_t j{0}; j < l.grid().width(); ++j)
+        {
+            QCOMPARE(l.grid()(0, j, k), true);
+            QCOMPARE(l.grid()(l.grid().height() - 1, j, k), true);
+        }
+    }
+
+    QCOMPARE(l.grid()(1, 1, 1), false);
+    QCOMPARE(l.grid()(1, 2, 1), false);
+    QCOMPARE(l.grid()(1, 3, 1), false);
 }
 
 void TestAlgorithmCellFusion::generate1x1x2()
@@ -202,6 +293,37 @@ void TestAlgorithmCellFusion::generate1x1x2()
     Labyrinth3d::Algorithm::CellFusion cfa;
 
     l.generate(g, cfa);
+
+    for (size_t i{0}; i < l.grid().height(); ++i)
+    {
+        for (size_t j{0}; j < l.grid().width(); ++j)
+        {
+            QCOMPARE(l.grid()(i, j, 0), true);
+            QCOMPARE(l.grid()(i, j, l.grid().depth() - 1), true);
+        }
+    }
+
+    for (size_t i{0}; i < l.grid().height(); ++i)
+    {
+        for (size_t k{0}; k < l.grid().depth(); ++k)
+        {
+            QCOMPARE(l.grid()(i, 0, k), true);
+            QCOMPARE(l.grid()(i, l.grid().width() - 1, k), true);
+        }
+    }
+
+    for (size_t k{0}; k < l.grid().depth(); ++k)
+    {
+        for (size_t j{0}; j < l.grid().width(); ++j)
+        {
+            QCOMPARE(l.grid()(0, j, k), true);
+            QCOMPARE(l.grid()(l.grid().height() - 1, j, k), true);
+        }
+    }
+
+    QCOMPARE(l.grid()(1, 1, 1), false);
+    QCOMPARE(l.grid()(1, 1, 2), false);
+    QCOMPARE(l.grid()(1, 1, 3), false);
 }
 
 void TestAlgorithmCellFusion::generate2x2x1()
