@@ -105,8 +105,6 @@ void TestRendererQPainter::renderSameImageBackground()
             targetPainter.drawPixmap(x, y, pixmap);
     }
 
-    image.save("image.png");
-    targetImage.save("targetImage.png");
     QCOMPARE(image, targetImage);
 }
 
