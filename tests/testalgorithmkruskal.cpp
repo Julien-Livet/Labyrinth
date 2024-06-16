@@ -31,7 +31,6 @@ class TestAlgorithmKruskal : public QObject
 #include "Labyrinth2d/Solver/Solver.h"
 
 #include <random>
-#include <thread>
 
 void TestAlgorithmKruskal::generateRecursive1x1()
 {

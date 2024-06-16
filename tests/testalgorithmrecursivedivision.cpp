@@ -22,7 +22,6 @@ class TestAlgorithmRecursiveDivision : public QObject
 #include "Labyrinth2d/Solver/Solver.h"
 
 #include <random>
-#include <thread>
 
 void TestAlgorithmRecursiveDivision::generate1x1()
 {

@@ -22,7 +22,6 @@ class TestAlgorithmFractal : public QObject
 #include "Labyrinth2d/Solver/Solver.h"
 
 #include <random>
-#include <thread>
 
 void TestAlgorithmFractal::generate1x1()
 {

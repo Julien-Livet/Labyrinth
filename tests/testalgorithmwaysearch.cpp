@@ -40,7 +40,6 @@ class TestAlgorithmWaySearch : public QObject
 #include "Labyrinth2d/Solver/Solver.h"
 
 #include <random>
-#include <thread>
 
 void TestAlgorithmWaySearch::generateDepthFirstSearch1x1()
 {

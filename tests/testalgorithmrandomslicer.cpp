@@ -24,7 +24,6 @@ class TestAlgorithmRandomSlicer : public QObject
 #include "Labyrinth3d/Solver/Solver.h"
 
 #include <random>
-#include <thread>
 
 void TestAlgorithmRandomSlicer::generate1x1x1()
 {
