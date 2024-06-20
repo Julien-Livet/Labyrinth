@@ -722,53 +722,20 @@ void Labyrinth2d::Renderer::QPainter::renderPlayers(::QPainter* painter,  QPoint
 {
     renderPlayers(painter, QRegion(rect()), targetOffset);
 }
-#include <QDebug>
-void Labyrinth2d::Renderer::QPainter::render(::QPainter* painter,  QRegion const& region, QPoint const& targetOffset)
-{/*
-    // Too slow...
 
-    renderBackground(painter, region, targetOffset);
-    renderWalls(painter, region, targetOffset);
-    renderWays(painter, region, targetOffset);
-*/
+void Labyrinth2d::Renderer::QPainter::render(::QPainter* painter,  QRegion const& region, QPoint const& targetOffset)
+{
     QRegion const adjustedRegion(region.intersected(rect()));
 
-    bool updateRegion(false);
-/*
-    for (auto const& r : adjustedRegion.rects())
-    {
-        if (!_region.contains(r))
-        {
-            updateRegion = true;
-
-            break;
-        }
-    }
-*/
-    updateRegion = (region_ != adjustedRegion);
+    bool const updateRegion{region_ != adjustedRegion};
 
     if (gridModificationCounter_ != labyrinth.grid().modificationCounter()
         || updateRegion)
     {
         paintingUpdateTypes_ |= UpdateWalls | UpdateWays | UpdateBackground;
-/*
-qDebug() << "--------------------------------";
-qDebug() << _region;
-qDebug() << adjustedRegion;
-*/
+
         if (updateRegion)
-        {/*
-           // Needs some adjustements...
-
-            _region = QRegion();
-
-            for (auto const& r : adjustedRegion.rects())
-                _region += r.marginsAdded(QMargins(_margins.left() * r.width(),
-                                                   _margins.top() * r.height(),
-                                                   _margins.right() * r.width(),
-                                                   _margins.bottom() * r.height()));
-
-            _region = _region.intersected(rect());*/
+        {
             region_ = adjustedRegion;
             corner_ = adjustedRegion.boundingRect().topLeft();
         }
@@ -873,40 +840,6 @@ qDebug() << adjustedRegion;
     // TODO: Improve players rendering like background, walls and ways...
 
     renderPlayers(painter, adjustedRegion, targetOffset);
-/*
-    // Display grid for tests
-
-    Grid const& grid(labyrinth.grid());
-    size_t const height(grid.height());
-    size_t const width(grid.width());
-
-    int const evenColumnWidth(_wallsSize.width());
-    int const oddColumnWidth(_waysSize.width());
-    int const evenRowHeight(_wallsSize.height());
-    int const oddRowHeight(_waysSize.height());
-
-    painter->setPen(QPen(Qt::black));
-
-    std::vector<QLineF> lines;
-
-    for (size_t i(1); i < height; ++i)
-    {
-        qreal const y(static_cast<qreal>((i + 1) / 2 * evenRowHeight + i / 2 * oddRowHeight));
-
-        lines.push_back(QLineF(0.0, y, size().width(), y));
-    }
-
-    for (size_t j(1); j < width; ++j)
-    {
-        qreal const x(static_cast<qreal>((j + 1) / 2 * evenColumnWidth + j / 2 * oddColumnWidth));
-
-        lines.push_back(QLineF(x, 0.0, x, size().height()));
-    }
-
-    painter->drawLines(lines.data(), lines.size());
-    painter->drawRect(rect());
-
-    painter->restore();*/
 }
 
 void Labyrinth2d::Renderer::QPainter::render(::QPainter* painter,  QPoint const& targetOffset)
@@ -1116,74 +1049,7 @@ void Labyrinth2d::Renderer::QPainter::displayCells(::QPainter* painter, Texture 
             }
         }
         else if (texture.imageArrangement() == Texture::Mosaic)
-        {/*
-            std::vector<::QPainter::PixmapFragment> pixmapFragments;
-
-            auto const pixmapSize(texture.pixmap().size());
-
-            for (auto const& p : cells)
-            {
-                int const i(static_cast<int>(p.first));
-                int const j(static_cast<int>(p.second));
-
-                QSize size;
-
-                if (i % 2)
-                    size.rheight() = oddRowHeight;
-                else
-                    size.rheight() = evenRowHeight;
-
-                if (j % 2)
-                    size.rwidth() = oddColumnWidth;
-                else
-                    size.rwidth() = evenColumnWidth;
-
-                QSize const minimumSize(std::min(pixmapSize.width(), size.width()),
-                                        std::min(pixmapSize.height(), size.height()));
-                QPoint const pos((j + 1) / 2 * evenColumnWidth + j / 2 * oddColumnWidth,
-                                 (i + 1) / 2 * evenRowHeight + i / 2 * oddRowHeight);
-
-                int x(pos.x() % pixmapSize.width());
-                int w(0);
-
-                while (w < size.width())
-                {
-                    int y(pos.y() % pixmapSize.height());
-                    int h(0);
-
-                    while (h < size.height())
-                    {
-                        for (size_t k(0); k < 2; ++k)
-                        {
-                            for (size_t l(0); l < 2; ++l)
-                            {
-                                QSizeF const s(static_cast<qreal>(std::min(size.width(), size.width() - w)),
-                                               static_cast<qreal>(std::min(size.height(), size.height() - h)));
-                                QPointF const p(s.width() / 2.0,
-                                                s.height() / 2.0);
-                                QRectF const rect(QPointF(x - static_cast<qreal>(k % 2 ? pixmapSize.width() : 0.0),
-                                                          y - static_cast<qreal>(l % 2 ? pixmapSize.height() : 0.0)),
-                                                  s);
-                                QRectF const r(rect.intersected(QRectF(QPointF(), pixmapSize)));
-
-                                pixmapFragments.push_back(::QPainter::PixmapFragment::create(pos + p + r.center() - rect.center(), r));
-                            }
-                        }
-
-                        y += minimumSize.height();
-                        h += minimumSize.height();
-                    }
-
-                    x += minimumSize.width();
-                    w += minimumSize.width();
-                }
-            }
-
-            painter->drawPixmapFragments(pixmapFragments.data(),
-                                         pixmapFragments.size(),
-                                         texture.pixmap(),
-                                         texture.pixmap().hasAlpha() ? QPainter::OpaqueHint : 0);
-*/
+        {
             QRegion region;
 
             for (auto const& c : cells)
@@ -1250,7 +1116,6 @@ void Labyrinth2d::Renderer::QPainter::displayCells(::QPainter* painter, Texture 
                                          pixmapFragments.size(),
                                          pixmap,
                                          QFlags<::QPainter::PixmapFragmentHint>(pixmap.hasAlpha() ? ::QPainter::OpaqueHint : 0));
-            //painter->drawPixmap(0, 0, pixmap);
         }
         else
             assert(0);

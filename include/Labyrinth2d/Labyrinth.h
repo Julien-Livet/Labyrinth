@@ -11,8 +11,10 @@
 
 #include <chrono>
 #include <functional>
+#include <istream>
 #include <map>
 #include <memory>
+#include <ostream>
 
 #include "Grid.h"
 #include "utility.h"
@@ -163,6 +165,16 @@ namespace Labyrinth2d
              *  \brief Stop solving players
              */
             void stopPlayerSolving();
+
+            /*!
+             *  \brief Read from binary stream as raw data
+             */
+            std::queue<char>& read(std::queue<char>& data);
+
+            /*!
+             *  \brief Write into binary stream as raw data
+             */
+            std::queue<char>& write(std::queue<char>& data) const;
 
         private:
             Grid grid_;

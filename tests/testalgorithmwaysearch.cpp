@@ -44,7 +44,7 @@ class TestAlgorithmWaySearch : public QObject
 void TestAlgorithmWaySearch::generateDepthFirstSearch1x1()
 {
     Labyrinth2d::Labyrinth l{1, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::DepthFirstSearch};
 
     l.generate(g, wsa);
@@ -60,7 +60,7 @@ void TestAlgorithmWaySearch::generateDepthFirstSearch1x1()
 void TestAlgorithmWaySearch::generateDepthFirstSearch2x1()
 {
     Labyrinth2d::Labyrinth l{2, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::DepthFirstSearch};
 
     l.generate(g, wsa);
@@ -78,7 +78,7 @@ void TestAlgorithmWaySearch::generateDepthFirstSearch2x1()
 void TestAlgorithmWaySearch::generateDepthFirstSearch1x2()
 {
     Labyrinth2d::Labyrinth l{1, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::DepthFirstSearch};
 	
     l.generate(g, wsa);
@@ -94,7 +94,7 @@ void TestAlgorithmWaySearch::generateDepthFirstSearch1x2()
 void TestAlgorithmWaySearch::generateDepthFirstSearch2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::DepthFirstSearch};
 
     l.generate(g, wsa);
@@ -103,7 +103,7 @@ void TestAlgorithmWaySearch::generateDepthFirstSearch2x2()
 void TestAlgorithmWaySearch::generatePrim1x1()
 {
     Labyrinth2d::Labyrinth l{1, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
 
     l.generate(g, wsa);
@@ -119,7 +119,7 @@ void TestAlgorithmWaySearch::generatePrim1x1()
 void TestAlgorithmWaySearch::generatePrim2x1()
 {
     Labyrinth2d::Labyrinth l{2, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
 
     l.generate(g, wsa);
@@ -137,7 +137,7 @@ void TestAlgorithmWaySearch::generatePrim2x1()
 void TestAlgorithmWaySearch::generatePrim1x2()
 {
     Labyrinth2d::Labyrinth l{1, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
 
     l.generate(g, wsa);
@@ -153,7 +153,7 @@ void TestAlgorithmWaySearch::generatePrim1x2()
 void TestAlgorithmWaySearch::generatePrim2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
 
     l.generate(g, wsa);
@@ -162,7 +162,7 @@ void TestAlgorithmWaySearch::generatePrim2x2()
 void TestAlgorithmWaySearch::generateHuntAndKill1x1()
 {
     Labyrinth2d::Labyrinth l{1, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::HuntAndKill};
 
     l.generate(g, wsa);
@@ -178,7 +178,7 @@ void TestAlgorithmWaySearch::generateHuntAndKill1x1()
 void TestAlgorithmWaySearch::generateHuntAndKill2x1()
 {
     Labyrinth2d::Labyrinth l{2, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::HuntAndKill};
 
     l.generate(g, wsa);
@@ -196,7 +196,7 @@ void TestAlgorithmWaySearch::generateHuntAndKill2x1()
 void TestAlgorithmWaySearch::generateHuntAndKill1x2()
 {
     Labyrinth2d::Labyrinth l{1, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::HuntAndKill};
 
     l.generate(g, wsa);
@@ -212,7 +212,7 @@ void TestAlgorithmWaySearch::generateHuntAndKill1x2()
 void TestAlgorithmWaySearch::generateHuntAndKill2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::HuntAndKill};
 
     l.generate(g, wsa);
@@ -221,7 +221,7 @@ void TestAlgorithmWaySearch::generateHuntAndKill2x2()
 void TestAlgorithmWaySearch::solveDepthFirstSearchAStar2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::DepthFirstSearch};
 
     l.generate(g, wsa);
@@ -235,7 +235,7 @@ void TestAlgorithmWaySearch::solveDepthFirstSearchAStar2x2()
 void TestAlgorithmWaySearch::solveDepthFirstSearchLeftWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::DepthFirstSearch};
 
     l.generate(g, wsa);
@@ -249,7 +249,7 @@ void TestAlgorithmWaySearch::solveDepthFirstSearchLeftWallHand2x2()
 void TestAlgorithmWaySearch::solveDepthFirstSearchRightWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::DepthFirstSearch};
 
     l.generate(g, wsa);
@@ -263,7 +263,7 @@ void TestAlgorithmWaySearch::solveDepthFirstSearchRightWallHand2x2()
 void TestAlgorithmWaySearch::solveDepthFirstSearchBlind2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::DepthFirstSearch};
 
     l.generate(g, wsa);
@@ -277,7 +277,7 @@ void TestAlgorithmWaySearch::solveDepthFirstSearchBlind2x2()
 void TestAlgorithmWaySearch::solvePrimAStar2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
 
     l.generate(g, wsa);
@@ -291,7 +291,7 @@ void TestAlgorithmWaySearch::solvePrimAStar2x2()
 void TestAlgorithmWaySearch::solvePrimLeftWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
 
     l.generate(g, wsa);
@@ -305,7 +305,7 @@ void TestAlgorithmWaySearch::solvePrimLeftWallHand2x2()
 void TestAlgorithmWaySearch::solvePrimRightWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
 
     l.generate(g, wsa);
@@ -319,7 +319,7 @@ void TestAlgorithmWaySearch::solvePrimRightWallHand2x2()
 void TestAlgorithmWaySearch::solvePrimBlind2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
 
     l.generate(g, wsa);
@@ -333,7 +333,7 @@ void TestAlgorithmWaySearch::solvePrimBlind2x2()
 void TestAlgorithmWaySearch::solveHuntAndKillAStar2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::HuntAndKill};
 
     l.generate(g, wsa);
@@ -347,7 +347,7 @@ void TestAlgorithmWaySearch::solveHuntAndKillAStar2x2()
 void TestAlgorithmWaySearch::solveHuntAndKillLeftWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::HuntAndKill};
 
     l.generate(g, wsa);
@@ -361,7 +361,7 @@ void TestAlgorithmWaySearch::solveHuntAndKillLeftWallHand2x2()
 void TestAlgorithmWaySearch::solveHuntAndKillRightWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::HuntAndKill};
 
     l.generate(g, wsa);
@@ -375,7 +375,7 @@ void TestAlgorithmWaySearch::solveHuntAndKillRightWallHand2x2()
 void TestAlgorithmWaySearch::solveHuntAndKillBlind2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::HuntAndKill};
 
     l.generate(g, wsa);
@@ -389,7 +389,7 @@ void TestAlgorithmWaySearch::solveHuntAndKillBlind2x2()
 void TestAlgorithmWaySearch::solveDepthFirstSearch8x8()
 {
     Labyrinth2d::Labyrinth l{8, 8};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::DepthFirstSearch};
 
     l.generate(g, wsa);
@@ -403,7 +403,7 @@ void TestAlgorithmWaySearch::solveDepthFirstSearch8x8()
 void TestAlgorithmWaySearch::solvePrim8x8()
 {
     Labyrinth2d::Labyrinth l{8, 8};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
 
     l.generate(g, wsa);
@@ -417,7 +417,7 @@ void TestAlgorithmWaySearch::solvePrim8x8()
 void TestAlgorithmWaySearch::solveHuntAndKill8x8()
 {
     Labyrinth2d::Labyrinth l{8, 8};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::HuntAndKill};
 
     l.generate(g, wsa);

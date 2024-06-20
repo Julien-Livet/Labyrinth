@@ -104,7 +104,6 @@ QLabyrinth::QLabyrinth(QScrollArea *parent, Niveau n, int longueurLabyrinthe, in
     modeLabyrinthe.cisaillementSynchronise = CISAILLEMENTSYNCHRONISE;
     modeLabyrinthe.cisaillementSynchroniseAuHasard = CISAILLEMENTSYNCHRONISEAUHASARD;
     numeroQuart = 1;
-    nombreDeplacement = 0;
     indexTimerRotation = 0;
     sensRotation = SENSROTATION;
     tempsRestantRotation = 0;
@@ -2041,7 +2040,7 @@ void QLabyrinth::keyPressEvent(QKeyEvent *event)
     routineDeplacement1();
     qKeyPress->filter(&modifiedEvent);
 	emit deplacementChange();
-	routineDeplacement2();
+    routineDeplacement2();
 }
 
 void QLabyrinth::mousePressEvent(QMouseEvent *event)
@@ -2224,7 +2223,6 @@ void QLabyrinth::nouveau(Niveau n, int longueurLabyrinthe, int largeurLabyrinthe
     algorithme = a;
     angle = 0;
     numeroQuart = 1;
-    nombreDeplacement = 0;
     typeLabyrinthe = type;
     formeLabyrinthe = forme;
     unsigned int ancienMode = modeLabyrinthe.mode;
@@ -2430,7 +2428,7 @@ void QLabyrinth::nouveau(Niveau n, int longueurLabyrinthe, int largeurLabyrinthe
 
     enConstruction = false;
 /**
-    qDebug() << QTime().addMSecs(time.elapsed()).toString(tr("hh:mm:ss"));
+    qDebug() << QTime(0, 0).addMSecs(time.elapsed()).toString(tr("hh:mm:ss"));
 **/
     if (typeLabyrinthe == Labyrinthe2Den3D)
     {
@@ -2666,7 +2664,6 @@ void QLabyrinth::recommencer()
     enResolution = false;
     partieEnCours = false;
     partieEnPause = false;
-    nombreDeplacement = 0;
 
     //labyrinthe[emplacementYJoueur][emplacementXJoueur] = 2;
 
@@ -2684,6 +2681,8 @@ void QLabyrinth::recommencer()
                                          waysSize_.width() + (waysSize_.width() + wallsSize_.width()) * 2,
                                          waysSize_.height() + (waysSize_.height() + wallsSize_.height()) * 2));
     scrollArea->ensureVisible(rect.x(), rect.y(), rect.width(), rect.height());
+
+    labyrinth->player(labyrinth->playerIds().front()).restart();
 }
 
 bool QLabyrinth::getPartieTerminee() const
@@ -3081,8 +3080,20 @@ bool QLabyrinth::getEnregistre() const
 void QLabyrinth::enregistrer(QDataStream &data, bool chrono, int ms, bool pauseImposee, const QString &musique, bool muet, bool labySeulement, bool adaptationTailleEcran, bool adaptationTaillePapier, bool enregistrerLabyrinthe)
 {
     data << enregistrerLabyrinthe;
+
     if (enregistrerLabyrinthe)
-        data << labyrinthe;
+    {
+        std::queue<char> queue;
+        labyrinth->write(queue);
+
+        data << queue.size();
+        while (!queue.empty())
+        {
+            data << queue.front();
+            queue.pop();
+        }
+    }
+
     data << getXEntree();
     data << getYEntree();
     data << getXSortie();
@@ -3110,7 +3121,6 @@ void QLabyrinth::enregistrer(QDataStream &data, bool chrono, int ms, bool pauseI
     else
         data << false;
     data << enConstruction;
-    //data << tailleCase;
     data << waysSize_;
     data << wallsSize_;
     data << chrono;
@@ -3126,9 +3136,8 @@ void QLabyrinth::enregistrer(QDataStream &data, bool chrono, int ms, bool pauseI
     data << scrollArea->verticalScrollBar()->value();
     data << adaptationTailleEcran;
     data << adaptationTaillePapier;
-    data << algorithme;
+    data << int(algorithme);
     data << angle;
-    data << nombreDeplacement;
     data << modeLabyrinthe.mode;
     data << modeLabyrinthe.angleRotation;
     data << modeLabyrinthe.angleRotationAuHasard;
@@ -3179,8 +3188,23 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
     unsigned int ancienMode = modeLabyrinthe.mode;
 
     data >> b;
+
     if (b)
-        data >> labyrinthe;
+    {
+        std::queue<char> queue;
+        size_t size{0};
+        data >> size;
+
+        for (size_t i{0}; i < size; ++i)
+        {
+            char c;
+            data >> c;
+            queue.emplace(c);
+        }
+
+        labyrinth->read(queue);
+    }
+
     data >> xEntree;
     data >> yEntree;
     data >> xSortie;
@@ -3230,7 +3254,6 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
     data >> enConstruction;
     QSize s;
     data >> s;
-    //setTailleCase(s);
     setWaysSize(s);
     data >> s;
     setWallsSize(s);
@@ -3250,7 +3273,6 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
     data >> entier;
     algorithme = Algorithme(entier);
     data >> angle;
-    data >> nombreDeplacement;
     data >> modeLabyrinthe.mode;
     data >> modeLabyrinthe.angleRotation;
     data >> modeLabyrinthe.angleRotationAuHasard;
@@ -3640,7 +3662,7 @@ void QLabyrinth::timerEvent(QTimerEvent *event)
 
 size_t QLabyrinth::getNombreDeplacement() const
 {
-    return nombreDeplacement;
+    return labyrinth->player(labyrinth->playerIds().front()).movements();
 }
 
 void QLabyrinth::calculerTransformation()
@@ -3962,11 +3984,7 @@ void QLabyrinth::joueurDeplace(int dx, int dy)
         return;
     if (!enResolution && getEffacerChemin() && labyrinth->grid().at(getEmplacementYJoueur() + dy,
                                                                     getEmplacementXJoueur() + dx))
-        labyrinth->grid().reset(getEmplacementYJoueur(), getEmplacementXJoueur());/*
-    emplacementXJoueur += dx;
-    emplacementYJoueur += dy;
-    labyrinthe[emplacementYJoueur][emplacementXJoueur] = 2;*/
-    nombreDeplacement++;
+        labyrinth->grid().reset(getEmplacementYJoueur(), getEmplacementXJoueur());
     emit deplacementChange();
     if (!enResolution && getEmplacementXJoueur() == getXSortie() && getEmplacementYJoueur() == getYSortie())
     {

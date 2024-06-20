@@ -26,7 +26,7 @@ class TestAlgorithmFractal : public QObject
 void TestAlgorithmFractal::generate1x1()
 {
     Labyrinth2d::Labyrinth l{1, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Fractal fa;
 
     l.generate(g, fa);
@@ -42,7 +42,7 @@ void TestAlgorithmFractal::generate1x1()
 void TestAlgorithmFractal::generate2x1()
 {
     Labyrinth2d::Labyrinth l{2, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Fractal fa;
 
     l.generate(g, fa);
@@ -60,7 +60,7 @@ void TestAlgorithmFractal::generate2x1()
 void TestAlgorithmFractal::generate1x2()
 {
     Labyrinth2d::Labyrinth l{1, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Fractal fa;
 	
     l.generate(g, fa);
@@ -76,7 +76,7 @@ void TestAlgorithmFractal::generate1x2()
 void TestAlgorithmFractal::generate2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Fractal fa;
 
     l.generate(g, fa);
@@ -85,7 +85,7 @@ void TestAlgorithmFractal::generate2x2()
 void TestAlgorithmFractal::solveAStar2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Fractal fa;
 
     l.generate(g, fa);
@@ -99,7 +99,7 @@ void TestAlgorithmFractal::solveAStar2x2()
 void TestAlgorithmFractal::solveLeftWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Fractal fa;
 
     l.generate(g, fa);
@@ -113,7 +113,7 @@ void TestAlgorithmFractal::solveLeftWallHand2x2()
 void TestAlgorithmFractal::solveRightWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Fractal fa;
 
     l.generate(g, fa);
@@ -127,7 +127,7 @@ void TestAlgorithmFractal::solveRightWallHand2x2()
 void TestAlgorithmFractal::solveBlind2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Fractal fa;
 
     l.generate(g, fa);
@@ -141,7 +141,7 @@ void TestAlgorithmFractal::solveBlind2x2()
 void TestAlgorithmFractal::solve8x8()
 {
     Labyrinth2d::Labyrinth l{8, 8};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Fractal fa;
 
     l.generate(g, fa);

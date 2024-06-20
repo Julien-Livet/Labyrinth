@@ -15,9 +15,15 @@
     <file>./resources/Animation.mp3</file>
   </qresource>
   <qresource prefix="Traductions" >
+    <file>./qtbase_de.qm</file>
+    <file>./qtbase_en.qm</file>
+    <file>./qtbase_es.qm</file>
+    <file>./qtbase_fr.qm</file>
+    <file>./qtbase_it.qm</file>
     <file>./qt_de.qm</file>
-    <file>./qt_fr.qm</file>
+    <file>./qt_en.qm</file>
     <file>./qt_es.qm</file>
+    <file>./qt_fr.qm</file>
     <file>./qt_it.qm</file>
     <file>./Labyrinth_de.qm</file>
     <file>./Labyrinth_it.qm</file>

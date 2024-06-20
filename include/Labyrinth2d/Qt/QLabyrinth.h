@@ -206,7 +206,6 @@ class QLabyrinth : public QWidget
         QSize s;
         QByteArray state;
         ModeLabyrinthe modeLabyrinthe;
-        size_t nombreDeplacement;
         Algorithme algorithme;
         qreal angle;
         int intervalleRotation;

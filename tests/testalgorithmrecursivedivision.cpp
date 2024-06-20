@@ -26,7 +26,7 @@ class TestAlgorithmRecursiveDivision : public QObject
 void TestAlgorithmRecursiveDivision::generate1x1()
 {
     Labyrinth2d::Labyrinth l{1, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::RecursiveDivision rda;
 
     l.generate(g, rda);
@@ -42,7 +42,7 @@ void TestAlgorithmRecursiveDivision::generate1x1()
 void TestAlgorithmRecursiveDivision::generate2x1()
 {
     Labyrinth2d::Labyrinth l{2, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::RecursiveDivision rda;
 
     l.generate(g, rda);
@@ -60,7 +60,7 @@ void TestAlgorithmRecursiveDivision::generate2x1()
 void TestAlgorithmRecursiveDivision::generate1x2()
 {
     Labyrinth2d::Labyrinth l{1, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::RecursiveDivision rda;
 	
     l.generate(g, rda);
@@ -76,7 +76,7 @@ void TestAlgorithmRecursiveDivision::generate1x2()
 void TestAlgorithmRecursiveDivision::generate2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::RecursiveDivision rda;
 
     l.generate(g, rda);
@@ -85,7 +85,7 @@ void TestAlgorithmRecursiveDivision::generate2x2()
 void TestAlgorithmRecursiveDivision::solveAStar2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::RecursiveDivision rda;
 
     l.generate(g, rda);
@@ -99,7 +99,7 @@ void TestAlgorithmRecursiveDivision::solveAStar2x2()
 void TestAlgorithmRecursiveDivision::solveLeftWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::RecursiveDivision rda;
 
     l.generate(g, rda);
@@ -113,7 +113,7 @@ void TestAlgorithmRecursiveDivision::solveLeftWallHand2x2()
 void TestAlgorithmRecursiveDivision::solveRightWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::RecursiveDivision rda;
 
     l.generate(g, rda);
@@ -127,7 +127,7 @@ void TestAlgorithmRecursiveDivision::solveRightWallHand2x2()
 void TestAlgorithmRecursiveDivision::solveBlind2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::RecursiveDivision rda;
 
     l.generate(g, rda);
@@ -141,7 +141,7 @@ void TestAlgorithmRecursiveDivision::solveBlind2x2()
 void TestAlgorithmRecursiveDivision::solve8x8()
 {
     Labyrinth2d::Labyrinth l{8, 8};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::RecursiveDivision rda;
 
     l.generate(g, rda);

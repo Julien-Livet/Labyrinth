@@ -228,21 +228,21 @@ size_t Labyrinth2d::Player::move(Direction direction,
 
         switch (direction)
         {
-        case Up:
-            --i_;
-            break;
+            case Up:
+                --i_;
+                break;
 
-        case Right:
-            ++j_;
-            break;
+            case Right:
+                ++j_;
+                break;
 
-        case Down:
-            ++i_;
-            break;
+            case Down:
+                ++i_;
+                break;
 
-        case Left:
-            --j_;
-            break;
+            case Left:
+                --j_;
+                break;
         }
 
         if (labyrinth_.grid()(i_, j_))

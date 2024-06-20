@@ -83,13 +83,15 @@ void TestRendererQPainter::renderSameImageBackground()
     qpr.changeWallsSize(QSize(1, 1));
     qpr.changeWaysSize(QSize(10, 10));
 
+    auto constexpr aspectRatio{Qt::KeepAspectRatioByExpanding};
+
     auto const pixmap{QPixmap{"../../../resources/background_image.png"}.scaled(qpr.size(),
-                                                                                Qt::KeepAspectRatioByExpanding,
+                                                                                aspectRatio,
                                                                                 Qt::SmoothTransformation)};
 
-    qpr.changeWallsTexture(Labyrinth2d::Renderer::QPainter::Texture(pixmap, Labyrinth2d::Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
-    qpr.changeWaysTexture(Labyrinth2d::Renderer::QPainter::Texture(pixmap, Labyrinth2d::Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
-    qpr.changeBackgroundTexture(Labyrinth2d::Renderer::QPainter::Texture(pixmap, Labyrinth2d::Renderer::QPainter::Texture::Background, Qt::KeepAspectRatioByExpanding));
+    qpr.changeWallsTexture(Labyrinth2d::Renderer::QPainter::Texture(pixmap, Labyrinth2d::Renderer::QPainter::Texture::Background, aspectRatio));
+    qpr.changeWaysTexture(Labyrinth2d::Renderer::QPainter::Texture(pixmap, Labyrinth2d::Renderer::QPainter::Texture::Background, aspectRatio));
+    qpr.changeBackgroundTexture(Labyrinth2d::Renderer::QPainter::Texture(pixmap, Labyrinth2d::Renderer::QPainter::Texture::Background, aspectRatio));
 
     QImage image{qpr.size(), QImage::Format_ARGB32};
     QPainter painter{&image};

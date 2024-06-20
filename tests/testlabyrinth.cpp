@@ -168,68 +168,126 @@ void TestLabyrinth::generateVerticalAndHorizontalWalls2x2()
 void TestLabyrinth::solveAStarEmpty1x1()
 {
     Labyrinth2d::Labyrinth l{1, 1};
-    auto const playerId{l.addPlayer(0, 0, {0}, {0})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    auto const playerId{l.addPlayer(0, 0, {0}, {0}, true)};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
+
+    Labyrinth2d::Renderer::String sr{l, ' ', '#'};
+    sr.playerRenderers[playerId] = Labyrinth2d::Renderer::String::PlayerRenderer{'X', '.'};
+    sr.playerRenderers[playerId].displayTrace = true;
+
+    QCOMPARE(sr(),
+             "###\n"
+             "#X#\n"
+             "###\n");
 }
 
 void TestLabyrinth::solveBlindEmpty1x1()
 {
     Labyrinth2d::Labyrinth l{1, 1};
-    auto const playerId{l.addPlayer(0, 0, {0}, {0})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    auto const playerId{l.addPlayer(0, 0, {0}, {0}, true)};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
+
+    Labyrinth2d::Renderer::String sr{l, ' ', '#'};
+    sr.playerRenderers[playerId] = Labyrinth2d::Renderer::String::PlayerRenderer{'X', '.'};
+    sr.playerRenderers[playerId].displayTrace = true;
+
+    QCOMPARE(sr(),
+             "###\n"
+             "#X#\n"
+             "###\n");
 }
 
 void TestLabyrinth::solveAStarEmpty2x1()
 {
     Labyrinth2d::Labyrinth l{2, 1};
-    auto const playerId{l.addPlayer(0, 0, {1}, {0})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    auto const playerId{l.addPlayer(0, 0, {1}, {0}, true)};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
+
+    Labyrinth2d::Renderer::String sr{l, ' ', '#'};
+    sr.playerRenderers[playerId] = Labyrinth2d::Renderer::String::PlayerRenderer{'X', '.'};
+    sr.playerRenderers[playerId].displayTrace = true;
+
+    QCOMPARE(sr(),
+             "###\n"
+             "#.#\n"
+             "#.#\n"
+             "#X#\n"
+             "###\n");
 }
 
 void TestLabyrinth::solveBlindEmpty2x1()
 {
     Labyrinth2d::Labyrinth l{2, 1};
-    auto const playerId{l.addPlayer(0, 0, {1}, {0})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    auto const playerId{l.addPlayer(0, 0, {1}, {0}, true)};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
+
+    Labyrinth2d::Renderer::String sr{l, ' ', '#'};
+    sr.playerRenderers[playerId] = Labyrinth2d::Renderer::String::PlayerRenderer{'X', '.'};
+    sr.playerRenderers[playerId].displayTrace = true;
+
+    QCOMPARE(sr(),
+             "###\n"
+             "#.#\n"
+             "#.#\n"
+             "#X#\n"
+             "###\n");
 }
 
 void TestLabyrinth::solveAStarEmpty1x2()
 {
     Labyrinth2d::Labyrinth l{1, 2};
-    auto const playerId{l.addPlayer(0, 0, {0}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    auto const playerId{l.addPlayer(0, 0, {0}, {1}, true)};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
+
+    Labyrinth2d::Renderer::String sr{l, ' ', '#'};
+    sr.playerRenderers[playerId] = Labyrinth2d::Renderer::String::PlayerRenderer{'X', '.'};
+    sr.playerRenderers[playerId].displayTrace = true;
+
+    QCOMPARE(sr(),
+             "#####\n"
+             "#..X#\n"
+             "#####\n");
 }
 
 void TestLabyrinth::solveBlindEmpty1x2()
 {
     Labyrinth2d::Labyrinth l{1, 2};
-    auto const playerId{l.addPlayer(0, 0, {0}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    auto const playerId{l.addPlayer(0, 0, {0}, {1}, true)};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
+
+    Labyrinth2d::Renderer::String sr{l, ' ', '#'};
+    sr.playerRenderers[playerId] = Labyrinth2d::Renderer::String::PlayerRenderer{'X', '.'};
+    sr.playerRenderers[playerId].displayTrace = true;
+
+    QCOMPARE(sr(),
+             "#####\n"
+             "#..X#\n"
+             "#####\n");
 }
 
 void TestLabyrinth::solveAStarEmpty2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
     auto const playerId{l.addPlayer(0, 0, {1}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
@@ -239,7 +297,7 @@ void TestLabyrinth::solveBlindEmpty2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
     auto const playerId{l.addPlayer(0, 0, {1}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
@@ -256,7 +314,7 @@ void TestLabyrinth::solveAStarVerticalWalls2x2()
     }
 
     auto const playerId{l.addPlayer(0, 0, {1}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
 
     try
     {
@@ -279,7 +337,7 @@ void TestLabyrinth::solveAStarHorizontalWalls2x2()
     }
 
     auto const playerId{l.addPlayer(0, 0, {1}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
 
     try
     {
@@ -308,7 +366,7 @@ void TestLabyrinth::solveAStarHorizontalAndHorizontalWalls2x2()
     }
 
     auto const playerId{l.addPlayer(0, 0, {1}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
 
     try
     {
@@ -324,7 +382,7 @@ void TestLabyrinth::solveAStarEmpty8x8()
 {
     Labyrinth2d::Labyrinth l{8, 8};
     auto const playerId{l.addPlayer(0, 0, {7}, {7})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
@@ -371,7 +429,7 @@ void TestLabyrinth::solveAStarEmpty1x1x1()
 {
     Labyrinth3d::Labyrinth l{1, 1, 1};
     auto const playerId{l.addPlayer(0, 0, 0, {0}, {0}, {0})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
@@ -381,7 +439,7 @@ void TestLabyrinth::solveBlindEmpty1x1x1()
 {
     Labyrinth3d::Labyrinth l{1, 1, 1};
     auto const playerId{l.addPlayer(0, 0, 0, {0}, {0}, {0})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
@@ -391,7 +449,7 @@ void TestLabyrinth::solveAStarEmpty2x1x1()
 {
     Labyrinth3d::Labyrinth l{2, 1, 1};
     auto const playerId{l.addPlayer(0, 0, 0, {1}, {0}, {0})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
@@ -401,7 +459,7 @@ void TestLabyrinth::solveBlindEmpty2x1x1()
 {
     Labyrinth3d::Labyrinth l{2, 1, 1};
     auto const playerId{l.addPlayer(0, 0, 0, {1}, {0}, {0})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
@@ -411,7 +469,7 @@ void TestLabyrinth::solveAStarEmpty1x2x1()
 {
     Labyrinth3d::Labyrinth l{1, 2, 1};
     auto const playerId{l.addPlayer(0, 0, 0, {0}, {1}, {0})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
@@ -421,7 +479,7 @@ void TestLabyrinth::solveBlindEmpty1x2x1()
 {
     Labyrinth3d::Labyrinth l{1, 2, 1};
     auto const playerId{l.addPlayer(0, 0, 0, {0}, {1}, {0})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
@@ -431,7 +489,7 @@ void TestLabyrinth::solveAStarEmpty1x1x2()
 {
     Labyrinth3d::Labyrinth l{1, 1, 2};
     auto const playerId{l.addPlayer(0, 0, 0, {0}, {0}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
@@ -441,7 +499,7 @@ void TestLabyrinth::solveBlindEmpty1x1x2()
 {
     Labyrinth3d::Labyrinth l{1, 1, 2};
     auto const playerId{l.addPlayer(0, 0, 0, {0}, {0}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
@@ -451,7 +509,7 @@ void TestLabyrinth::solveAStarEmpty2x2x1()
 {
     Labyrinth3d::Labyrinth l{2, 2, 1};
     auto const playerId{l.addPlayer(0, 0, 0, {1}, {1}, {0})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
@@ -461,7 +519,7 @@ void TestLabyrinth::solveBlindEmpty2x2x1()
 {
     Labyrinth3d::Labyrinth l{2, 2, 1};
     auto const playerId{l.addPlayer(0, 0, 0, {1}, {1}, {0})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
@@ -471,7 +529,7 @@ void TestLabyrinth::solveAStarEmpty2x1x2()
 {
     Labyrinth3d::Labyrinth l{2, 1, 2};
     auto const playerId{l.addPlayer(0, 0, 0, {1}, {0}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
@@ -481,7 +539,7 @@ void TestLabyrinth::solveBlindEmpty2x1x2()
 {
     Labyrinth3d::Labyrinth l{2, 1, 2};
     auto const playerId{l.addPlayer(0, 0, 0, {1}, {0}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
@@ -491,7 +549,7 @@ void TestLabyrinth::solveAStarEmpty1x2x2()
 {
     Labyrinth3d::Labyrinth l{1, 2, 2};
     auto const playerId{l.addPlayer(0, 0, 0, {0}, {1}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
@@ -501,7 +559,7 @@ void TestLabyrinth::solveBlindEmpty1x2x2()
 {
     Labyrinth3d::Labyrinth l{1, 2, 2};
     auto const playerId{l.addPlayer(0, 0, 0, {0}, {1}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
@@ -511,7 +569,7 @@ void TestLabyrinth::solveAStarEmpty2x2x2()
 {
     Labyrinth3d::Labyrinth l{2, 2, 2};
     auto const playerId{l.addPlayer(0, 0, 0, {1}, {1}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
@@ -521,7 +579,7 @@ void TestLabyrinth::solveBlindEmpty2x2x2()
 {
     Labyrinth3d::Labyrinth l{2, 2, 2};
     auto const playerId{l.addPlayer(0, 0, 0, {1}, {1}, {1})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::Blind bs;
 
     QCOMPARE(l.player(playerId).solve(g, bs), true);
@@ -531,7 +589,7 @@ void TestLabyrinth::solveAStarEmpty8x8x8()
 {
     Labyrinth3d::Labyrinth l{8, 8, 8};
     auto const playerId{l.addPlayer(0, 0, 0, {7}, {7}, {7})};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth3d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);

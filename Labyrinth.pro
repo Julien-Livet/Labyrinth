@@ -29,6 +29,8 @@ TEMPLATE = app
 MOC_DIR = moc
 VERSION = 1.0
 
+TR_EXCLUDE += D:\Programmes\boost_1_85_0\boost\*
+
 INCLUDEPATH += include \
                D:\Programmes\boost_1_85_0
 

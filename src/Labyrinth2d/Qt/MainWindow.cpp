@@ -77,6 +77,7 @@ MainWindow::MainWindow()
     langueChoisie = Systeme;
     translatorLabyrinthe = new QTranslator(this);
     translatorQt = new QTranslator(this);
+    translatorQtBase = new QTranslator(this);
     nomPartie = tr("Partie");
 
     connect(timer, SIGNAL(timeout()), this, SLOT(actualiserChronometre()));
@@ -113,7 +114,7 @@ MainWindow::MainWindow()
         for (int i = 0; i < 3; i++)
         {
             scores2D[i].clear();
-            int nbscores2D;
+            qsizetype nbscores2D{0};
             data >> nbscores2D;
             for (int j = 0 ; j < nbscores2D; j++)
             {
@@ -127,7 +128,7 @@ MainWindow::MainWindow()
         for (int i = 0; i < 3; i++)
         {
             scores2Den3D[i].clear();
-            int nbscores2Den3D;
+            qsizetype nbscores2Den3D{0};
             data >> nbscores2Den3D;
             for (int j = 0 ; j < nbscores2Den3D; j++)
             {
@@ -219,6 +220,7 @@ MainWindow::MainWindow()
     actionLabyrintheSeulement->setShortcut(tr("Esc"));
     actionEffacerChemin = new QAction(tr("&Effacer le chemin"), this);
     actionEffacerChemin->setCheckable(true);
+    actionEffacerChemin->setVisible(false);
     actionAfficherTrace = new QAction(tr("A&fficher la trace"), this);
     actionAfficherTrace->setCheckable(true);
     actionAffichage = new QAction(tr("&Affichage"), this);
@@ -371,7 +373,7 @@ MainWindow::MainWindow()
 
     setCentralWidget(widget);
 
-    setWindowIcon(QIcon(":/Images/resources/Labyrinthe.ico"));
+    setWindowIcon(QIcon(":/Images/resources/Labyrinth.ico"));
     setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
 
     connect(actionNouvellePartie, SIGNAL(triggered()), this, SLOT(nouvellePartie()));
@@ -556,7 +558,7 @@ void MainWindow::commencer()
 
 void MainWindow::actualiserChronometre()
 {
-    chronometre->setText(tr("&Chronomètre : ") + QTime().addMSecs(elapsedTimer.elapsed() + ms).toString(QString("hh:mm:ss")));
+    chronometre->setText(tr("&Chronomètre : ") + QTime(0, 0).addMSecs(elapsedTimer.elapsed() + ms).toString(QString("hh:mm:ss")));
 }
 
 void MainWindow::nouvellePartie()
@@ -637,7 +639,7 @@ void MainWindow::arreter()
 {
     if (chronometre->isChecked())
     {
-        temps = QTime().addMSecs(elapsedTimer.elapsed()+ms);
+        temps = QTime(0, 0).addMSecs(elapsedTimer.elapsed()+ms);
         timer->stop();
     }
 
@@ -698,7 +700,7 @@ void MainWindow::mettreEnPause()
         if (labyrinth->getPartieEnPause())
         {
             ms += elapsedTimer.elapsed();
-            temps = QTime().addMSecs(elapsedTimer.elapsed());
+            temps = QTime(0, 0).addMSecs(elapsedTimer.elapsed());
             timer->stop();
         }
         else
@@ -718,7 +720,7 @@ void MainWindow::resoudre()
     chronometre->setDisabled(true);
     actionEffacerChemin->setDisabled(true);
 
-    temps = QTime().addMSecs(elapsedTimer.elapsed());
+    temps = QTime(0, 0).addMSecs(elapsedTimer.elapsed());
     timer->stop();
 
     labyrinth->resoudre();
@@ -1334,7 +1336,7 @@ void MainWindow::quitter()
                 data << scores2Den3D[i][j].deplacement;
             }
         }
-        data << langueChoisie;
+        data << int(langueChoisie);
         data << dernierNomEnregistre;
 
         f.close();
@@ -2621,6 +2623,8 @@ void MainWindow::changeEvent(QEvent *event)
             if (((stateWindow & Qt::WindowFullScreen) && !(windowState() & Qt::WindowFullScreen)) || (!(stateWindow & Qt::WindowFullScreen) && (windowState() & Qt::WindowFullScreen)))
                 actionPleinEcran->setChecked(isFullScreen());
     }
+    else if (event->type() == QEvent::LanguageChange)
+        actualiserLangue();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -2714,16 +2718,18 @@ void MainWindow::algorithmeGeneration()
 
 void MainWindow::algorithmeResolution()
 {
-    if (qobject_cast<QAction*>(sender())->text() == tr("&A-Star"))
-        typeResolution_ = 0;
-    else if (qobject_cast<QAction*>(sender())->text() == tr("Main &droite au mur"))
-        typeResolution_ = 1;
-    else if (qobject_cast<QAction*>(sender())->text() == tr("Main &gauche au mur"))
-        typeResolution_ = 2;
-    else if (qobject_cast<QAction*>(sender())->text() == tr("A&veugle"))
-        typeResolution_ = 3;
+    unsigned int typeResolution{0};
 
-    labyrinth->setTypeResolution(typeResolution_);
+    if (qobject_cast<QAction*>(sender())->text() == tr("&A-Star"))
+        typeResolution = 0;
+    else if (qobject_cast<QAction*>(sender())->text() == tr("Main &droite au mur"))
+        typeResolution = 1;
+    else if (qobject_cast<QAction*>(sender())->text() == tr("Main &gauche au mur"))
+        typeResolution = 2;
+    else if (qobject_cast<QAction*>(sender())->text() == tr("A&veugle"))
+        typeResolution = 3;
+
+    labyrinth->setTypeResolution(typeResolution);
 }
 
 void MainWindow::reinitialiserModes()
@@ -3040,10 +3046,13 @@ void MainWindow::actualiserLangue()
 
     qApp->removeTranslator(translatorLabyrinthe);
     qApp->removeTranslator(translatorQt);
+    qApp->removeTranslator(translatorQtBase);
     translatorLabyrinthe->load(QString(":/Traductions/Labyrinth_") + locale);
     translatorQt->load(QString(":/Traductions/qt_") + locale);
+    translatorQtBase->load(QString(":/Traductions/qtbase_") + locale);
     qApp->installTranslator(translatorLabyrinthe);
     qApp->installTranslator(translatorQt);
+    qApp->installTranslator(translatorQtBase);
 }
 
 void MainWindow::langue()

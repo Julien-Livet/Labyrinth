@@ -100,29 +100,31 @@ Labyrinth2d::Renderer::String::String(Labyrinth const& labyrinth_,
 std::string Labyrinth2d::Renderer::String::operator()() const
 {
     auto const& grid(labyrinth.grid());
-    size_t const height(grid.height());
-    size_t const width(grid.width());
+    auto const height(grid.height());
+    auto const width(grid.width());
 
     std::vector<char> str(height * (width + 1) + 1, '#');
     str.back() = 0;
 
-    for (size_t i(0); i < height; ++i)
+    for (size_t i{0}; i < height; ++i)
     {
-        for (size_t j(0); j < width; ++j)
+        for (size_t j{0}; j < width; ++j)
         {
-            char& c(str[i * (width + 1) + j]);
+            auto& c{str[i * (width + 1) + j]};
 
             if (!grid(i, j))
             {
                 if (!displayPlayers)
                     continue;
 
-                bool ok(false);
-                size_t playerId(0);
+                bool ok{false};
+                size_t playerId{0};
 
                 for (auto id : labyrinth.playerIds())
                 {
-                    if (labyrinth.player(id).i() == i && labyrinth.player(id).j() == j && playerRenderers.at(id).displayPlayer)
+                    if (labyrinth.player(id).i() == i && labyrinth.player(id).j() == j
+                        && playerRenderers.find(id) != playerRenderers.end()
+                        && playerRenderers.at(id).displayPlayer)
                     {
                         playerId = id;
                         ok = true;
@@ -134,104 +136,106 @@ std::string Labyrinth2d::Renderer::String::operator()() const
                     c = playerRenderers.at(playerId).player;
                 else
                 {
-                    size_t traces(0);
-                    size_t traceDirections(0);
+                    size_t traces{0};
+                    size_t traceDirections{0};
 
                     auto findDirections([this, i, j, &traces, &traceDirections, &ok, &playerId]
                     (size_t id, Player const& player,
                      size_t previousTraceIndex, std::pair<size_t, size_t> const& position)
                     {
-                         if (i == player.traceIntersections()[previousTraceIndex].first && i == position.first
-                             && ((player.traceIntersections()[previousTraceIndex].second <= j && j < position.second)
-                                 || (position.second < j && j <= player.traceIntersections()[previousTraceIndex].second)))
-                         {
-                            if (playerRenderers.at(id).displayTrace)
-                             {
-                                 if (j > position.second)
-                                 {
-                                     ++traces;
-                                     traceDirections |= Left;
-                                 }
-                                 else if (j < position.second)
-                                 {
-                                     ++traces;
-                                     traceDirections |= Right;
-                                 }
-                                 else
-                                     assert(0);
+                        if (i == player.traceIntersections()[previousTraceIndex].first && i == position.first
+                            && ((player.traceIntersections()[previousTraceIndex].second <= j && j < position.second)
+                                || (position.second < j && j <= player.traceIntersections()[previousTraceIndex].second)))
+                        {
+                            if (playerRenderers.find(id) != playerRenderers.end()
+                                && playerRenderers.at(id).displayTrace)
+                            {
+                                if (j > position.second)
+                                {
+                                    ++traces;
+                                    traceDirections |= Left;
+                                }
+                                else if (j < position.second)
+                                {
+                                    ++traces;
+                                    traceDirections |= Right;
+                                }
+                                else
+                                    assert(0);
 
-                                 if (player.traceIntersections()[previousTraceIndex].second == j)
-                                 {
-                                     if (previousTraceIndex - 1 < player.traceIntersections().size())
-                                     {
-                                         ++traces;
+                                if (player.traceIntersections()[previousTraceIndex].second == j)
+                                {
+                                    if (previousTraceIndex - 1 < player.traceIntersections().size())
+                                    {
+                                        ++traces;
 
-                                         if (i < player.traceIntersections()[previousTraceIndex - 1].first)
-                                             traceDirections |= Down;
-                                         else if (i > player.traceIntersections()[previousTraceIndex - 1].first)
-                                             traceDirections |= Up;
-                                         else
-                                             assert(0);
-                                     }
-                                 }
-                                 else
-                                 {
-                                     ++traces;
-                                     traceDirections |= Left | Right;
-                                 }
+                                        if (i < player.traceIntersections()[previousTraceIndex - 1].first)
+                                            traceDirections |= Down;
+                                        else if (i > player.traceIntersections()[previousTraceIndex - 1].first)
+                                            traceDirections |= Up;
+                                        else
+                                            assert(0);
+                                    }
+                                }
+                                else
+                                {
+                                    ++traces;
+                                    traceDirections |= Left | Right;
+                                }
 
-                                 playerId = id;
-                                 ok = true;
-                             }
-                         }
-                         else if (j == player.traceIntersections()[previousTraceIndex].second && j == position.second
-                                  && ((player.traceIntersections()[previousTraceIndex].first <= i && i < position.first)
-                                      || (position.first < i && i <= player.traceIntersections()[previousTraceIndex].first)))
-                         {
-                             if (playerRenderers.at(id).displayTrace)
-                             {
-                                 if (i > position.first)
-                                 {
-                                     ++traces;
-                                     traceDirections |= Up;
-                                 }
-                                 else if (i < position.first)
-                                 {
-                                     ++traces;
-                                     traceDirections |= Down;
-                                 }
-                                 else
-                                     assert(0);
+                                playerId = id;
+                                ok = true;
+                            }
+                        }
+                        else if (j == player.traceIntersections()[previousTraceIndex].second && j == position.second
+                                 && ((player.traceIntersections()[previousTraceIndex].first <= i && i < position.first)
+                                     || (position.first < i && i <= player.traceIntersections()[previousTraceIndex].first)))
+                        {
+                            if (playerRenderers.find(id) != playerRenderers.end()
+                                && playerRenderers.at(id).displayTrace)
+                            {
+                                if (i > position.first)
+                                {
+                                    ++traces;
+                                    traceDirections |= Up;
+                                }
+                                else if (i < position.first)
+                                {
+                                    ++traces;
+                                    traceDirections |= Down;
+                                }
+                                else
+                                    assert(0);
 
-                                 if (player.traceIntersections()[previousTraceIndex].first == i)
-                                 {
-                                     if (previousTraceIndex - 1 < player.traceIntersections().size())
-                                     {
-                                         ++traces;
+                                if (player.traceIntersections()[previousTraceIndex].first == i)
+                                {
+                                    if (previousTraceIndex - 1 < player.traceIntersections().size())
+                                    {
+                                        ++traces;
 
-                                         if (j < player.traceIntersections()[previousTraceIndex - 1].second)
-                                             traceDirections |= Right;
-                                         else if (j > player.traceIntersections()[previousTraceIndex - 1].second)
-                                             traceDirections |= Left;
-                                         else
-                                             assert(0);
-                                     }
-                                 }
-                                 else
-                                 {
-                                     ++traces;
-                                     traceDirections |= Up | Down;
-                                 }
+                                        if (j < player.traceIntersections()[previousTraceIndex - 1].second)
+                                            traceDirections |= Right;
+                                        else if (j > player.traceIntersections()[previousTraceIndex - 1].second)
+                                            traceDirections |= Left;
+                                        else
+                                            assert(0);
+                                    }
+                                }
+                                else
+                                {
+                                    ++traces;
+                                    traceDirections |= Up | Down;
+                                }
 
-                                 playerId = id;
-                                 ok = true;
-                             }
-                         }
+                                playerId = id;
+                                ok = true;
+                            }
+                        }
                     });
 
                     for (auto id : labyrinth.playerIds())
                     {
-                        auto const& player(labyrinth.player(id));
+                        auto const& player{labyrinth.player(id)};
 
                         if (player.enabledTrace() && !player.traceIntersections().empty())
                         {
@@ -240,7 +244,7 @@ std::string Labyrinth2d::Renderer::String::operator()() const
                             if (ok)
                                 break;
 
-                            for (size_t k(1); k < player.traceIntersections().size(); ++k)
+                            for (size_t k{1}; k < player.traceIntersections().size(); ++k)
                             {
                                 findDirections(id, player, k - 1, player.traceIntersections()[k]);
 
@@ -271,8 +275,8 @@ std::string Labyrinth2d::Renderer::String::operator()() const
 
                         if (i % 2 && j % 2)
                         {
-                            size_t ways(0);
-                            size_t wayDirections(0);
+                            size_t ways{0};
+                            size_t wayDirections{0};
 
                             if (i - 1 < grid.height() && !grid(i - 1, j))
                             {
@@ -316,8 +320,8 @@ std::string Labyrinth2d::Renderer::String::operator()() const
 
                 if (!(i % 2) && !(j % 2))
                 {
-                    size_t walls(0);
-                    size_t wallDirections(0);
+                    size_t walls{0};
+                    size_t wallDirections{0};
 
                     if (i - 1 < grid.height() && grid(i - 1, j))
                     {

@@ -213,9 +213,9 @@ class MainWindow : public QMainWindow
         QComboBox *comboBoxLangue;
         QTranslator *translatorLabyrinthe;
         QTranslator *translatorQt;
+        QTranslator *translatorQtBase;
         QString nomPartie;
         QString dernierNomEnregistre;
-        unsigned int typeResolution_;
         void actualiserLangue();
 
     private slots:

@@ -28,7 +28,7 @@ class TestAlgorithmRandomSlicer : public QObject
 void TestAlgorithmRandomSlicer::generate1x1x1()
 {
     Labyrinth3d::Labyrinth l{1, 1, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::CellFusion cfa;
     Labyrinth2d::Algorithm::RecursiveDivision rda;
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
@@ -72,7 +72,7 @@ void TestAlgorithmRandomSlicer::generate1x1x1()
 void TestAlgorithmRandomSlicer::generate2x1x1()
 {
     Labyrinth3d::Labyrinth l{2, 1, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::CellFusion cfa;
     Labyrinth2d::Algorithm::RecursiveDivision rda;
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
@@ -118,7 +118,7 @@ void TestAlgorithmRandomSlicer::generate2x1x1()
 void TestAlgorithmRandomSlicer::generate1x2x1()
 {
     Labyrinth3d::Labyrinth l{1, 2, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::CellFusion cfa;
     Labyrinth2d::Algorithm::RecursiveDivision rda;
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
@@ -164,7 +164,7 @@ void TestAlgorithmRandomSlicer::generate1x2x1()
 void TestAlgorithmRandomSlicer::generate1x1x2()
 {
     Labyrinth3d::Labyrinth l{1, 1, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::CellFusion cfa;
     Labyrinth2d::Algorithm::RecursiveDivision rda;
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
@@ -210,7 +210,7 @@ void TestAlgorithmRandomSlicer::generate1x1x2()
 void TestAlgorithmRandomSlicer::generate2x2x1()
 {
     Labyrinth3d::Labyrinth l{2, 2, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::CellFusion cfa;
     Labyrinth2d::Algorithm::RecursiveDivision rda;
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
@@ -225,7 +225,7 @@ void TestAlgorithmRandomSlicer::generate2x2x1()
 void TestAlgorithmRandomSlicer::generate2x1x2()
 {
     Labyrinth3d::Labyrinth l{2, 1, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::CellFusion cfa;
     Labyrinth2d::Algorithm::RecursiveDivision rda;
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
@@ -240,7 +240,7 @@ void TestAlgorithmRandomSlicer::generate2x1x2()
 void TestAlgorithmRandomSlicer::generate1x2x2()
 {
     Labyrinth3d::Labyrinth l{1, 2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::CellFusion cfa;
     Labyrinth2d::Algorithm::RecursiveDivision rda;
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
@@ -255,7 +255,7 @@ void TestAlgorithmRandomSlicer::generate1x2x2()
 void TestAlgorithmRandomSlicer::generate2x2x2()
 {
     Labyrinth3d::Labyrinth l{2, 2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::CellFusion cfa;
     Labyrinth2d::Algorithm::RecursiveDivision rda;
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
@@ -270,7 +270,7 @@ void TestAlgorithmRandomSlicer::generate2x2x2()
 void TestAlgorithmRandomSlicer::solveAStar2x2x2()
 {
     Labyrinth3d::Labyrinth l{2, 2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::CellFusion cfa;
     Labyrinth2d::Algorithm::RecursiveDivision rda;
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
@@ -290,7 +290,7 @@ void TestAlgorithmRandomSlicer::solveAStar2x2x2()
 void TestAlgorithmRandomSlicer::solveBlind2x2x2()
 {
     Labyrinth3d::Labyrinth l{2, 2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::CellFusion cfa;
     Labyrinth2d::Algorithm::RecursiveDivision rda;
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};
@@ -310,7 +310,7 @@ void TestAlgorithmRandomSlicer::solveBlind2x2x2()
 void TestAlgorithmRandomSlicer::solve8x8x8()
 {
     Labyrinth3d::Labyrinth l{8, 8, 8};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::CellFusion cfa;
     Labyrinth2d::Algorithm::RecursiveDivision rda;
     Labyrinth2d::Algorithm::WaySearch wsa{Labyrinth2d::Algorithm::WaySearch::Prim};

@@ -35,7 +35,7 @@ class TestAlgorithmKruskal : public QObject
 void TestAlgorithmKruskal::generateRecursive1x1()
 {
     Labyrinth2d::Labyrinth l{1, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Recursive};
 
     l.generate(g, ka);
@@ -51,7 +51,7 @@ void TestAlgorithmKruskal::generateRecursive1x1()
 void TestAlgorithmKruskal::generateRecursive2x1()
 {
     Labyrinth2d::Labyrinth l{2, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Recursive};
 	
     l.generate(g, ka);
@@ -69,7 +69,7 @@ void TestAlgorithmKruskal::generateRecursive2x1()
 void TestAlgorithmKruskal::generateRecursive1x2()
 {
     Labyrinth2d::Labyrinth l{1, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Recursive};
 	
     l.generate(g, ka);
@@ -85,7 +85,7 @@ void TestAlgorithmKruskal::generateRecursive1x2()
 void TestAlgorithmKruskal::generateRecursive2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Recursive};
 
     l.generate(g, ka);
@@ -94,7 +94,7 @@ void TestAlgorithmKruskal::generateRecursive2x2()
 void TestAlgorithmKruskal::generateIterative1x1()
 {
     Labyrinth2d::Labyrinth l{1, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Iterative};
 
     l.generate(g, ka);
@@ -110,7 +110,7 @@ void TestAlgorithmKruskal::generateIterative1x1()
 void TestAlgorithmKruskal::generateIterative2x1()
 {
     Labyrinth2d::Labyrinth l{2, 1};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Iterative};
 
     l.generate(g, ka);
@@ -128,7 +128,7 @@ void TestAlgorithmKruskal::generateIterative2x1()
 void TestAlgorithmKruskal::generateIterative1x2()
 {
     Labyrinth2d::Labyrinth l{1, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Iterative};
 
     l.generate(g, ka);
@@ -144,7 +144,7 @@ void TestAlgorithmKruskal::generateIterative1x2()
 void TestAlgorithmKruskal::generateIterative2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Iterative};
 
     l.generate(g, ka);
@@ -153,7 +153,7 @@ void TestAlgorithmKruskal::generateIterative2x2()
 void TestAlgorithmKruskal::solveRecursiveAStar2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Recursive};
 
     l.generate(g, ka);
@@ -167,7 +167,7 @@ void TestAlgorithmKruskal::solveRecursiveAStar2x2()
 void TestAlgorithmKruskal::solveRecursiveLeftWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Recursive};
 
     l.generate(g, ka);
@@ -181,7 +181,7 @@ void TestAlgorithmKruskal::solveRecursiveLeftWallHand2x2()
 void TestAlgorithmKruskal::solveRecursiveRightWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Recursive};
 
     l.generate(g, ka);
@@ -195,7 +195,7 @@ void TestAlgorithmKruskal::solveRecursiveRightWallHand2x2()
 void TestAlgorithmKruskal::solveRecursiveBlind2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Recursive};
 
     l.generate(g, ka);
@@ -209,7 +209,7 @@ void TestAlgorithmKruskal::solveRecursiveBlind2x2()
 void TestAlgorithmKruskal::solveIterativeAStar2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Iterative};
 
     l.generate(g, ka);
@@ -223,7 +223,7 @@ void TestAlgorithmKruskal::solveIterativeAStar2x2()
 void TestAlgorithmKruskal::solveIterativeLeftWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Iterative};
 
     l.generate(g, ka);
@@ -237,7 +237,7 @@ void TestAlgorithmKruskal::solveIterativeLeftWallHand2x2()
 void TestAlgorithmKruskal::solveIterativeRightWallHand2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Iterative};
 
     l.generate(g, ka);
@@ -251,7 +251,7 @@ void TestAlgorithmKruskal::solveIterativeRightWallHand2x2()
 void TestAlgorithmKruskal::solveIterativeBlind2x2()
 {
     Labyrinth2d::Labyrinth l{2, 2};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Iterative};
 
     l.generate(g, ka);
@@ -265,7 +265,7 @@ void TestAlgorithmKruskal::solveIterativeBlind2x2()
 void TestAlgorithmKruskal::solveRecursive8x8()
 {
     Labyrinth2d::Labyrinth l{8, 8};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Recursive};
 
     l.generate(g, ka);
@@ -279,7 +279,7 @@ void TestAlgorithmKruskal::solveRecursive8x8()
 void TestAlgorithmKruskal::solveIterative8x8()
 {
     Labyrinth2d::Labyrinth l{8, 8};
-    std::default_random_engine g{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
     Labyrinth2d::Algorithm::Kruskal ka{Labyrinth2d::Algorithm::Kruskal::Iterative};
 
     l.generate(g, ka);
