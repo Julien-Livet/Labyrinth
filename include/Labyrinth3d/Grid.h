@@ -9,8 +9,9 @@
  *  \date 20/01/2016
  */
 
-#include <vector>
 #include <chrono>
+#include <tuple>
+#include <vector>
 
 #include "utility.h"
 
@@ -74,6 +75,13 @@ namespace Labyrinth3d
             bool at(size_t i, size_t j, size_t k) const;
 
             /*!
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]x[0; depth() - 1]
+             *
+             *  \return A boolean value which is true if the considered cell is wall
+             */
+            bool at(std::tuple<size_t, size_t, size_t> const& index) const;
+
+            /*!
              *  \brief Change a cell state
              *
              *  \param i: index in [0; height() - 1]
@@ -82,6 +90,14 @@ namespace Labyrinth3d
              *  \param value: boolean value which is true if the considered cell is wall
              */
             void change(size_t i, size_t j, size_t k, bool value);
+
+            /*!
+             *  \brief Change a cell state
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]x[0; depth() - 1]
+             *  \param value: boolean value which is true if the considered cell is wall
+             */
+            void change(std::tuple<size_t, size_t, size_t> const& index, bool value);
 
             /*!
              *  \brief Toggle a cell state
@@ -93,6 +109,13 @@ namespace Labyrinth3d
             void toggle(size_t i, size_t j, size_t k);
 
             /*!
+             *  \brief Toggle a cell state
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]x[0; depth() - 1]
+             */
+            void toggle(std::tuple<size_t, size_t, size_t> const& index);
+
+            /*!
              *  \brief Set a cell as a wall
              *
              *  \param i: index in [0; height() - 1]
@@ -100,6 +123,13 @@ namespace Labyrinth3d
              *  \param k: index in [0; depth() - 1]
              */
             void set(size_t i, size_t j, size_t k);
+
+            /*!
+             *  \brief Set a cell as a wall
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]x[0; depth() - 1]
+             */
+            void set(std::tuple<size_t, size_t, size_t> const& index);
 
             /*!
              *  \brief Set a cell as a way
@@ -111,6 +141,13 @@ namespace Labyrinth3d
             void reset(size_t i, size_t j, size_t k);
 
             /*!
+             *  \brief Set a cell as a way
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]x[0; depth() - 1]
+             */
+            void reset(std::tuple<size_t, size_t, size_t> const& index);
+
+            /*!
              *  \param i: index in [0; height() - 1]
              *  \param j: index in [0; width() - 1]
              *  \param k: index in [0; depth() - 1]
@@ -118,6 +155,13 @@ namespace Labyrinth3d
              *  \return A boolean value which is true if the considered cell is wall
              */
             bool operator()(size_t i, size_t j, size_t k) const;
+
+            /*!
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]x[0; depth() - 1]
+             *
+             *  \return A boolean value which is true if the considered cell is wall
+             */
+            bool operator()(std::tuple<size_t, size_t, size_t> const& index) const;
 
             /*!
              * \brief Get a constant reference of the labyrinth
@@ -238,6 +282,13 @@ namespace Labyrinth3d
             bool at(size_t i, size_t j, size_t k) const;
 
             /*!
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]x[0; depth() - 1]
+             *
+             *  \return A boolean value which is true if the considered cell is wall
+             */
+            bool at(std::tuple<size_t, size_t, size_t> const& index) const;
+
+            /*!
              *  \brief Change a cell state
              *
              *  \param i: index in [0; height() - 1]
@@ -246,6 +297,14 @@ namespace Labyrinth3d
              *  \param value: boolean value which is true if the considered cell is wall
              */
             void change(size_t i, size_t j, size_t k, bool value) const;
+
+            /*!
+             *  \brief Change a cell state
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]x[0; depth() - 1]
+             *  \param value: boolean value which is true if the considered cell is wall
+             */
+            void change(std::tuple<size_t, size_t, size_t> const& index, bool value) const;
 
             /*!
              *  \brief Toggle a cell state
@@ -257,6 +316,13 @@ namespace Labyrinth3d
             void toggle(size_t i, size_t j, size_t k) const;
 
             /*!
+             *  \brief Toggle a cell state
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]x[0; depth() - 1]
+             */
+            void toggle(std::tuple<size_t, size_t, size_t> const& index) const;
+
+            /*!
              *  \brief Set a cell as a wall
              *
              *  \param i: index in [0; height() - 1]
@@ -266,6 +332,13 @@ namespace Labyrinth3d
             void set(size_t i, size_t j, size_t k) const;
 
             /*!
+             *  \brief Set a cell as a wall
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]x[0; depth() - 1]
+             */
+            void set(std::tuple<size_t, size_t, size_t> const& index) const;
+
+            /*!
              *  \brief Set a cell as a way
              *
              *  \param i: index in [0; height() - 1]
@@ -273,6 +346,13 @@ namespace Labyrinth3d
              *  \param k: index in [0; depth() - 1]
              */
             void reset(size_t i, size_t j, size_t k) const;
+
+            /*!
+             *  \brief Set a cell as a way
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]x[0; depth() - 1]
+             */
+            void reset(std::tuple<size_t, size_t, size_t> const& index) const;
 
             /*!
              *  \return The authorize operation for this sub-grid
@@ -287,6 +367,13 @@ namespace Labyrinth3d
              *  \return A boolean value which is true if the considered cell is wall
              */
             bool operator()(size_t i, size_t j, size_t k) const;
+
+            /*!
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]x[0; depth() - 1]
+             *
+             *  \return A boolean value which is true if the considered cell is wall
+             */
+            bool operator()(std::tuple<size_t, size_t, size_t> const& index) const;
 
         private:
             Grid& grid_;

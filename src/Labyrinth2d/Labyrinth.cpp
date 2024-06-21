@@ -102,6 +102,36 @@ size_t Labyrinth2d::Labyrinth::addPlayer(size_t startRow, size_t startColumn,
     return idCounter_;
 }
 
+size_t Labyrinth2d::Labyrinth::addPlayer(std::pair<size_t, size_t> const& start,
+                                         std::vector<std::pair<size_t, size_t> > const& finishes,
+                                         bool enabledTrace, bool blockingFinish, bool keptFullTrace)
+{
+    if (start.first >= grid_.rows() || start.second >= grid_.columns())
+        throw std::invalid_argument("Invalid start");
+
+    std::vector<std::pair<size_t, size_t> > f;
+    f.reserve(finishes.size());
+
+    for (auto const& p : finishes)
+    {
+        if (p.first >= grid_.rows())
+            throw std::invalid_argument("Invalid finish");
+        if (p.second >= grid_.columns())
+            throw std::invalid_argument("Invalid finish");
+
+        f.emplace_back(std::make_pair(2 * p.first + 1, 2 * p.second + 1));
+    }
+
+    while (players_.count(idCounter_))
+        ++idCounter_;
+
+    players_.emplace(idCounter_,
+                     std::unique_ptr<Player>(new Player(*this, std::make_pair(2 * start.first + 1, 2 * start.second + 1),
+                                                        f, enabledTrace, blockingFinish, keptFullTrace)));
+
+    return idCounter_;
+}
+
 bool Labyrinth2d::Labyrinth::removePlayer(size_t id)
 {
     if (!players_.count(id))
@@ -138,9 +168,9 @@ void Labyrinth2d::Labyrinth::stopGenerating()
 std::queue<char>& Labyrinth2d::Labyrinth::read(std::queue<char>& data)
 {
     size_t rows;
-    ::read(data, rows);
+    Labyrinth2d::read(data, rows);
     size_t columns;
-    ::read(data, columns);
+    Labyrinth2d::read(data, columns);
 
     grid_ = Grid{*this, rows, columns};
 
@@ -149,7 +179,7 @@ std::queue<char>& Labyrinth2d::Labyrinth::read(std::queue<char>& data)
         for (size_t j{1}; j < grid_.width() - 1; j += 2)
         {
             bool b{false};
-            ::read(data, b);
+            Labyrinth2d::read(data, b);
             grid_.change(i, j, b);
         }
     }
@@ -159,145 +189,134 @@ std::queue<char>& Labyrinth2d::Labyrinth::read(std::queue<char>& data)
         for (size_t i{1}; i < grid_.height() - 1; i += 2)
         {
             bool b{false};
-            ::read(data, b);
+            Labyrinth2d::read(data, b);
             grid_.change(i, j, b);
         }
     }
 
-    ::read(data, state_);
+    Labyrinth2d::read(data, state_);
     size_t count;
-    ::read(data, count);
+    Labyrinth2d::read(data, count);
     generationDuration_ = std::chrono::milliseconds{count};
     players_.clear();
     size_t playersSize;
-    ::read(data, playersSize);
+    Labyrinth2d::read(data, playersSize);
     for (size_t i{0}; i < playersSize; ++i)
     {
         size_t id{0};
-        ::read(data, id);
-        size_t startI;
-        ::read(data, startI);
-        size_t startJ;
-        ::read(data, startJ);
-        std::vector<size_t> finishI;
-        size_t finishISize;
-        ::read(data, finishISize);
-        finishI.reserve(finishISize);
-        for (size_t j{0}; j < finishISize; ++j)
+        Labyrinth2d::read(data, id);
+        std::pair<size_t, size_t> start;
+        Labyrinth2d::read(data, start.first);
+        Labyrinth2d::read(data, start.second);
+        std::vector<std::pair<size_t, size_t> > finishes;
+        size_t finishesSize;
+        Labyrinth2d::read(data, finishesSize);
+        finishes.reserve(finishesSize);
+        for (size_t j{0}; j < finishesSize; ++j)
         {
-            size_t index{0};
-            ::read(data, index);
-            finishI.emplace_back(index);
+            std::pair<size_t, size_t> index{std::make_pair(0, 0)};
+            Labyrinth2d::read(data, index.first);
+            Labyrinth2d::read(data, index.second);
+            finishes.emplace_back(index);
         }
-        std::vector<size_t> finishJ;
-        size_t finishJSize;
-        ::read(data, finishJSize);
-        finishJ.reserve(finishJSize);
-        for (size_t j{0}; j < finishJSize; ++j)
-        {
-            size_t index{0};
-            ::read(data, index);
-            finishJ.emplace_back(index);
-        }
-        players_.emplace(id, std::unique_ptr<Player>{new Player{*this, startI, startJ,
-                                                                finishI, finishJ, false, false, false}});
-        ::read(data, players_[id]->i_);
-        ::read(data, players_[id]->j_);
-        ::read(data, players_[id]->movements_);
-        ::read(data, count);
+        players_.emplace(id, std::unique_ptr<Player>{new Player{*this, start, finishes, false, false, false}});
+        Labyrinth2d::read(data, players_[id]->current_.first);
+        Labyrinth2d::read(data, players_[id]->current_.second);
+        Labyrinth2d::read(data, players_[id]->movements_);
+        Labyrinth2d::read(data, count);
         players_[id]->finishingDuration_ = std::chrono::milliseconds{count};
-        ::read(data, count);
+        Labyrinth2d::read(data, count);
         players_[id]->solvingDuration_ = std::chrono::milliseconds{count};
-        ::read(data, players_[id]->state_);
-        ::read(data, count);
+        Labyrinth2d::read(data, players_[id]->state_);
+        Labyrinth2d::read(data, count);
         players_[id]->startTime_ = std::chrono::time_point<std::chrono::steady_clock>{std::chrono::steady_clock::duration{count}};
-        ::read(data, players_[id]->enabledTrace_);
+        Labyrinth2d::read(data, players_[id]->enabledTrace_);
         size_t traceIntersectionsSize;
-        ::read(data, traceIntersectionsSize);
+        Labyrinth2d::read(data, traceIntersectionsSize);
         players_[id]->traceIntersections_.clear();
         players_[id]->traceIntersections_.reserve(traceIntersectionsSize);
         for (size_t j{0}; j < traceIntersectionsSize; ++j)
         {
             std::pair<size_t, size_t> p{std::make_pair(0, 0)};
-            ::read(data, p.first);
-            ::read(data, p.second);
+            Labyrinth2d::read(data, p.first);
+            Labyrinth2d::read(data, p.second);
             players_[id]->traceIntersections_.emplace_back(p);
         }
-        ::read(data, players_[id]->blockingFinish_);
-        ::read(data, players_[id]->keptFullTrace_);
+        Labyrinth2d::read(data, players_[id]->blockingFinish_);
+        Labyrinth2d::read(data, players_[id]->keptFullTrace_);
         size_t fullTraceSize;
-        ::read(data, fullTraceSize);
+        Labyrinth2d::read(data, fullTraceSize);
         players_[id]->fullTrace_.clear();
         players_[id]->fullTrace_.reserve(fullTraceSize);
         for (size_t j{0}; j < fullTraceSize; ++j)
         {
             std::pair<size_t, size_t> p{std::make_pair(0, 0)};
-            ::read(data, p.first);
-            ::read(data, p.second);
+            Labyrinth2d::read(data, p.first);
+            Labyrinth2d::read(data, p.second);
             players_[id]->fullTrace_.emplace_back(p);
         }
     }
-    ::read(data, idCounter_);
+    Labyrinth2d::read(data, idCounter_);
 
     return data;
 }
 
 std::queue<char>& Labyrinth2d::Labyrinth::write(std::queue<char>& data) const
 {
-    ::write(data, grid_.rows());
-    ::write(data, grid_.columns());
+    Labyrinth2d::write(data, grid_.rows());
+    Labyrinth2d::write(data, grid_.columns());
 
     for (size_t i{2}; i < grid_.height() - 1; i += 2)
     {
         for (size_t j{1}; j < grid_.width() - 1; j += 2)
-            ::write(data, grid_(i, j));
+            Labyrinth2d::write(data, grid_(i, j));
     }
 
     for (size_t j{2}; j < grid_.width() - 1; j += 2)
     {
         for (size_t i{1}; i < grid_.height() - 1; i += 2)
-            ::write(data, grid_(i, j));
+            Labyrinth2d::write(data, grid_(i, j));
     }
 
-    ::write(data, state_);
-    ::write(data, generationDuration_.count());
+    Labyrinth2d::write(data, state_);
+    Labyrinth2d::write(data, generationDuration_.count());
 
-    ::write(data, players_.size());
+    Labyrinth2d::write(data, players_.size());
     for (auto it{players_.begin()}; it != players_.end(); ++it)
     {
-        ::write(data, it->first);
-        ::write(data, it->second->startI_);
-        ::write(data, it->second->startJ_);
-        ::write(data, it->second->finishI_.size());
-        for (auto&& i : it->second->finishI_)
-            ::write(data, i);
-        ::write(data, it->second->finishJ_.size());
-        for (auto&& j : it->second->finishJ_)
-            ::write(data, j);
-        ::write(data, it->second->i_);
-        ::write(data, it->second->j_);
-        ::write(data, it->second->movements_);
-        ::write(data, it->second->finishingDuration_.count());
-        ::write(data, it->second->solvingDuration_.count());
-        ::write(data, it->second->state_);
-        ::write(data, it->second->startTime_.time_since_epoch().count());
-        ::write(data, it->second->enabledTrace_);
-        ::write(data, it->second->traceIntersections_.size());
-        for (auto&& p : it->second->traceIntersections_)
+        Labyrinth2d::write(data, it->first);
+        Labyrinth2d::write(data, it->second->start_.first);
+        Labyrinth2d::write(data, it->second->start_.second);
+        Labyrinth2d::write(data, it->second->finishes_.size());
+        for (auto const& index : it->second->finishes_)
         {
-            ::write(data, p.first);
-            ::write(data, p.second);
+            Labyrinth2d::write(data, index.first);
+            Labyrinth2d::write(data, index.second);
         }
-        ::write(data, it->second->blockingFinish_);
-        ::write(data, it->second->keptFullTrace_);
-        ::write(data, it->second->fullTrace_.size());
-        for (auto&& p : it->second->fullTrace_)
+        Labyrinth2d::write(data, it->second->current_.first);
+        Labyrinth2d::write(data, it->second->current_.second);
+        Labyrinth2d::write(data, it->second->movements_);
+        Labyrinth2d::write(data, it->second->finishingDuration_.count());
+        Labyrinth2d::write(data, it->second->solvingDuration_.count());
+        Labyrinth2d::write(data, it->second->state_);
+        Labyrinth2d::write(data, it->second->startTime_.time_since_epoch().count());
+        Labyrinth2d::write(data, it->second->enabledTrace_);
+        Labyrinth2d::write(data, it->second->traceIntersections_.size());
+        for (auto const& p : it->second->traceIntersections_)
         {
-            ::write(data, p.first);
-            ::write(data, p.second);
+            Labyrinth2d::write(data, p.first);
+            Labyrinth2d::write(data, p.second);
+        }
+        Labyrinth2d::write(data, it->second->blockingFinish_);
+        Labyrinth2d::write(data, it->second->keptFullTrace_);
+        Labyrinth2d::write(data, it->second->fullTrace_.size());
+        for (auto const& p : it->second->fullTrace_)
+        {
+            Labyrinth2d::write(data, p.first);
+            Labyrinth2d::write(data, p.second);
         }
     }
-    ::write(data, idCounter_);
+    Labyrinth2d::write(data, idCounter_);
 
     return data;
 }

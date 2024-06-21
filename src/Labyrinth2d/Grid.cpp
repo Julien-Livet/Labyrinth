@@ -58,6 +58,11 @@ bool Labyrinth2d::Grid::at(size_t i, size_t j) const
     return cells_[i * width_ + j];
 }
 
+bool Labyrinth2d::Grid::at(std::pair<size_t, size_t> const& index) const
+{
+    return at(index.first, index.second);
+}
+
 void Labyrinth2d::Grid::change(size_t i, size_t j, bool value)
 {
     assert(i * width_ + j < cells_.size());
@@ -70,6 +75,11 @@ void Labyrinth2d::Grid::change(size_t i, size_t j, bool value)
     }
 }
 
+void Labyrinth2d::Grid::change(std::pair<size_t, size_t> const& index, bool value)
+{
+    change(index.first, index.second, value);
+}
+
 void Labyrinth2d::Grid::toggle(size_t i, size_t j)
 {
     assert(i * width_ + j < cells_.size());
@@ -79,9 +89,19 @@ void Labyrinth2d::Grid::toggle(size_t i, size_t j)
     ++modificationCounter_;
 }
 
+void Labyrinth2d::Grid::toggle(std::pair<size_t, size_t> const& index)
+{
+    toggle(index.first, index.second);
+}
+
 void Labyrinth2d::Grid::set(size_t i, size_t j)
 {
     change(i, j, true);
+}
+
+void Labyrinth2d::Grid::set(std::pair<size_t, size_t> const& index)
+{
+    set(index.first, index.second);
 }
 
 void Labyrinth2d::Grid::reset(size_t i, size_t j)
@@ -89,9 +109,19 @@ void Labyrinth2d::Grid::reset(size_t i, size_t j)
     change(i, j, false);
 }
 
+void Labyrinth2d::Grid::reset(std::pair<size_t, size_t> const& index)
+{
+    reset(index.first, index.second);
+}
+
 bool Labyrinth2d::Grid::operator()(size_t i, size_t j) const
 {
     return at(i, j);
+}
+
+bool Labyrinth2d::Grid::operator()(std::pair<size_t, size_t> const& index) const
+{
+    return at(index.first, index.second);
 }
 
 Labyrinth2d::Labyrinth const& Labyrinth2d::Grid::labyrinth() const
@@ -170,6 +200,11 @@ bool Labyrinth2d::SubGrid::at(size_t i, size_t j) const
     return grid_(2 * rowShift_ + i, 2 * columnShift_ + j);
 }
 
+bool Labyrinth2d::SubGrid::at(std::pair<size_t, size_t> const& index) const
+{
+    return at(index.first, index.second);
+}
+
 void Labyrinth2d::SubGrid::change(size_t i, size_t j, bool value) const
 {
     if (i >= height() - 1 || j >= width() - 1 || !i || !j || i % 2 == j % 2)
@@ -181,6 +216,11 @@ void Labyrinth2d::SubGrid::change(size_t i, size_t j, bool value) const
         throw std::invalid_argument("Reset operation not allowed");
 
     grid_.change(2 * rowShift_ + i, 2 * columnShift_ + j, value);
+}
+
+void Labyrinth2d::SubGrid::change(std::pair<size_t, size_t> const& index, bool value) const
+{
+    change(index.first, index.second, value);
 }
 
 void Labyrinth2d::SubGrid::toggle(size_t i, size_t j) const
@@ -198,12 +238,22 @@ void Labyrinth2d::SubGrid::toggle(size_t i, size_t j) const
     grid_.toggle(2 * rowShift_ + i, 2 * columnShift_ + j);
 }
 
+void Labyrinth2d::SubGrid::toggle(std::pair<size_t, size_t> const& index) const
+{
+    toggle(index.first, index.second);
+}
+
 void Labyrinth2d::SubGrid::set(size_t i, size_t j) const
 {
     if (operation_ == Reset)
         throw std::invalid_argument("Set operation not allowed");
 
     change(i, j, true);
+}
+
+void Labyrinth2d::SubGrid::set(std::pair<size_t, size_t> const& index) const
+{
+    set(index.first, index.second);
 }
 
 void Labyrinth2d::SubGrid::reset(size_t i, size_t j) const
@@ -214,6 +264,11 @@ void Labyrinth2d::SubGrid::reset(size_t i, size_t j) const
     change(i, j, false);
 }
 
+void Labyrinth2d::SubGrid::reset(std::pair<size_t, size_t> const& index) const
+{
+    reset(index.first, index.second);
+}
+
 Labyrinth2d::SubGrid::Operation Labyrinth2d::SubGrid::operation() const
 {
     return operation_;
@@ -222,4 +277,9 @@ Labyrinth2d::SubGrid::Operation Labyrinth2d::SubGrid::operation() const
 bool Labyrinth2d::SubGrid::operator()(size_t i, size_t j) const
 {
     return at(i, j);
+}
+
+bool Labyrinth2d::SubGrid::operator()(std::pair<size_t, size_t> const& index) const
+{
+    return at(index.first, index.second);
 }

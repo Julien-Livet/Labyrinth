@@ -7,9 +7,9 @@ Labyrinth2d::Player::Player(Labyrinth const& labyrinth,
                             size_t startI, size_t startJ,
                             std::vector<size_t> const& finishI, std::vector<size_t> const& finishJ,
                             bool enabledTrace, bool blockingFinish,
-                            bool keptFullTrace) : startI_{startI}, startJ_{startJ},
-                                                  finishI_{finishI}, finishJ_{finishJ},
-                                                  i_{startI_}, j_{startJ_},
+                            bool keptFullTrace) : start_{std::make_pair(startI, startJ)},
+                                                  finishes_{},
+                                                  current_{start_},
                                                   labyrinth_{labyrinth}, movements_{0},
                                                   state_{0},
                                                   enabledTrace_{enabledTrace},
@@ -17,16 +17,47 @@ Labyrinth2d::Player::Player(Labyrinth const& labyrinth,
 {
     enableTrace(enabledTrace);
 	
-	assert(finishI_.size() && finishI_.size() == finishJ_.size());
-	
-	for (std::size_t i{0}; i < finishI_.size(); ++i)
+    assert(finishI.size() && finishI.size() == finishJ.size());
+
+    finishes_.reserve(finishI.size());
+
+    for (std::size_t i{0}; i < finishI.size(); ++i)
+        finishes_.emplace_back(std::make_pair(finishI[i], finishJ[i]));
+
+    for (auto const& p : finishes_)
 	{
-		if (i_ == finishI_[i] && j_ == finishJ_[i])
+        if (p == current_)
 		{
 			state_ |= State::Finished;
 			break;
 		}
 	}
+}
+
+Labyrinth2d::Player::Player(Labyrinth const& labyrinth,
+                            std::pair<size_t, size_t> const& start,
+                            std::vector<std::pair<size_t, size_t> > const& finishes,
+                            bool enabledTrace, bool blockingFinish,
+                            bool keptFullTrace) : start_{start},
+                                                  finishes_{finishes},
+                                                  current_{start},
+                                                  labyrinth_{labyrinth}, movements_{0},
+                                                  state_{0},
+                                                  enabledTrace_{enabledTrace},
+                                                  blockingFinish_{blockingFinish}, keptFullTrace_{keptFullTrace}
+{
+    enableTrace(enabledTrace);
+
+    assert(!finishes_.empty());
+
+    for (auto const& p : finishes_)
+    {
+        if (p == current_)
+        {
+            state_ |= State::Finished;
+            break;
+        }
+    }
 }
 
 Labyrinth2d::Player::~Player()
@@ -37,51 +68,78 @@ Labyrinth2d::Player::~Player()
 
 size_t Labyrinth2d::Player::startI() const
 {
-    return startI_;
+    return start_.first;
 }
 
 size_t Labyrinth2d::Player::startJ() const
 {
-    return startJ_;
+    return start_.second;
 }
 
-std::vector<size_t> const& Labyrinth2d::Player::finishI() const
+std::pair<size_t, size_t> const& Labyrinth2d::Player::start() const
 {
-    return finishI_;
+    return start_;
 }
 
-std::vector<size_t> const& Labyrinth2d::Player::finishJ() const
+std::vector<size_t> Labyrinth2d::Player::finishI() const
 {
-    return finishJ_;
+    std::vector<size_t> finishI;
+    finishI.reserve(finishes_.size());
+
+    for (auto p : finishes_)
+        finishI.emplace_back(p.first);
+
+    return finishI;
+}
+
+std::vector<size_t> Labyrinth2d::Player::finishJ() const
+{
+    std::vector<size_t> finishJ;
+    finishJ.reserve(finishes_.size());
+
+    for (auto p : finishes_)
+        finishJ.emplace_back(p.second);
+
+    return finishJ;
+}
+
+std::vector<std::pair<size_t, size_t> > const& Labyrinth2d::Player::finishes() const
+{
+    return finishes_;
 }
 
 size_t Labyrinth2d::Player::i() const
 {
-    return i_;
+    return current_.first;
 }
 
 size_t Labyrinth2d::Player::j() const
 {
-    return j_;
+    return current_.second;
+}
+
+std::pair<size_t, size_t> const& Labyrinth2d::Player::current() const
+{
+    return current_;
 }
 
 size_t Labyrinth2d::Player::startRow() const
 {
-    return (startI_ - 1) / 2;
+    return (start_.first - 1) / 2;
 }
 
 size_t Labyrinth2d::Player::startColumn() const
 {
-    return (startJ_ - 1) / 2;
+    return (start_.second - 1) / 2;
 }
 
 std::vector<size_t> Labyrinth2d::Player::finishRows() const
 {
 	std::vector<size_t> rows;
-	rows.reserve(finishI_.size());
+    rows.reserve(finishes_.size());
 	
-	for (auto&& i : finishI_)
-		rows.emplace_back((i - 1) / 2);
+    for (auto const& p : finishes_)
+        rows.emplace_back((p.first - 1) / 2);
 	
     return rows;
 }
@@ -89,22 +147,22 @@ std::vector<size_t> Labyrinth2d::Player::finishRows() const
 std::vector<size_t> Labyrinth2d::Player::finishColumns() const
 {
 	std::vector<size_t> columns;
-	columns.reserve(finishJ_.size());
+    columns.reserve(finishes_.size());
 	
-	for (auto&& j : finishJ_)
-		columns.emplace_back((j - 1) / 2);
+    for (auto const& p : finishes_)
+        columns.emplace_back((p.second - 1) / 2);
 	
     return columns;
 }
 
 size_t Labyrinth2d::Player::row() const
 {
-    return (i_ - 1) / 2;
+    return (current_.first - 1) / 2;
 }
 
 size_t Labyrinth2d::Player::column() const
 {
-    return (j_ - 1) / 2;
+    return (current_.second - 1) / 2;
 }
 
 size_t Labyrinth2d::Player::movements() const
@@ -163,8 +221,7 @@ bool Labyrinth2d::Player::restart()
     if (state_ & Solving)
         return false;
 
-    i_ = startI_;
-    j_ = startJ_;
+    current_ = start_;
     movements_ = 0;
     state_ = 0;
     finishingDuration_ = std::chrono::milliseconds();
@@ -213,57 +270,54 @@ size_t Labyrinth2d::Player::move(Direction direction,
 
     state_ |= Moving;
 
-    size_t const i(i_);
-    size_t const j(j_);
+    auto const pos{current_};
 
-    size_t realizedMovements(0);
+    size_t realizedMovements{0};
 
     while (movements)
     {
         if (cycleOperations && cyclePause.count() && !(realizedMovements % cycleOperations))
             sleep(cyclePause);
 
-        size_t const iTmp(i_);
-        size_t const jTmp(j_);
+        auto const posTmp{current_};
 
         switch (direction)
         {
             case Up:
-                --i_;
+                --current_.first;
                 break;
 
             case Right:
-                ++j_;
+                ++current_.second;
                 break;
 
             case Down:
-                ++i_;
+                ++current_.first;
                 break;
 
             case Left:
-                --j_;
+                --current_.second;
                 break;
         }
 
-        if (labyrinth_.grid()(i_, j_))
+        if (labyrinth_.grid()(current_))
         {
-            i_ = iTmp;
-            j_ = jTmp;
+            current_ = posTmp;
             break;
         }
         else
         {
             if (keptFullTrace_)
-                fullTrace_.emplace_back(std::make_pair(iTmp, jTmp));
+                fullTrace_.emplace_back(posTmp);
 
             ++realizedMovements;
             --movements;
 
             bool finished{false};
 
-            for (std::size_t n{0}; n < finishI_.size(); ++n)
+            for (auto const& p : finishes_)
             {
-                if (i_ == finishI_[n] && j_ == finishJ_[n])
+                if (p == current_)
                 {
                     finished = true;
                     break;
@@ -286,9 +340,9 @@ size_t Labyrinth2d::Player::move(Direction direction,
     {
         bool finished{false};
 
-        for (std::size_t n{0}; n < finishI_.size(); ++n)
+        for (auto const& p : finishes_)
         {
-            if (i_ == finishI_[n] && j_ == finishJ_[n])
+            if (p == current_)
             {
                 finished = true;
                 break;
@@ -308,16 +362,17 @@ size_t Labyrinth2d::Player::move(Direction direction,
     {
         if (!traceIntersections_.empty())
         {
-            if (traceIntersections_.back().first == i_ && traceIntersections_.back().second == j_)
+            if (traceIntersections_.back() == current_)
                 traceIntersections_.pop_back();
             else
             {
-                if ((traceIntersections_.back().first == i && i != i_) || (traceIntersections_.back().second == j && j != j_))
-                    traceIntersections_.push_back(std::make_pair(i, j));
+                if ((traceIntersections_.back().first == pos.first && pos.first != current_.first)
+                    || (traceIntersections_.back().second == pos.second && pos.second != current_.second))
+                    traceIntersections_.emplace_back(pos);
             }
         }
         else
-            traceIntersections_.push_back(std::make_pair(i, j));
+            traceIntersections_.emplace_back(pos);
     }
 
     state_ &= ~Moving;
@@ -329,7 +384,7 @@ size_t Labyrinth2d::Player::stepBack(std::function<void(std::chrono::millisecond
                                      size_t movements, size_t cycleOperations,
                                      std::chrono::milliseconds const& cyclePause)
 {
-    size_t operations(0);
+    size_t operations{0};
 
     while ((!(state_ & Player::Finished) || !blockingFinish_)
            && !traceIntersections_.empty() && (!movements || (operations < movements)))
@@ -337,7 +392,7 @@ size_t Labyrinth2d::Player::stepBack(std::function<void(std::chrono::millisecond
         if (cycleOperations && cyclePause.count() && !(operations % cycleOperations))
             sleep(cyclePause);
 
-        if (i_ == traceIntersections_.back().first && j_ == traceIntersections_.back().second)
+        if (current_ == traceIntersections_.back())
         {
             traceIntersections_.pop_back();
             continue;
@@ -345,20 +400,20 @@ size_t Labyrinth2d::Player::stepBack(std::function<void(std::chrono::millisecond
 
         Direction direction;
 
-        if (i_ == traceIntersections_.back().first)
+        if (current_.first == traceIntersections_.back().first)
         {
-            if (j_ < traceIntersections_.back().second)
+            if (current_.second < traceIntersections_.back().second)
                 direction = Right;
-            else if (j_ > traceIntersections_.back().second)
+            else if (current_.second > traceIntersections_.back().second)
                 direction = Left;
             else
                 assert(0);
         }
-        else if (j_ == traceIntersections_.back().second)
+        else if (current_.second == traceIntersections_.back().second)
         {
-            if (i_ < traceIntersections_.back().first)
+            if (current_.first < traceIntersections_.back().first)
                 direction = Down;
-            else if (i_ > traceIntersections_.back().first)
+            else if (current_.first > traceIntersections_.back().first)
                 direction = Up;
             else
                 assert(0);

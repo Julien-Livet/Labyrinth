@@ -27,43 +27,43 @@ namespace Labyrinth2d
     };
 
     static std::chrono::milliseconds const dummyThreadSpleepingDuration(1);
-}
 
-template<typename POD>
-std::queue<char>& read(std::queue<char>& data, POD& pod)
-{
-    // make sure we're not trying to read a complex object this way
-    static_assert(std::is_pod<POD>::value, "must be plain old data");
-
-    std::vector<char> buffer{};
-
-    buffer.reserve(sizeof(POD));
-
-    for (std::size_t i{0}; i < sizeof(POD); ++i)
+    template<typename POD>
+    std::queue<char>& read(std::queue<char>& data, POD& pod)
     {
-        buffer.emplace_back(data.front());
-        data.pop();
+        // make sure we're not trying to read a complex object this way
+        static_assert(std::is_pod<POD>::value, "must be plain old data");
+
+        std::vector<char> buffer{};
+
+        buffer.reserve(sizeof(POD));
+
+        for (std::size_t i{0}; i < sizeof(POD); ++i)
+        {
+            buffer.emplace_back(data.front());
+            data.pop();
+        }
+
+        std::memcpy(&pod, buffer.data(), sizeof(POD));
+
+        return data;
     }
 
-    std::memcpy(&pod, buffer.data(), sizeof(POD));
+    template<typename POD>
+    std::queue<char>& write(std::queue<char>& data, POD const& pod)
+    {
+        // make sure we're not trying to write a complex object this way
+        static_assert(std::is_pod<POD>::value, "must be plain old data");
 
-    return data;
-}
+        std::vector<char> buffer(sizeof(POD));
 
-template<typename POD>
-std::queue<char>& write(std::queue<char>& data, POD const& pod)
-{
-    // make sure we're not trying to write a complex object this way
-    static_assert(std::is_pod<POD>::value, "must be plain old data");
+        std::memcpy(buffer.data(), &pod, sizeof(POD));
 
-    std::vector<char> buffer(sizeof(POD));
+        for (auto const& c : buffer)
+            data.emplace(c);
 
-    std::memcpy(buffer.data(), &pod, sizeof(POD));
-
-    for (auto const& c : buffer)
-        data.emplace(c);
-
-    return data;
+        return data;
+    }
 }
 
 #endif // LABYRINTH2D_UTILITY_H

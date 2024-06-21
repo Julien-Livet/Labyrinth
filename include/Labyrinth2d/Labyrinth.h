@@ -14,7 +14,7 @@
 #include <istream>
 #include <map>
 #include <memory>
-#include <ostream>
+#include <queue>
 
 #include "Grid.h"
 #include "utility.h"
@@ -103,6 +103,19 @@ namespace Labyrinth2d
              */
             size_t addPlayer(size_t startRow, size_t startColumn,
                              std::vector<size_t> const& finishRows, std::vector<size_t> const& finishColumns,
+                             bool enabledTrace = false, bool blockingFinish = true, bool keptFullTrace = false);
+            /*!
+             *  \brief Add a player in the labyrinth
+             *
+             *  \param startw: start row and column index in the labyrinth in [0; rows() - 1]x[0; columns() - 1]
+             *  \param finishes: finish row and column indexes in the labyrinth in [0; rows() - 1]x[0; columns() - 1]
+             *  \param enabledTrace: a boolean which is true if the player keep a trace of his path
+             *  \param blockingFinish: a boolean which is true if the player can not move when he reaches his finish
+             *
+             *  \return An id corresponding to the added player
+             */
+            size_t addPlayer(std::pair<size_t, size_t> const& start,
+                             std::vector<std::pair<size_t, size_t> > const& finishes,
                              bool enabledTrace = false, bool blockingFinish = true, bool keptFullTrace = false);
 
             /*!

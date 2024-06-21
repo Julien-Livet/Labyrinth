@@ -56,14 +56,24 @@ namespace Labyrinth2d
             size_t startJ() const;
 
             /*!
+             *  \return The start in [0; height() - 1]x[0; width() - 1] in the labyrinth grid
+             */
+            std::pair<size_t, size_t> const& start() const;
+
+            /*!
              *  \return The finish indexes in [0; height() - 1] in the labyrinth grid
              */
-            std::vector<size_t> const& finishI() const;
+            std::vector<size_t> finishI() const;
 
             /*!
              *  \return The finish indexes in [0; width() - 1] in the labyrinth grid
              */
-            std::vector<size_t> const& finishJ() const;
+            std::vector<size_t> finishJ() const;
+
+            /*!
+             *  \return The finish indexes in [0; height() - 1]x[0; width() - 1] in the labyrinth grid
+             */
+            std::vector<std::pair<size_t, size_t> > const& finishes() const;
 
             /*!
              *  \return The current position index in [0; height() - 1] in the labyrinth grid
@@ -74,6 +84,11 @@ namespace Labyrinth2d
              *  \return The current position index in [0; width() - 1] in the labyrinth grid
              */
             size_t j() const;
+
+            /*!
+             *  \return The current position index in [0; height() - 1]x[0; width() - 1] in the labyrinth grid
+             */
+            std::pair<size_t, size_t> const& current() const;
 
             /*!
              *  \return The start row in [0; rows() - 1] in the labyrinth grid
@@ -240,12 +255,9 @@ namespace Labyrinth2d
             std::vector<std::pair<size_t, size_t> > const& fullTrace() const;
 
         private:
-            size_t startI_;
-            size_t startJ_;
-            std::vector<size_t> finishI_;
-            std::vector<size_t> finishJ_;
-            size_t i_;
-            size_t j_;
+            std::pair<size_t, size_t> start_;
+            std::vector<std::pair<size_t, size_t> > finishes_;
+            std::pair<size_t, size_t> current_;
             Labyrinth const& labyrinth_;
             size_t movements_;
             std::chrono::milliseconds finishingDuration_;
@@ -263,6 +275,10 @@ namespace Labyrinth2d
             Player(Labyrinth const& labyrinth,
                    size_t startI, size_t startJ,
                    std::vector<size_t> const& finishI, std::vector<size_t> const& finishJ,
+                   bool enabledTrace = false, bool blockingFinish = true, bool keptFullTrace = false);
+            Player(Labyrinth const& labyrinth,
+                   std::pair<size_t, size_t> const& start,
+                   std::vector<std::pair<size_t, size_t> > const& finishes,
                    bool enabledTrace = false, bool blockingFinish = true, bool keptFullTrace = false);
             Player(Player const&) = delete;
             Player& operator=(Player const&) = delete;

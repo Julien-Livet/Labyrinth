@@ -88,6 +88,11 @@ bool Labyrinth3d::Grid::at(size_t i, size_t j, size_t k) const
     return cells_[(k * height_ + i) * width_ + j];
 }
 
+bool Labyrinth3d::Grid::at(std::tuple<size_t, size_t, size_t> const& index) const
+{
+    return at(std::get<0>(index), std::get<1>(index), std::get<2>(index));
+}
+
 void Labyrinth3d::Grid::change(size_t i, size_t j, size_t k, bool value)
 {
     assert((k * height_ + i) * width_ + j < cells_.size());
@@ -100,6 +105,11 @@ void Labyrinth3d::Grid::change(size_t i, size_t j, size_t k, bool value)
     }
 }
 
+void Labyrinth3d::Grid::change(std::tuple<size_t, size_t, size_t> const& index, bool value)
+{
+    change(std::get<0>(index), std::get<1>(index), std::get<2>(index), value);
+}
+
 void Labyrinth3d::Grid::toggle(size_t i, size_t j, size_t k)
 {
     assert((k * height_ + i) * width_ + j < cells_.size());
@@ -109,9 +119,19 @@ void Labyrinth3d::Grid::toggle(size_t i, size_t j, size_t k)
     ++modificationCounter_;
 }
 
+void Labyrinth3d::Grid::toggle(std::tuple<size_t, size_t, size_t> const& index)
+{
+    toggle(std::get<0>(index), std::get<1>(index), std::get<2>(index));
+}
+
 void Labyrinth3d::Grid::set(size_t i, size_t j, size_t k)
 {
     change(i, j, k, true);
+}
+
+void Labyrinth3d::Grid::set(std::tuple<size_t, size_t, size_t> const& index)
+{
+    set(std::get<0>(index), std::get<1>(index), std::get<2>(index));
 }
 
 void Labyrinth3d::Grid::reset(size_t i, size_t j, size_t k)
@@ -119,9 +139,19 @@ void Labyrinth3d::Grid::reset(size_t i, size_t j, size_t k)
     change(i, j, k, false);
 }
 
+void Labyrinth3d::Grid::reset(std::tuple<size_t, size_t, size_t> const& index)
+{
+    reset(std::get<0>(index), std::get<1>(index), std::get<2>(index));
+}
+
 bool Labyrinth3d::Grid::operator()(size_t i, size_t j, size_t k) const
 {
     return at(i, j, k);
+}
+
+bool Labyrinth3d::Grid::operator()(std::tuple<size_t, size_t, size_t> const& index) const
+{
+    return at(std::get<0>(index), std::get<1>(index), std::get<2>(index));
 }
 
 Labyrinth3d::Labyrinth const& Labyrinth3d::Grid::labyrinth() const
@@ -218,6 +248,11 @@ bool Labyrinth3d::SubGrid::at(size_t i, size_t j, size_t k) const
     return grid_(2 * rowShift_ + i, 2 * columnShift_ + j, 2 * floorShift_ + k);
 }
 
+bool Labyrinth3d::SubGrid::at(std::tuple<size_t, size_t, size_t> const& index) const
+{
+    return at(std::get<0>(index), std::get<1>(index), std::get<2>(index));
+}
+
 void Labyrinth3d::SubGrid::change(size_t i, size_t j, size_t k, bool value) const
 {
     if (i >= height() - 1 || j >= width() - 1 || k >= depth() - 1 || !i || !j || !k || i % 2 + j % 2 + k % 2 == 3)
@@ -229,6 +264,11 @@ void Labyrinth3d::SubGrid::change(size_t i, size_t j, size_t k, bool value) cons
         throw std::invalid_argument("Reset operation not allowed");
 
     grid_.change(2 * rowShift_ + i, 2 * columnShift_ + j, 2 * floorShift_ + k, value);
+}
+
+void Labyrinth3d::SubGrid::change(std::tuple<size_t, size_t, size_t> const& index, bool value) const
+{
+    change(std::get<0>(index), std::get<1>(index), std::get<2>(index), value);
 }
 
 void Labyrinth3d::SubGrid::toggle(size_t i, size_t j, size_t k) const
@@ -246,12 +286,22 @@ void Labyrinth3d::SubGrid::toggle(size_t i, size_t j, size_t k) const
     grid_.toggle(2 * rowShift_ + i, 2 * columnShift_ + j, 2 * floorShift_ + k);
 }
 
+void Labyrinth3d::SubGrid::toggle(std::tuple<size_t, size_t, size_t> const& index) const
+{
+    toggle(std::get<0>(index), std::get<1>(index), std::get<2>(index));
+}
+
 void Labyrinth3d::SubGrid::set(size_t i, size_t j, size_t k) const
 {
     if (operation_ == Reset)
         throw std::invalid_argument("Set operation not allowed");
 
     change(i, j, k, true);
+}
+
+void Labyrinth3d::SubGrid::set(std::tuple<size_t, size_t, size_t> const& index) const
+{
+    set(std::get<0>(index), std::get<1>(index), std::get<2>(index));
 }
 
 void Labyrinth3d::SubGrid::reset(size_t i, size_t j, size_t k) const
@@ -262,6 +312,11 @@ void Labyrinth3d::SubGrid::reset(size_t i, size_t j, size_t k) const
     change(i, j, k, false);
 }
 
+void Labyrinth3d::SubGrid::reset(std::tuple<size_t, size_t, size_t> const& index) const
+{
+    reset(std::get<0>(index), std::get<1>(index), std::get<2>(index));
+}
+
 Labyrinth3d::SubGrid::Operation Labyrinth3d::SubGrid::operation() const
 {
     return operation_;
@@ -270,4 +325,9 @@ Labyrinth3d::SubGrid::Operation Labyrinth3d::SubGrid::operation() const
 bool Labyrinth3d::SubGrid::operator()(size_t i, size_t j, size_t k) const
 {
     return at(i, j, k);
+}
+
+bool Labyrinth3d::SubGrid::operator()(std::tuple<size_t, size_t, size_t> const& index) const
+{
+    return at(std::get<0>(index), std::get<1>(index), std::get<2>(index));
 }

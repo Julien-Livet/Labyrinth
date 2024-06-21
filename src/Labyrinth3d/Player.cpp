@@ -7,9 +7,9 @@ Labyrinth3d::Player::Player(Labyrinth const& labyrinth,
                             size_t startI, size_t startJ, size_t startK,
                             std::vector<size_t> const& finishI, std::vector<size_t> const&finishJ, std::vector<size_t> const&finishK,
                             bool enabledTrace, bool blockingFinish,
-                            bool keptFullTrace) : startI_{startI}, startJ_{startJ}, startK_(startK),
-                                                  finishI_{finishI}, finishJ_{finishJ}, finishK_{finishK},
-                                                  i_{startI_}, j_{startJ_}, k_{startK_},
+                            bool keptFullTrace) : start_{std::make_tuple(startI, startJ, startK)},
+                                                  finishes_{},
+                                                  current_{start_},
                                                   labyrinth_{labyrinth}, movements_{0},
                                                   state_{0},
                                                   enabledTrace_{enabledTrace},
@@ -17,16 +17,47 @@ Labyrinth3d::Player::Player(Labyrinth const& labyrinth,
 {
     enableTrace(enabledTrace);
 
-	assert(finishI_.size() && finishI_.size() == finishJ_.size() && finishI_.size() == finishK_.size());
+    assert(finishI.size() && finishI.size() == finishJ.size() && finishI.size() == finishK.size());
 
-	for (std::size_t i{0}; i < finishI_.size(); ++i)
-	{
-		if (i_ == finishI_[i] && j_ == finishJ_[i] && k_ == finishK_[i])
-		{
+    finishes_.reserve(finishI.size());
+
+    for (std::size_t i{0}; i < finishI.size(); ++i)
+        finishes_.emplace_back(std::make_tuple(finishI[i], finishJ[i], finishK[i]));
+
+    for (auto const& p : finishes_)
+    {
+        if (p == current_)
+        {
 			state_ |= State::Finished;
 			break;
 		}
 	}
+}
+
+Labyrinth3d::Player::Player(Labyrinth const& labyrinth,
+                            std::tuple<size_t, size_t, size_t> const& start,
+                            std::vector<std::tuple<size_t, size_t, size_t> > const&finishes,
+                            bool enabledTrace, bool blockingFinish,
+                            bool keptFullTrace) : start_{start},
+                                                  finishes_{finishes},
+                                                  current_{start_},
+                                                  labyrinth_{labyrinth}, movements_{0},
+                                                  state_{0},
+                                                  enabledTrace_{enabledTrace},
+                                                  blockingFinish_{blockingFinish}, keptFullTrace_{keptFullTrace}
+{
+    enableTrace(enabledTrace);
+
+    assert(!finishes_.empty());
+
+    for (auto const& p : finishes_)
+    {
+        if (p == current_)
+        {
+            state_ |= State::Finished;
+            break;
+        }
+    }
 }
 
 Labyrinth3d::Player::~Player()
@@ -37,71 +68,104 @@ Labyrinth3d::Player::~Player()
 
 size_t Labyrinth3d::Player::startI() const
 {
-    return startI_;
+    return std::get<0>(start_);
 }
 
 size_t Labyrinth3d::Player::startJ() const
 {
-    return startJ_;
+    return std::get<1>(start_);
 }
 
 size_t Labyrinth3d::Player::startK() const
 {
-    return startK_;
+    return std::get<2>(start_);
 }
 
-std::vector<size_t> const& Labyrinth3d::Player::finishI() const
+std::tuple<size_t, size_t, size_t> const& Labyrinth3d::Player::start() const
 {
-    return finishI_;
+    return start_;
 }
 
-std::vector<size_t> const& Labyrinth3d::Player::finishJ() const
+std::vector<size_t> Labyrinth3d::Player::finishI() const
 {
-    return finishJ_;
+    std::vector<size_t> finishI;
+    finishI.reserve(finishes_.size());
+
+    for (auto const& f : finishes_)
+        finishI.emplace_back(std::get<0>(f));
+
+    return finishI;
 }
 
-std::vector<size_t> const& Labyrinth3d::Player::finishK() const
+std::vector<size_t> Labyrinth3d::Player::finishJ() const
 {
-    return finishK_;
+    std::vector<size_t> finishJ;
+    finishJ.reserve(finishes_.size());
+
+    for (auto const& f : finishes_)
+        finishJ.emplace_back(std::get<1>(f));
+
+    return finishJ;
+}
+
+std::vector<size_t> Labyrinth3d::Player::finishK() const
+{
+    std::vector<size_t> finishK;
+    finishK.reserve(finishes_.size());
+
+    for (auto const& f : finishes_)
+        finishK.emplace_back(std::get<2>(f));
+
+    return finishK;
+}
+
+std::vector<std::tuple<size_t, size_t, size_t> > const& Labyrinth3d::Player::finishes() const
+{
+    return finishes_;
 }
 
 size_t Labyrinth3d::Player::i() const
 {
-    return i_;
+    return std::get<0>(current_);
 }
 
 size_t Labyrinth3d::Player::j() const
 {
-    return j_;
+    return std::get<1>(current_);
 }
 
 size_t Labyrinth3d::Player::k() const
 {
-    return k_;
+    return std::get<2>(current_);
+}
+
+std::tuple<size_t, size_t, size_t> const& Labyrinth3d::Player::current() const
+{
+    return current_;
 }
 
 size_t Labyrinth3d::Player::startRow() const
 {
-    return (startI_ - 1) / 2;
+    return (std::get<0>(start_) - 1) / 2;
 }
 
 size_t Labyrinth3d::Player::startColumn() const
 {
-    return (startJ_ - 1) / 2;
+    return (std::get<1>(start_) - 1) / 2;
 }
 
 size_t Labyrinth3d::Player::startFloor() const
 {
-    return (startK_ - 1) / 2;
+    return (std::get<2>(start_) - 1) / 2;
 }
 
 std::vector<size_t> Labyrinth3d::Player::finishRows() const
 {
 	std::vector<size_t> rows;
-	rows.reserve(finishI_.size());
+    rows.reserve(finishes_.size());
 
-	for (auto&& i : finishI_)
-		rows.emplace_back((i - 1) / 2);
+    for (auto const& f : finishes_)
+        rows.emplace_back((std::get<0>(f) - 1) / 2);
 
     return rows;
 }
@@ -109,10 +173,10 @@ std::vector<size_t> Labyrinth3d::Player::finishRows() const
 std::vector<size_t> Labyrinth3d::Player::finishColumns() const
 {
 	std::vector<size_t> columns;
-	columns.reserve(finishJ_.size());
+    columns.reserve(finishes_.size());
 
-	for (auto&& j : finishJ_)
-		columns.emplace_back((j - 1) / 2);
+    for (auto const& f : finishes_)
+        columns.emplace_back((std::get<1>(f) - 1) / 2);
 
     return columns;
 }
@@ -120,27 +184,27 @@ std::vector<size_t> Labyrinth3d::Player::finishColumns() const
 std::vector<size_t> Labyrinth3d::Player::finishFloors() const
 {
 	std::vector<size_t> floors;
-	floors.reserve(finishK_.size());
+    floors.reserve(finishes_.size());
 
-	for (auto&& k : finishK_)
-		floors.emplace_back((k - 1) / 2);
+    for (auto const& f : finishes_)
+        floors.emplace_back((std::get<2>(f) - 1) / 2);
 
     return floors;
 }
 
 size_t Labyrinth3d::Player::row() const
 {
-    return (i_ - 1) / 2;
+    return (std::get<0>(current_) - 1) / 2;
 }
 
 size_t Labyrinth3d::Player::column() const
 {
-    return (j_ - 1) / 2;
+    return (std::get<1>(current_) - 1) / 2;
 }
 
 size_t Labyrinth3d::Player::floor() const
 {
-    return (k_ - 1) / 2;
+    return (std::get<2>(current_) - 1) / 2;
 }
 
 size_t Labyrinth3d::Player::movements() const
@@ -199,9 +263,7 @@ bool Labyrinth3d::Player::restart()
     if (state_ & Solving)
         return false;
 
-    i_ = startI_;
-    j_ = startJ_;
-    k_ = startK_;
+    current_ = start_;
     movements_ = 0;
     state_ = 0;
     finishingDuration_ = std::chrono::milliseconds();
@@ -249,68 +311,62 @@ size_t Labyrinth3d::Player::move(Direction direction,
 
     state_ |= Moving;
 
-    size_t const i(i_);
-    size_t const j(j_);
-    size_t const k(k_);
+    auto const pos{current_};
 
-    size_t realizedMovements(0);
+    size_t realizedMovements{0};
 
     while (movements)
     {
         if (cycleOperations && cyclePause.count() && !(realizedMovements % cycleOperations))
             sleep(cyclePause);
 
-        size_t const iTmp(i_);
-        size_t const jTmp(j_);
-        size_t const kTmp(k_);
+        auto const posTmp{current_};
 
         switch (direction)
         {
             case Front:
-                ++j_;
+                ++std::get<1>(current_);
                 break;
 
             case Right:
-                --i_;
+                --std::get<0>(current_);
                 break;
 
             case Back:
-                --j_;
+                --std::get<1>(current_);
                 break;
 
             case Left:
-                ++i_;
+                ++std::get<0>(current_);
                 break;
 
             case Up:
-                ++k_;
+                ++std::get<2>(current_);
                 break;
 
             case Down:
-                --k_;
+                --std::get<2>(current_);
                 break;
         }
 
-        if (labyrinth_.grid()(i_, j_, k_))
+        if (labyrinth_.grid()(current_))
         {
-            i_ = iTmp;
-            j_ = jTmp;
-            k_ = kTmp;
+            current_ = posTmp;
             break;
         }
         else
         {
             if (keptFullTrace_)
-                fullTrace_.emplace_back(std::make_tuple(iTmp, jTmp, kTmp));
+                fullTrace_.emplace_back(posTmp);
 
             ++realizedMovements;
             --movements;
 
             bool finished{false};
 
-            for (std::size_t n{0}; n < finishI_.size(); ++n)
+            for (auto const& f : finishes_)
             {
-                if (i_ == finishI_[n] && j_ == finishJ_[n] && k_ == finishK_[n])
+                if (current_ == f)
                 {
                     finished = true;
                     break;
@@ -333,9 +389,9 @@ size_t Labyrinth3d::Player::move(Direction direction,
     {
         bool finished{false};
 
-        for (std::size_t n{0}; n < finishI_.size(); ++n)
+        for (auto const& f : finishes_)
         {
-            if (i_ == finishI_[n] && j_ == finishJ_[n] && k_ == finishK_[n])
+            if (current_ == f)
             {
                 finished = true;
                 break;
@@ -353,20 +409,18 @@ size_t Labyrinth3d::Player::move(Direction direction,
 
     if (!traceIntersections_.empty())
     {
-        if (std::get<0>(traceIntersections_.back()) == i_
-            && std::get<1>(traceIntersections_.back()) == j_
-            && std::get<2>(traceIntersections_.back()) == k_)
+        if (traceIntersections_.back() == current_)
             traceIntersections_.pop_back();
         else
         {
-            if ((std::get<0>(traceIntersections_.back()) == i && i != i_)
-                || (std::get<1>(traceIntersections_.back()) == j && j != j_)
-                || (std::get<2>(traceIntersections_.back()) == k && k != k_))
-                traceIntersections_.push_back(std::make_tuple(i, j, k));
+            if ((std::get<0>(traceIntersections_.back()) == std::get<0>(pos) && std::get<0>(pos) != std::get<0>(current_))
+                || (std::get<1>(traceIntersections_.back()) == std::get<1>(pos) && std::get<1>(pos) != std::get<1>(current_))
+                || (std::get<2>(traceIntersections_.back()) == std::get<2>(pos) && std::get<2>(pos) != std::get<2>(current_)))
+                traceIntersections_.push_back(pos);
         }
     }
     else
-        traceIntersections_.push_back(std::make_tuple(i, j, k));
+        traceIntersections_.push_back(pos);
 
     state_ &= ~Moving;
 
@@ -377,7 +431,7 @@ size_t Labyrinth3d::Player::stepBack(std::function<void(std::chrono::millisecond
                                      size_t movements, size_t cycleOperations,
                                      std::chrono::milliseconds const& cyclePause)
 {
-    size_t operations(0);
+    size_t operations{0};
 
     while ((!(state_ & Player::Finished) || !blockingFinish_)
            && !traceIntersections_.empty() && (!movements || (operations < movements)))
@@ -385,9 +439,7 @@ size_t Labyrinth3d::Player::stepBack(std::function<void(std::chrono::millisecond
         if (cycleOperations && cyclePause.count() && !(operations % cycleOperations))
             sleep(cyclePause);
 
-        if (i_ == std::get<0>(traceIntersections_.back())
-            && j_ == std::get<1>(traceIntersections_.back())
-            && k_ == std::get<2>(traceIntersections_.back()))
+        if (current_ == traceIntersections_.back())
         {
             traceIntersections_.pop_back();
             continue;
@@ -395,22 +447,22 @@ size_t Labyrinth3d::Player::stepBack(std::function<void(std::chrono::millisecond
 
         Direction direction;
 
-        if (i_ == std::get<0>(traceIntersections_.back()))
+        if (std::get<0>(current_) == std::get<0>(traceIntersections_.back()))
         {
-            if (j_ == std::get<1>(traceIntersections_.back()))
+            if (std::get<1>(current_) == std::get<1>(traceIntersections_.back()))
             {
-                if (k_ < std::get<2>(traceIntersections_.back()))
+                if (std::get<2>(current_) < std::get<2>(traceIntersections_.back()))
                     direction = Up;
-                else if (k_ > std::get<2>(traceIntersections_.back()))
+                else if (std::get<2>(current_) > std::get<2>(traceIntersections_.back()))
                     direction = Down;
                 else
                     assert(0);
             }
-            else if (k_ == std::get<2>(traceIntersections_.back()))
+            else if (std::get<2>(current_) == std::get<2>(traceIntersections_.back()))
             {
-                if (j_ < std::get<1>(traceIntersections_.back()))
+                if (std::get<1>(current_) < std::get<1>(traceIntersections_.back()))
                     direction = Front;
-                else if (j_ > std::get<1>(traceIntersections_.back()))
+                else if (std::get<1>(current_) > std::get<1>(traceIntersections_.back()))
                     direction = Back;
                 else
                     assert(0);
@@ -418,22 +470,22 @@ size_t Labyrinth3d::Player::stepBack(std::function<void(std::chrono::millisecond
             else
                 assert(0);
         }
-        else if (j_ == std::get<1>(traceIntersections_.back()))
+        else if (std::get<1>(current_) == std::get<1>(traceIntersections_.back()))
         {
-            if (i_ == std::get<0>(traceIntersections_.back()))
+            if (std::get<0>(current_) == std::get<0>(traceIntersections_.back()))
             {
-                if (k_ < std::get<2>(traceIntersections_.back()))
+                if (std::get<2>(current_) < std::get<2>(traceIntersections_.back()))
                     direction = Up;
-                else if (k_ > std::get<2>(traceIntersections_.back()))
+                else if (std::get<2>(current_) > std::get<2>(traceIntersections_.back()))
                     direction = Down;
                 else
                     assert(0);
             }
-            else if (k_ == std::get<2>(traceIntersections_.back()))
+            else if (std::get<2>(current_) == std::get<2>(traceIntersections_.back()))
             {
-                if (i_ < std::get<0>(traceIntersections_.back()))
+                if (std::get<0>(current_) < std::get<0>(traceIntersections_.back()))
                     direction = Left;
-                else if (i_ > std::get<0>(traceIntersections_.back()))
+                else if (std::get<0>(current_) > std::get<0>(traceIntersections_.back()))
                     direction = Right;
                 else
                     assert(0);

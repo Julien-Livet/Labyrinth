@@ -62,6 +62,13 @@ namespace Labyrinth2d
             bool at(size_t i, size_t j) const;
 
             /*!
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]
+             *
+             *  \return A boolean value which is true if the considered cell is wall
+             */
+            bool at(std::pair<size_t, size_t> const& index) const;
+
+            /*!
              *  \brief Change a cell state
              *
              *  \param i: index in [0; height() - 1]
@@ -69,6 +76,14 @@ namespace Labyrinth2d
              *  \param value: boolean value which is true if the considered cell is wall
              */
             void change(size_t i, size_t j, bool value);
+
+            /*!
+             *  \brief Change a cell state
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]
+             *  \param value: boolean value which is true if the considered cell is wall
+             */
+            void change(std::pair<size_t, size_t> const& index, bool value);
 
             /*!
              *  \brief Toggle a cell state
@@ -79,12 +94,26 @@ namespace Labyrinth2d
             void toggle(size_t i, size_t j);
 
             /*!
+             *  \brief Toggle a cell state
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]
+             */
+            void toggle(std::pair<size_t, size_t> const& index);
+
+            /*!
              *  \brief Set a cell as a wall
              *
              *  \param i: index in [0; height() - 1]
              *  \param j: index in [0; width() - 1]
              */
             void set(size_t i, size_t j);
+
+            /*!
+             *  \brief Set a cell as a wall
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]
+             */
+            void set(std::pair<size_t, size_t> const& index);
 			
             /*!
              *  \brief Set a cell as a way
@@ -95,12 +124,26 @@ namespace Labyrinth2d
             void reset(size_t i, size_t j);
 
             /*!
+             *  \brief Set a cell as a way
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]
+             */
+            void reset(std::pair<size_t, size_t> const& index);
+
+            /*!
              *  \param i: index in [0; height() - 1]
              *  \param j: index in [0; width() - 1]
              *
              *  \return A boolean which is true if the considered cell is wall
              */
             bool operator()(size_t i, size_t j) const;
+
+            /*!
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]
+             *
+             *  \return A boolean which is true if the considered cell is wall
+             */
+            bool operator()(std::pair<size_t, size_t> const& index) const;
 
             /*!
              * \brief Get a constant reference of the labyrinth
@@ -201,6 +244,13 @@ namespace Labyrinth2d
             bool at(size_t i, size_t j) const;
 
             /*!
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]
+             *
+             *  \return A boolean value which is true if the considered cell is wall
+             */
+            bool at(std::pair<size_t, size_t> const& index) const;
+
+            /*!
              *  \brief Change a cell state
              *
              *  \param i: index in [0; height() - 1]
@@ -208,6 +258,14 @@ namespace Labyrinth2d
              *  \param value: boolean value which is true if the considered cell is wall
              */
             void change(size_t i, size_t j, bool value) const;
+
+            /*!
+             *  \brief Change a cell state
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]
+             *  \param value: boolean value which is true if the considered cell is wall
+             */
+            void change(std::pair<size_t, size_t> const& index, bool value) const;
 
             /*!
              *  \brief Toggle a cell state
@@ -218,6 +276,13 @@ namespace Labyrinth2d
             void toggle(size_t i, size_t j) const;
 
             /*!
+             *  \brief Toggle a cell state
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]
+             */
+            void toggle(std::pair<size_t, size_t> const& index) const;
+
+            /*!
              *  \brief Set a cell as a wall
              *
              *  \param i: index in [0; height() - 1]
@@ -226,12 +291,26 @@ namespace Labyrinth2d
             void set(size_t i, size_t j) const;
 
             /*!
+             *  \brief Set a cell as a wall
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]
+             */
+            void set(std::pair<size_t, size_t> const& index) const;
+
+            /*!
              *  \brief Set a cell as a way
              *
              *  \param i: index in [0; height() - 1]
              *  \param j: index in [0; width() - 1]
              */
             void reset(size_t i, size_t j) const;
+
+            /*!
+             *  \brief Set a cell as a way
+             *
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]
+             */
+            void reset(std::pair<size_t, size_t> const& index) const;
 
             /*!
              *  \return The authorize operation for this sub-grid
@@ -245,6 +324,13 @@ namespace Labyrinth2d
              *  \return A boolean value which is true if the considered cell is wall
              */
             bool operator()(size_t i, size_t j) const;
+
+            /*!
+             *  \param index: index in [0; height() - 1]x[0; width() - 1]
+             *
+             *  \return A boolean value which is true if the considered cell is wall
+             */
+            bool operator()(std::pair<size_t, size_t> const& index) const;
 
         private:
             Grid& grid_;

@@ -14,6 +14,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <queue>
 
 #include "Grid.h"
 #include "utility.h"
@@ -107,6 +108,20 @@ namespace Labyrinth3d
                              bool enabledTrace = false, bool blockingFinish = true, bool keptFullTrace = false);
 
             /*!
+             *  \brief Add a player in the labyrinth
+             *
+             *  \param start: start row and column and floor index in the labyrinth in [0; rows() - 1]x[0; columns() - 1]x[0; floors() - 1]
+             *  \param finishes: finish row and column and florr indexes in the labyrinth in [0; rows() - 1]x[0; columns() - 1]x[0; floors() - 1]
+             *  \param enabledTrace: a boolean which is true if the player keep a trace of his path
+             *  \param blockingFinish: a boolean which is true if the player can not move when he reaches his finish
+             *
+             *  \return An id corresponding to the added player
+             */
+            size_t addPlayer(std::tuple<size_t, size_t, size_t> const& start,
+                             std::vector<std::tuple<size_t, size_t, size_t> > const& finishes,
+                             bool enabledTrace = false, bool blockingFinish = true, bool keptFullTrace = false);
+
+            /*!
              *  \brief Remove a player in the labyrinth
              *
              *  \param id: player id
@@ -166,6 +181,16 @@ namespace Labyrinth3d
              *  \brief Stop solving players
              */
             void stopPlayerSolving();
+
+            /*!
+             *  \brief Read from binary stream as raw data
+             */
+            std::queue<char>& read(std::queue<char>& data);
+
+            /*!
+             *  \brief Write into binary stream as raw data
+             */
+            std::queue<char>& write(std::queue<char>& data) const;
 
         private:
             Grid grid_;

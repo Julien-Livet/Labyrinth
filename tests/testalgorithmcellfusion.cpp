@@ -14,7 +14,7 @@ class TestAlgorithmCellFusion : public QObject
 		void solveRightWallHand2x2();
 		void solveBlind2x2();
 		void solve8x8();
-        void writeAndRead();
+        void writeAndRead8x8();
 		void generate1x1x1();
 		void generate2x1x1();
 		void generate1x2x1();
@@ -26,6 +26,7 @@ class TestAlgorithmCellFusion : public QObject
 		void solveAStar2x2x2();
 		void solveBlind2x2x2();
         void solve8x8x8();
+        void writeAndRead8x8x8();
 };
 
 #include "Labyrinth2d/Labyrinth.h"
@@ -165,7 +166,7 @@ void TestAlgorithmCellFusion::solve8x8()
     QCOMPARE(l.player(playerId).solve(g, ass), true);
 }
 
-void TestAlgorithmCellFusion::writeAndRead()
+void TestAlgorithmCellFusion::writeAndRead8x8()
 {
     Labyrinth2d::Labyrinth l1{8, 8};
     std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
@@ -436,6 +437,30 @@ void TestAlgorithmCellFusion::solve8x8x8()
     Labyrinth3d::Solver::AStar ass;
 
     QCOMPARE(l.player(playerId).solve(g, ass), true);
+}
+
+void TestAlgorithmCellFusion::writeAndRead8x8x8()
+{
+    Labyrinth3d::Labyrinth l1{8, 8, 8};
+    std::default_random_engine g{static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count())};
+    Labyrinth3d::Algorithm::CellFusion cfa;
+
+    l1.generate(g, cfa);
+
+    auto const playerId{l1.addPlayer(0, 0, 0, {7}, {7}, {7}, true)};
+    Labyrinth3d::Solver::AStar ass;
+
+    l1.player(playerId).solve(g, ass);
+
+    std::queue<char> data;
+
+    l1.write(data);
+
+    Labyrinth3d::Labyrinth l2{1, 1, 1};
+
+    l2.read(data);
+
+    QCOMPARE(data.empty(), true);
 }
 
 QTEST_MAIN(TestAlgorithmCellFusion)
