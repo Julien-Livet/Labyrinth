@@ -62,47 +62,47 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid const& subG
                                                     size_t cycleOperations, std::chrono::milliseconds const& cyclePause,
                                                     std::chrono::milliseconds const* timeout)
 {
-    auto const t(std::chrono::steady_clock::now());
+    auto const t{std::chrono::steady_clock::now()};
 
-    size_t const height(subGrid.height());
-    size_t const width(subGrid.width());
-    size_t const depth(subGrid.depth());
-    size_t const rows(subGrid.rows());
-    size_t const columns(subGrid.columns());
-    size_t const floors(subGrid.floors());
+    auto const height{subGrid.height()};
+    auto const width{subGrid.width()};
+    auto const depth{subGrid.depth()};
+    auto const rows{subGrid.rows()};
+    auto const columns{subGrid.columns()};
+    auto const floors{subGrid.floors()};
 
-    for (size_t k(1); k < depth - 1; ++k)
+    for (size_t k{1}; k < depth - 1; ++k)
     {
-        for (size_t i(1); i < height - 3; i += 2)
+        for (size_t i{1}; i < height - 3; i += 2)
         {
-            for (size_t j(2); j < width - 1; j += 2)
+            for (size_t j{2}; j < width - 1; j += 2)
             {
                 subGrid.set(i, j, k);
                 subGrid.set(i + 1, j - 1, k);
             }
         }
 
-        for (size_t i(2); i < height - 1; i += 2)
+        for (size_t i{2}; i < height - 1; i += 2)
             subGrid.set(i, width - 2, k);
 
-        for (size_t j(2); j < width - 1; j += 2)
+        for (size_t j{2}; j < width - 1; j += 2)
             subGrid.set(height - 2, j, k);
     }
 
-    for (size_t k(2); k < depth - 1; k += 2)
+    for (size_t k{2}; k < depth - 1; k += 2)
     {
-        for (size_t i(1); i < height; i += 2)
+        for (size_t i{1}; i < height; i += 2)
         {
-            for (size_t j(1); j < width; j += 2)
+            for (size_t j{1}; j < width; j += 2)
                 subGrid.set(i, j, k);
         }
     }
 
-    for (size_t k(1); k < depth - 1; k += 2)
+    for (size_t k{1}; k < depth - 1; k += 2)
     {
-        for (size_t i(2); i < height - 1; i += 2)
+        for (size_t i{2}; i < height - 1; i += 2)
         {
-            for (size_t j(2); j < width - 1; j += 2)
+            for (size_t j{2}; j < width - 1; j += 2)
                 subGrid.set(i, j, k);
         }
     }

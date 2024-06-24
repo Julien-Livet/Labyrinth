@@ -173,6 +173,48 @@ namespace Labyrinth3d
              */
             size_t modificationCounter() const;
 
+            /*!
+             *  \param i: index in [0; rows() - 1]
+             *  \param j: index in [0; columns() - 1]
+             *  \param k: index in [0; floors() - 1]
+             *
+             *  \return Possible directions to go
+             */
+            std::vector<Direction> possibleDirections(size_t i, size_t j, size_t k) const;
+
+            /*!
+             *  \param index: index in [0; rows() - 1]x[0; columns() - 1]x[0; floors() - 1]
+             *
+             *  \return Possible directions to go
+             */
+            std::vector<Direction> possibleDirections(std::tuple<size_t, size_t, size_t> const& index) const;
+
+            /*!
+             *  \param i: index in [0; rows() - 1]
+             *  \param j: index in [0; columns() - 1]
+             *  \param k: index in [0; floors() - 1]
+             *
+             *  \return Impossible directions to go
+             */
+            std::vector<Direction> impossibleDirections(size_t i, size_t j, size_t k) const;
+
+            /*!
+             *  \param index: index in [0; rows() - 1]x[0; columns() - 1]x[0; floors() - 1]
+             *
+             *  \return Impossible directions to go
+             */
+            std::vector<Direction> impossibleDirections(std::tuple<size_t, size_t, size_t> const& index) const;
+
+            /*!
+             * \brief Compare if grids are the same
+             */
+            bool operator==(Grid const& other) const;
+
+            /*!
+             * \brief Compare if grids are different
+             */
+            bool operator!=(Grid const& other) const;
+
         private:
             Labyrinth const* labyrinth_;
             size_t height_;
@@ -360,6 +402,38 @@ namespace Labyrinth3d
             Operation operation() const;
 
             /*!
+             *  \param i: index in [0; rows() - 1]
+             *  \param j: index in [0; columns() - 1]
+             *  \param k: index in [0; floors() - 1]
+             *
+             *  \return Possible directions to go
+             */
+            std::vector<Direction> possibleDirections(size_t i, size_t j, size_t k) const;
+
+            /*!
+             *  \param index: index in [0; rows() - 1]x[0; columns() - 1]x[0; floors() - 1]
+             *
+             *  \return Possible directions to go
+             */
+            std::vector<Direction> possibleDirections(std::tuple<size_t, size_t, size_t> const& index) const;
+
+            /*!
+             *  \param i: index in [0; rows() - 1]
+             *  \param j: index in [0; columns() - 1]
+             *  \param k: index in [0; floors() - 1]
+             *
+             *  \return Impossible directions to go
+             */
+            std::vector<Direction> impossibleDirections(size_t i, size_t j, size_t k) const;
+
+            /*!
+             *  \param index: index in [0; rows() - 1]x[0; columns() - 1]x[0; floors() - 1]
+             *
+             *  \return Impossible directions to go
+             */
+            std::vector<Direction> impossibleDirections(std::tuple<size_t, size_t, size_t> const& index) const;
+
+            /*!
              *  \param i: index in [0; height() - 1]
              *  \param j: index in [0; width() - 1]
              *  \param k: index in [0; depth() - 1]
@@ -374,6 +448,16 @@ namespace Labyrinth3d
              *  \return A boolean value which is true if the considered cell is wall
              */
             bool operator()(std::tuple<size_t, size_t, size_t> const& index) const;
+
+            /*!
+             * \brief Compare if subgrids have the same values
+             */
+            bool operator==(SubGrid const& other) const;
+
+            /*!
+             * \brief Compare if subgrids have different values
+             */
+            bool operator!=(SubGrid const& other) const;
 
         private:
             Grid& grid_;

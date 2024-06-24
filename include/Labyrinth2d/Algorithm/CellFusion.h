@@ -62,26 +62,26 @@ void Labyrinth2d::Algorithm::CellFusion::operator()(URNG& g, SubGrid const& subG
                                                     size_t cycleOperations, std::chrono::milliseconds const& cyclePause,
                                                     std::chrono::milliseconds const* timeout)
 {
-    auto const t(std::chrono::steady_clock::now());
+    auto const t{std::chrono::steady_clock::now()};
 
-    size_t const height(subGrid.height());
-    size_t const width(subGrid.width());
-    size_t const rows(subGrid.rows());
-    size_t const columns(subGrid.columns());
+    auto const height{subGrid.height()};
+    auto const width{subGrid.width()};
+    auto const rows{subGrid.rows()};
+    auto const columns{subGrid.columns()};
 
-    for (size_t i(1); i < height - 3; i += 2)
+    for (size_t i{1}; i < height - 3; i += 2)
     {
-        for (size_t j(2); j < width - 1; j += 2)
+        for (size_t j{2}; j < width - 1; j += 2)
         {
             subGrid.set(i, j);
             subGrid.set(i + 1, j - 1);
         }
     }
 
-    for (size_t i(2); i < height - 1; i += 2)
+    for (size_t i{2}; i < height - 1; i += 2)
         subGrid.set(i, width - 2);
 
-    for (size_t j(2); j < width - 1; j += 2)
+    for (size_t j{2}; j < width - 1; j += 2)
         subGrid.set(height - 2, j);
 
     std::unordered_map<size_t, std::vector<std::pair<size_t, size_t> > > cells;

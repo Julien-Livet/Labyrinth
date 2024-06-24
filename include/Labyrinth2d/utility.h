@@ -26,6 +26,18 @@ namespace Labyrinth2d
         Down = 8
     };
 
+    inline std::pair<int, int> directionIndex(Direction direction)
+    {
+        if (direction == Right)
+            return std::make_pair(0, 1);
+        else if (direction == Up)
+            return std::make_pair(-1, 0);
+        else if (direction == Left)
+            return std::make_pair(0, -1);
+        else// if (direction == Down)
+            return std::make_pair(1, 0);
+    }
+
     static std::chrono::milliseconds const dummyThreadSpleepingDuration(1);
 
     template<typename POD>

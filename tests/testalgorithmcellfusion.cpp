@@ -189,6 +189,8 @@ void TestAlgorithmCellFusion::writeAndRead8x8()
 
     QCOMPARE(data.empty(), true);
 
+    QCOMPARE(l1.grid(), l2.grid());
+
     Labyrinth2d::Renderer::String sr1{l1, ' ', '#'};
     sr1.playerRenderers[playerId] = Labyrinth2d::Renderer::String::PlayerRenderer('X', '.');
     sr1.playerRenderers[playerId].displayTrace = true;
@@ -461,6 +463,8 @@ void TestAlgorithmCellFusion::writeAndRead8x8x8()
     l2.read(data);
 
     QCOMPARE(data.empty(), true);
+
+    QCOMPARE(l1.grid(), l2.grid());
 }
 
 QTEST_MAIN(TestAlgorithmCellFusion)

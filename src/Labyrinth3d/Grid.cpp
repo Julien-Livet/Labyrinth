@@ -166,6 +166,87 @@ size_t Labyrinth3d::Grid::modificationCounter() const
     return modificationCounter_;
 }
 
+std::vector<Labyrinth3d::Direction> Labyrinth3d::Grid::possibleDirections(size_t i, size_t j, size_t k) const
+{
+    assert(i < rows() && j < columns() && k < floors());
+
+    std::vector<Labyrinth3d::Direction> directions;
+    directions.reserve(6);
+
+    if (!at(2 * i + 1 - 1, 2 * j + 1, 2 * k + 1))
+        directions.emplace_back(Labyrinth3d::Right);
+    if (!at(2 * i + 1, 2 * j + 1, 2 * k + 1 + 1))
+        directions.emplace_back(Labyrinth3d::Up);
+    if (!at(2 * i + 1 + 1, 2 * j + 1, 2 * k + 1))
+        directions.emplace_back(Labyrinth3d::Left);
+    if (!at(2 * i + 1, 2 * j + 1, 2 * k + 1 - 1))
+        directions.emplace_back(Labyrinth3d::Down);
+    if (!at(2 * i + 1, 2 * j + 1 + 1, 2 * k + 1))
+        directions.emplace_back(Labyrinth3d::Front);
+    if (!at(2 * i + 1, 2 * j + 1 - 1, 2 * k + 1))
+        directions.emplace_back(Labyrinth3d::Back);
+
+    return directions;
+}
+
+std::vector<Labyrinth3d::Direction> Labyrinth3d::Grid::possibleDirections(std::tuple<size_t, size_t, size_t> const& index) const
+{
+    return possibleDirections(std::get<0>(index), std::get<1>(index), std::get<2>(index));
+}
+
+std::vector<Labyrinth3d::Direction> Labyrinth3d::Grid::impossibleDirections(size_t i, size_t j, size_t k) const
+{
+    assert(i < rows() && j < columns() && k < floors());
+
+    std::vector<Labyrinth3d::Direction> directions;
+    directions.reserve(6);
+
+    if (at(2 * i + 1 - 1, 2 * j + 1, 2 * k + 1))
+        directions.emplace_back(Labyrinth3d::Right);
+    if (at(2 * i + 1, 2 * j + 1, 2 * k + 1 + 1))
+        directions.emplace_back(Labyrinth3d::Up);
+    if (at(2 * i + 1 + 1, 2 * j + 1, 2 * k + 1))
+        directions.emplace_back(Labyrinth3d::Left);
+    if (at(2 * i + 1, 2 * j + 1, 2 * k + 1 - 1))
+        directions.emplace_back(Labyrinth3d::Down);
+    if (at(2 * i + 1, 2 * j + 1 + 1, 2 * k + 1))
+        directions.emplace_back(Labyrinth3d::Front);
+    if (at(2 * i + 1, 2 * j + 1 - 1, 2 * k + 1))
+        directions.emplace_back(Labyrinth3d::Back);
+
+    return directions;
+}
+
+std::vector<Labyrinth3d::Direction> Labyrinth3d::Grid::impossibleDirections(std::tuple<size_t, size_t, size_t> const& index) const
+{
+    return impossibleDirections(std::get<0>(index), std::get<1>(index), std::get<2>(index));
+}
+
+bool Labyrinth3d::Grid::operator==(Grid const& other) const
+{
+    if (height_ != other.height_ || width_ != other.width_ || depth_ != other.depth_)
+        return false;
+
+    for (size_t k{0}; k < depth_; ++k)
+    {
+        for (size_t i{0}; i < height_; ++i)
+        {
+            for (size_t j{0}; j < width_; ++j)
+            {
+                if (at(i, j, k) != other.at(i, j, k))
+                    return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool Labyrinth3d::Grid::operator!=(Grid const& other) const
+{
+    return !operator==(other);
+}
+
 Labyrinth3d::SubGrid::SubGrid(SubGrid const& subGrid, size_t rowShift, size_t columnShift, size_t floorShift,
                               size_t rows, size_t columns, size_t floors) : grid_(subGrid.grid_),
                                                                             rowShift_(subGrid.rowShift_ + rowShift),
@@ -330,4 +411,29 @@ bool Labyrinth3d::SubGrid::operator()(size_t i, size_t j, size_t k) const
 bool Labyrinth3d::SubGrid::operator()(std::tuple<size_t, size_t, size_t> const& index) const
 {
     return at(std::get<0>(index), std::get<1>(index), std::get<2>(index));
+}
+
+bool Labyrinth3d::SubGrid::operator==(SubGrid const& other) const
+{
+    if (rows_ != other.rows_ || columns_ != other.columns_ || floors_ != other.floors_)
+        return false;
+
+    for (size_t k{0}; k < 2 * floors_ + 1; ++k)
+    {
+        for (size_t i{0}; i < 2 * rows_ + 1; ++i)
+        {
+            for (size_t j{0}; j < 2 * columns_ + 1; ++j)
+            {
+                if (at(i, j, k) != other.at(i, j, k))
+                    return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool Labyrinth3d::SubGrid::operator!=(SubGrid const& other) const
+{
+    return !operator==(other);
 }

@@ -196,11 +196,44 @@ std::queue<char>& Labyrinth3d::Labyrinth::read(std::queue<char>& data)
 
     grid_ = Grid{*this, rows, columns, floors};
 
-    for (size_t k{1}; k < grid_.depth() - 1; k += 2)
+    auto const height{grid_.height()};
+    auto const width{grid_.width()};
+    auto const depth{grid_.depth()};
+
+    for (size_t k{1}; k < depth - 1; ++k)
     {
-        for (size_t i{2}; i < grid_.height() - 1; i += 2)
+        for (size_t i{1}; i < height - 3; i += 2)
         {
-            for (size_t j{1}; j < grid_.width() - 1; j += 2)
+            for (size_t j{2}; j < width - 1; j += 2)
+            {
+                bool b{false};
+                Labyrinth3d::read(data, b);
+                grid_.change(i, j, k, b);
+                Labyrinth3d::read(data, b);
+                grid_.change(i + 1, j - 1, k, b);
+            }
+        }
+
+        for (size_t i{2}; i < height - 1; i += 2)
+        {
+            bool b{false};
+            Labyrinth3d::read(data, b);
+            grid_.change(i, width - 2, k, b);
+        }
+
+        for (size_t j{2}; j < width - 1; j += 2)
+        {
+            bool b{false};
+            Labyrinth3d::read(data, b);
+            grid_.change(height - 2, j, k, b);
+        }
+    }
+
+    for (size_t k{2}; k < depth - 1; k += 2)
+    {
+        for (size_t i{1}; i < height; i += 2)
+        {
+            for (size_t j{1}; j < width; j += 2)
             {
                 bool b{false};
                 Labyrinth3d::read(data, b);
@@ -209,63 +242,11 @@ std::queue<char>& Labyrinth3d::Labyrinth::read(std::queue<char>& data)
         }
     }
 
-    for (size_t k{1}; k < grid_.depth() - 1; k += 2)
+    for (size_t k{1}; k < depth - 1; k += 2)
     {
-        for (size_t j{2}; j < grid_.width() - 1; j += 2)
+        for (size_t i{2}; i < height - 1; i += 2)
         {
-            for (size_t i{1}; i < grid_.height() - 1; i += 2)
-            {
-                bool b{false};
-                Labyrinth3d::read(data, b);
-                grid_.change(i, j, k, b);
-            }
-        }
-    }
-
-    for (size_t j{1}; j < grid_.width() - 1; j += 2)
-    {
-        for (size_t k{2}; k < grid_.depth() - 1; k += 2)
-        {
-            for (size_t i{1}; i < grid_.height() - 1; i += 2)
-            {
-                bool b{false};
-                Labyrinth3d::read(data, b);
-                grid_.change(i, j, k, b);
-            }
-        }
-    }
-
-    for (size_t j{1}; j < grid_.width() - 1; j += 2)
-    {
-        for (size_t i{2}; i < grid_.height() - 1; i += 2)
-        {
-            for (size_t k{1}; k < grid_.depth() - 1; k += 2)
-            {
-                bool b{false};
-                Labyrinth3d::read(data, b);
-                grid_.change(i, j, k, b);
-            }
-        }
-    }
-
-    for (size_t i{1}; i < grid_.height() - 1; i += 2)
-    {
-        for (size_t k{2}; k < grid_.depth() - 1; k += 2)
-        {
-            for (size_t j{1}; j < grid_.width() - 1; j += 2)
-            {
-                bool b{false};
-                Labyrinth3d::read(data, b);
-                grid_.change(i, j, k, b);
-            }
-        }
-    }
-
-    for (size_t i{1}; i < grid_.height() - 1; i += 2)
-    {
-        for (size_t j{2}; j < grid_.width() - 1; j += 2)
-        {
-            for (size_t k{1}; k < grid_.depth() - 1; k += 2)
+            for (size_t j{2}; j < width - 1; j += 2)
             {
                 bool b{false};
                 Labyrinth3d::read(data, b);
@@ -352,56 +333,42 @@ std::queue<char>& Labyrinth3d::Labyrinth::write(std::queue<char>& data) const
     Labyrinth3d::write(data, grid_.columns());
     Labyrinth3d::write(data, grid_.floors());
 
-    for (size_t k{1}; k < grid_.depth() - 1; k += 2)
+    auto const height{grid_.height()};
+    auto const width{grid_.width()};
+    auto const depth{grid_.depth()};
+
+    for (size_t k{1}; k < depth - 1; ++k)
     {
-        for (size_t i{2}; i < grid_.height() - 1; i += 2)
+        for (size_t i{1}; i < height - 3; i += 2)
         {
-            for (size_t j{1}; j < grid_.width() - 1; j += 2)
+            for (size_t j{2}; j < width - 1; j += 2)
+            {
+                Labyrinth3d::write(data, grid_(i, j, k));
+                Labyrinth3d::write(data, grid_(i + 1, j - 1, k));
+            }
+        }
+
+        for (size_t i{2}; i < height - 1; i += 2)
+            Labyrinth3d::write(data, grid_(i, width - 2, k));
+
+        for (size_t j{2}; j < width - 1; j += 2)
+            Labyrinth3d::write(data, grid_(height - 2, j, k));
+    }
+
+    for (size_t k{2}; k < depth - 1; k += 2)
+    {
+        for (size_t i{1}; i < height; i += 2)
+        {
+            for (size_t j{1}; j < width; j += 2)
                 Labyrinth3d::write(data, grid_(i, j, k));
         }
     }
 
-    for (size_t k{1}; k < grid_.depth() - 1; k += 2)
+    for (size_t k{1}; k < depth - 1; k += 2)
     {
-        for (size_t j{2}; j < grid_.width() - 1; j += 2)
+        for (size_t i{2}; i < height - 1; i += 2)
         {
-            for (size_t i{1}; i < grid_.height() - 1; i += 2)
-                Labyrinth3d::write(data, grid_(i, j, k));
-        }
-    }
-
-    for (size_t j{1}; j < grid_.width() - 1; j += 2)
-    {
-        for (size_t k{2}; k < grid_.depth() - 1; k += 2)
-        {
-            for (size_t i{1}; i < grid_.height() - 1; i += 2)
-                Labyrinth3d::write(data, grid_(i, j, k));
-        }
-    }
-
-    for (size_t j{1}; j < grid_.width() - 1; j += 2)
-    {
-        for (size_t i{2}; i < grid_.height() - 1; i += 2)
-        {
-            for (size_t k{1}; k < grid_.depth() - 1; k += 2)
-                Labyrinth3d::write(data, grid_(i, j, k));
-        }
-    }
-
-    for (size_t i{1}; i < grid_.height() - 1; i += 2)
-    {
-        for (size_t k{2}; k < grid_.depth() - 1; k += 2)
-        {
-            for (size_t j{1}; j < grid_.width() - 1; j += 2)
-                Labyrinth3d::write(data, grid_(i, j, k));
-        }
-    }
-
-    for (size_t i{1}; i < grid_.height() - 1; i += 2)
-    {
-        for (size_t j{2}; j < grid_.width() - 1; j += 2)
-        {
-            for (size_t k{1}; k < grid_.depth() - 1; k += 2)
+            for (size_t j{2}; j < width - 1; j += 2)
                 Labyrinth3d::write(data, grid_(i, j, k));
         }
     }

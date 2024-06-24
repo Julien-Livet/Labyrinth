@@ -25,6 +25,7 @@ class TestLabyrinth : public QObject
         void solveAStarHorizontalAndHorizontalWalls2x2();
         void solveAStarEmpty8x8();
         void generateEmpty1x1x1();
+        void generateVerticalAndHorizontalAndDepthWalls2x2x2();
         void solveAStarEmpty1x1x1();
         void solveBlindEmpty1x1x1();
         void solveAStarEmpty2x1x1();
@@ -163,6 +164,12 @@ void TestLabyrinth::generateVerticalAndHorizontalWalls2x2()
              "#####\n"
              "# # #\n"
              "#####\n");
+
+    for (size_t i{0}; i < l.grid().rows(); ++i)
+    {
+        for (size_t j{0}; j < l.grid().columns(); ++j)
+            QCOMPARE(l.grid().possibleDirections(i, j).empty(), true);
+    }
 }
 
 void TestLabyrinth::solveAStarEmpty1x1()
@@ -423,6 +430,60 @@ void TestLabyrinth::generateEmpty1x1x1()
     }
 
     QCOMPARE(l.grid()(1, 1, 1), false);
+}
+
+void TestLabyrinth::generateVerticalAndHorizontalAndDepthWalls2x2x2()
+{
+    Labyrinth3d::Labyrinth l{2, 2, 2};
+
+    auto const height{l.grid().height()};
+    auto const width{l.grid().width()};
+    auto const depth{l.grid().depth()};
+
+    for (size_t k{1}; k < depth - 1; ++k)
+    {
+        for (size_t i{1}; i < height - 3; i += 2)
+        {
+            for (size_t j{2}; j < width - 1; j += 2)
+            {
+                l.grid().set(i, j, k);
+                l.grid().set(i + 1, j - 1, k);
+            }
+        }
+
+        for (size_t i{2}; i < height - 1; i += 2)
+            l.grid().set(i, width - 2, k);
+
+        for (size_t j{2}; j < width - 1; j += 2)
+            l.grid().set(height - 2, j, k);
+    }
+
+    for (size_t k{2}; k < depth - 1; k += 2)
+    {
+        for (size_t i{1}; i < height; i += 2)
+        {
+            for (size_t j{1}; j < width; j += 2)
+                l.grid().set(i, j, k);
+        }
+    }
+
+    for (size_t k{1}; k < depth - 1; k += 2)
+    {
+        for (size_t i{2}; i < height - 1; i += 2)
+        {
+            for (size_t j{2}; j < width - 1; j += 2)
+                l.grid().set(i, j, k);
+        }
+    }
+
+    for (size_t k{0}; k < l.grid().floors(); ++k)
+    {
+        for (size_t i{0}; i < l.grid().rows(); ++i)
+        {
+            for (size_t j{0}; j < l.grid().columns(); ++j)
+                QCOMPARE(l.grid().possibleDirections(i, j, k).empty(), true);
+        }
+    }
 }
 
 void TestLabyrinth::solveAStarEmpty1x1x1()

@@ -28,6 +28,22 @@ namespace Labyrinth3d
         Back = 32
     };
 
+    inline std::tuple<int, int, int> directionIndex(Direction direction)
+    {
+        if (direction == Right)
+            return std::make_tuple(-1, 0, 0);
+        else if (direction == Up)
+            return std::make_tuple(0, 0, 1);
+        else if (direction == Left)
+            return std::make_tuple(1, 0, 0);
+        else if (direction == Down)
+            return std::make_tuple(0, 0, -1);
+        else if (direction == Front)
+            return std::make_tuple(0, 1, 0);
+        else// if (direction == Back)
+            return std::make_tuple(0, -1, 0);
+    }
+
     static std::chrono::milliseconds const dummyThreadSpleepingDuration(1);
 
     template<typename POD>

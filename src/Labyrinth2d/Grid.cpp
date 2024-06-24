@@ -114,6 +114,54 @@ void Labyrinth2d::Grid::reset(std::pair<size_t, size_t> const& index)
     reset(index.first, index.second);
 }
 
+std::vector<Labyrinth2d::Direction> Labyrinth2d::Grid::possibleDirections(size_t i, size_t j) const
+{
+    assert(i < rows() && j < columns());
+
+    std::vector<Labyrinth2d::Direction> directions;
+    directions.reserve(4);
+
+    if (!at(2 * i + 1 - 1, 2 * j + 1))
+        directions.emplace_back(Labyrinth2d::Up);
+    if (!at(2 * i + 1 + 1, 2 * j + 1))
+        directions.emplace_back(Labyrinth2d::Down);
+    if (!at(2 * i + 1, 2 * j + 1 + 1))
+        directions.emplace_back(Labyrinth2d::Right);
+    if (!at(2 * i + 1, 2 * j + 1 - 1))
+        directions.emplace_back(Labyrinth2d::Left);
+
+    return directions;
+}
+
+std::vector<Labyrinth2d::Direction> Labyrinth2d::Grid::possibleDirections(std::pair<size_t, size_t> const& index) const
+{
+    return possibleDirections(index.first, index.second);
+}
+
+std::vector<Labyrinth2d::Direction> Labyrinth2d::Grid::impossibleDirections(size_t i, size_t j) const
+{
+    assert(i < rows() && j < columns());
+
+    std::vector<Labyrinth2d::Direction> directions;
+    directions.reserve(4);
+
+    if (at(2 * i + 1 - 1, 2 * j + 1))
+        directions.emplace_back(Labyrinth2d::Up);
+    if (at(2 * i + 1 + 1, 2 * j + 1))
+        directions.emplace_back(Labyrinth2d::Down);
+    if (at(2 * i + 1, 2 * j + 1 + 1))
+        directions.emplace_back(Labyrinth2d::Right);
+    if (at(2 * i + 1, 2 * j + 1 - 1))
+        directions.emplace_back(Labyrinth2d::Left);
+
+    return directions;
+}
+
+std::vector<Labyrinth2d::Direction> Labyrinth2d::Grid::impossibleDirections(std::pair<size_t, size_t> const& index) const
+{
+    return impossibleDirections(index.first, index.second);
+}
+
 bool Labyrinth2d::Grid::operator()(size_t i, size_t j) const
 {
     return at(i, j);
@@ -134,6 +182,28 @@ Labyrinth2d::Labyrinth const& Labyrinth2d::Grid::labyrinth() const
 size_t Labyrinth2d::Grid::modificationCounter() const
 {
     return modificationCounter_;
+}
+
+bool Labyrinth2d::Grid::operator==(Grid const& other) const
+{
+    if (height_ != other.height_ || width_ != other.width_)
+        return false;
+
+    for (size_t i{0}; i < height_; ++i)
+    {
+        for (size_t j{0}; j < width_; ++j)
+        {
+            if (at(i, j) != other.at(i, j))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+bool Labyrinth2d::Grid::operator!=(Grid const& other) const
+{
+    return !operator==(other);
 }
 
 Labyrinth2d::SubGrid::SubGrid(SubGrid const& subGrid, size_t rowShift, size_t columnShift,
@@ -274,6 +344,54 @@ Labyrinth2d::SubGrid::Operation Labyrinth2d::SubGrid::operation() const
     return operation_;
 }
 
+std::vector<Labyrinth2d::Direction> Labyrinth2d::SubGrid::possibleDirections(size_t i, size_t j) const
+{
+    assert(i < rows() && j < columns());
+
+    std::vector<Labyrinth2d::Direction> directions;
+    directions.reserve(4);
+
+    if (!at(2 * i + 1 - 1, 2 * j + 1))
+        directions.emplace_back(Labyrinth2d::Up);
+    if (!at(2 * i + 1 + 1, 2 * j + 1))
+        directions.emplace_back(Labyrinth2d::Down);
+    if (!at(2 * i + 1, 2 * j + 1 + 1))
+        directions.emplace_back(Labyrinth2d::Right);
+    if (!at(2 * i + 1, 2 * j + 1 - 1))
+        directions.emplace_back(Labyrinth2d::Left);
+
+    return directions;
+}
+
+std::vector<Labyrinth2d::Direction> Labyrinth2d::SubGrid::possibleDirections(std::pair<size_t, size_t> const& index) const
+{
+    return possibleDirections(index.first, index.second);
+}
+
+std::vector<Labyrinth2d::Direction> Labyrinth2d::SubGrid::impossibleDirections(size_t i, size_t j) const
+{
+    assert(i < rows() && j < columns());
+
+    std::vector<Labyrinth2d::Direction> directions;
+    directions.reserve(4);
+
+    if (at(2 * i + 1 - 1, 2 * j + 1))
+        directions.emplace_back(Labyrinth2d::Up);
+    if (at(2 * i + 1 + 1, 2 * j + 1))
+        directions.emplace_back(Labyrinth2d::Down);
+    if (at(2 * i + 1, 2 * j + 1 + 1))
+        directions.emplace_back(Labyrinth2d::Right);
+    if (at(2 * i + 1, 2 * j + 1 - 1))
+        directions.emplace_back(Labyrinth2d::Left);
+
+    return directions;
+}
+
+std::vector<Labyrinth2d::Direction> Labyrinth2d::SubGrid::impossibleDirections(std::pair<size_t, size_t> const& index) const
+{
+    return impossibleDirections(index.first, index.second);
+}
+
 bool Labyrinth2d::SubGrid::operator()(size_t i, size_t j) const
 {
     return at(i, j);
@@ -282,4 +400,26 @@ bool Labyrinth2d::SubGrid::operator()(size_t i, size_t j) const
 bool Labyrinth2d::SubGrid::operator()(std::pair<size_t, size_t> const& index) const
 {
     return at(index.first, index.second);
+}
+
+bool Labyrinth2d::SubGrid::operator==(SubGrid const& other) const
+{
+    if (rows_ != other.rows_ || columns_ != other.columns_)
+        return false;
+
+    for (size_t i{0}; i < 2 * rows_ + 1; ++i)
+    {
+        for (size_t j{0}; j < 2 * columns_ + 1; ++j)
+        {
+            if (at(i, j) != other.at(i, j))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+bool Labyrinth2d::SubGrid::operator!=(SubGrid const& other) const
+{
+    return !operator==(other);
 }
