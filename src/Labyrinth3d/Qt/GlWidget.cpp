@@ -94,6 +94,11 @@ const QImage& GLWidget::imageTexture(unsigned int i, unsigned int j) const
     return images_[i][j];
 }
 
+size_t GLWidget::textureSize() const
+{
+    return textures_.size();
+}
+
 void GLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
@@ -107,13 +112,12 @@ void GLWidget::initializeGL()
                 makeBox(QVector3D(j % 2 ? waysSize_.x() : wallsSize_.x(),
                                   i % 2 ? waysSize_.y() : wallsSize_.y(),
                                   k % 2 ? waysSize_.z() : wallsSize_.z()));
-                for (unsigned int l(0); l < 6; ++l)
+                for (unsigned int l{0}; l < 6; ++l)
                 {
-                    setTexture(textures_.size() - 1, l, QImage(":/Images/resources/wall_pattern_3.png"));
-                    /*QImage image(128, 128, QImage::Format_ARGB32);
-                    //image.fill(Qt::black);
+                    QImage image(128, 128, QImage::Format_ARGB32);
+                    image.fill(Qt::black);
                     image.fill(QColor(255, float(l) / 5 * 255, 0, 255));
-                    setTexture(textures_.size() - 1, l, image);*/
+                    setTexture(textures_.size() - 1, l, image);
                 }
             }
         }

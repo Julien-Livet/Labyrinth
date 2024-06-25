@@ -141,6 +141,14 @@ int main(int argc, char** argv)
     glWidget.setPlayerDisplay(player2Id, GLWidget::PlayerDisplay{QColor{0, 255, 0, 255}, displayTrace, QColor{0, 255, 0, 127}});
     glWidget.setPlayerDisplay(player3Id, GLWidget::PlayerDisplay{QColor{0, 0, 255, 255}, displayTrace, QColor{0, 0, 255, 127}});
 
+    QImage const image{":/Images/resources/wall_pattern_3.png"};
+
+    for (unsigned int i{0}; i < glWidget.textureSize(); ++i)
+    {
+        for (unsigned int l{0}; l < 6; ++l)
+            glWidget.setTexture(i, l, image);
+    }
+
     auto const result{application.exec()};
 /*
     //thSolvePlayer1.join();

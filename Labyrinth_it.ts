@@ -51,7 +51,7 @@
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="165"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2609"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2679"/>
         <source>&amp;Mettre en pause</source>
         <translation>&amp;Mettere in pausa</translation>
     </message>
@@ -107,19 +107,19 @@
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="199"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1215"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1257"/>
         <source>&amp;Facile</source>
         <translation>&amp;Facile</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="202"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1244"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1286"/>
         <source>&amp;Moyen</source>
         <translation>&amp;Mezzo</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="204"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1272"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1314"/>
         <source>&amp;Difficile</source>
         <translation>&amp;Difficile</translation>
     </message>
@@ -227,6 +227,24 @@
         <translation>A proposito del &amp;Labirinto ...</translation>
     </message>
     <message>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1819"/>
+        <source>Labyrinthe %1
+
+Le labyrinthe est un jeu gratuit et
+libre de distribution réalisé par LIVET Julien
+à l&apos;aide des bibliothèques Qt %2 et FMOD,
+et de LIVET Claire pour la traduction italienne, ainsi
+que de LIVET Benjamin pour la traduction allemande.
+</source>
+        <translation>Labirinto %1
+
+Il labirinto à un gioco gratuito e
+libero di distribuzione realizzato da LIVET Julien
+con l&apos;aiuto delle librerie Qt %2 e FMOD,
+e di LIVET Claire per la traduzione italiana, così
+come di LIVET Benjamin per la traduzione tedesca.</translation>
+    </message>
+    <message>
         <source>&amp;Algorithme</source>
         <translation type="vanished">&amp;Algoritmo</translation>
     </message>
@@ -285,329 +303,305 @@
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="334"/>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="424"/>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="561"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="582"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="623"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="853"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="900"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="947"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1072"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1115"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2443"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2659"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2701"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2939"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3229"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3255"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3326"/>
-        <source>&amp;Chronomètre : </source>
-        <translation>&amp;Cronometro : </translation>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="586"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="630"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="881"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="932"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="983"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1112"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1157"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2510"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2733"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2780"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3022"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3316"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3343"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3415"/>
+        <source>&amp;Chronomètre : %1</source>
+        <oldsource>&amp;Chronomètre : </oldsource>
+        <translation>&amp;Cronometro : %1</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="474"/>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="497"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="979"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1088"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2961"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3204"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3301"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1016"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1130"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3044"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3291"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3390"/>
         <source>Personnalisé</source>
         <translation>Personalizzato</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1367"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1375"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1384"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1392"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1413"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1420"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1427"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1469"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1476"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1483"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1525"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1532"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1539"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2117"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2123"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2147"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2156"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2162"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2199"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2208"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2231"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2240"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2247"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2290"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2299"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2322"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2331"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2338"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1414"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1422"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1431"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1439"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1460"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1467"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1474"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1516"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1523"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1530"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1572"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1579"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1586"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2181"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2187"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2211"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2220"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2226"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2263"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2272"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2295"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2304"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2311"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2354"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2363"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2386"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2395"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2402"/>
         <source>Réinitialiser</source>
         <translation>Risettare</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="459"/>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="501"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1092"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2946"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3208"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3305"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1134"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3029"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3295"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3394"/>
         <source>Facile</source>
         <translation>Facile</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="464"/>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="506"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1097"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2951"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3213"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3310"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1139"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3034"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3300"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3399"/>
         <source>Moyen</source>
         <translation>Mezzo</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="469"/>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="511"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1102"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2956"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3218"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3315"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1144"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3039"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3305"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3404"/>
         <source>Difficile</source>
         <translation>Difficile</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="478"/>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="517"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1108"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2965"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3222"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3319"/>
-        <source>Niveau : </source>
-        <translation>Livello : </translation>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1150"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3048"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3309"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3408"/>
+        <source>Niveau : %1 (%2x%3)</source>
+        <oldsource>Niveau : </oldsource>
+        <translation>Livello : %1 (%2x%3)</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="478"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="517"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1108"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2965"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3222"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3319"/>
         <source> (</source>
-        <translation> (</translation>
+        <translation type="vanished"> (</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="478"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="517"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="869"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="916"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="963"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1108"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2965"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3222"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3319"/>
         <source>x</source>
-        <translation>x</translation>
+        <translation type="vanished">x</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="478"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="517"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="869"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="916"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="963"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1108"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2965"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3222"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3319"/>
         <source>)</source>
-        <translation>)</translation>
+        <translation type="vanished">)</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="571"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="612"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="741"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="842"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="889"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="936"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1061"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1302"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2432"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2644"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2689"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="572"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="616"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="753"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="867"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="918"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="969"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1098"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1344"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2496"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2715"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2765"/>
         <source>Partie non enregistrée</source>
         <translation>Parte non registrata</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="571"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="842"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="889"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="936"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1061"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2432"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2644"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2689"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="573"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="868"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="919"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="970"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1099"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2497"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2716"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2766"/>
         <source>La partie en cours n&apos;est pas enregistrée.
 Voulez-vous vraiment faire une nouvelle partie ?</source>
         <translation>La parte in corso non è registrata.
 Volete veramente fare una nuova parte ?</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="612"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="617"/>
         <source>La partie en cours n&apos;est pas enregistrée.
 Voulez-vous vraiment recommencer cette partie ?</source>
         <translation>La parte in corso non è registrata.
 Volete veramente recominciare una nuova parte ?</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="675"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="683"/>
         <source>Nouveau score</source>
         <translation>Nuovo punteggio</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="691"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="702"/>
         <source>Partie terminée</source>
         <translation>Parte terminata</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="691"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="702"/>
         <source>Félicitations ! Vous avez terminé le labyrinthe !</source>
         <translation>Congratulazioni ! Avete finito il labirinto !</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="741"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="754"/>
         <source>La partie en cours n&apos;est pas enregistrée.
 Voulez-vous vraiment charger une autre partie ?</source>
         <translation>La parte in corso non è registrata.
 Volete veramente incaricare un&apos;altra parte ?</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="752"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="767"/>
         <source>Ouvrir une partie</source>
         <translation>Aprire una parte</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="752"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="766"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="804"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="767"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="782"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="825"/>
         <source>Labyrinthes (*.laby)</source>
         <translation>Labirinti (*.laby)</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1768"/>
         <source>
 
 Le labyrinthe est un jeu gratuit et
 libre de distribution réalisé par LIVET Julien
 à l&apos;aide des bibliothèques Qt </source>
-        <translation>
+        <translation type="vanished">
 
 Il labirinto à un gioco gratuito e
 libero di distribuzione realizzato da LIVET Julien
 con l&apos;aiuto delle librerie Qt </translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1768"/>
         <source> et FMOD,
 et de LIVET Claire pour la traduction italienne, ainsi
 que de LIVET Benjamin pour la traduction allemande.
 </source>
-        <translation> e FMOD,
+        <translation type="vanished"> e FMOD,
 e di LIVET Claire per la traduzione italiana, così
 come di LIVET Benjamin per la traduzione tedesca.</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2145"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2154"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2160"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2197"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2206"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2229"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2238"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2245"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2288"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2297"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2320"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2329"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2336"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2209"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2218"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2224"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2261"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2270"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2293"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2302"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2309"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2352"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2361"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2384"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2393"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2400"/>
         <source>Au hasard</source>
         <oldsource>Au hasard </oldsource>
         <translation>A caso</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2149"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2201"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2233"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2292"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2324"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2213"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2265"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2297"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2356"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2388"/>
         <source>Intervalle :</source>
         <translation>Intervallo :</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2164"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2210"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2249"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2301"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2340"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2228"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2274"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2313"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2365"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2404"/>
         <source>Fixe</source>
         <translation>Fisso</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2192"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2224"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2283"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2315"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2256"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2288"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2347"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2379"/>
         <source>Pourcentage :</source>
         <translation>Percentuale :</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2196"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2228"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2287"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2319"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2260"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2292"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2351"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2383"/>
         <source>%</source>
         <translation>%</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2212"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2276"/>
         <source>Verticale</source>
         <translation>Verticale</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2242"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2306"/>
         <source>Distorsion synchronisée</source>
         <translation>Distorsione sincronizzata</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2252"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2316"/>
         <source>Horizontale</source>
         <translation>Orrizontale</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2277"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2341"/>
         <source>&amp;Distorsion</source>
         <translation>&amp;Distorsione</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2303"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2367"/>
         <source>Vertical</source>
         <translation>Verticale</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2333"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2397"/>
         <source>Cisaillement synchronisé</source>
         <translation>Taglio sincronizzato</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2343"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2407"/>
         <source>Horizontal</source>
         <translation>Orrizontale</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2368"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2432"/>
         <source>&amp;Cisaillement</source>
         <translation>&amp;Taglio</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3011"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3094"/>
         <source>Impossible de charger la partie</source>
         <translation>Impossibile di incaricare la parte</translation>
     </message>
@@ -623,47 +617,38 @@ come di LIVET Benjamin per la traduzione tedesca.</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="528"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="583"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="624"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="854"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="901"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="948"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1073"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2966"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3107"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3256"/>
         <source>Déplacement : </source>
         <translation>Spostamento : </translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="675"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="684"/>
         <source>Félicitations ! Vous avez terminé le labyrinthe en un temps record !
 Veuillez entrer votre nom :</source>
         <translation>Congratulazioni ! Avete finito il labirinto in un tempo record !
 Volete introdurre il vostro nome :</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="766"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="781"/>
         <source>Enregistrer la partie</source>
         <translation>Registrare la parte</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="765"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="769"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="770"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="809"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="810"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="780"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="785"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="786"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="830"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="831"/>
         <source>.laby</source>
         <translation>.laby</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="81"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="586"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="857"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="904"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="951"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1076"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3259"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="590"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="885"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="936"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="987"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1116"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3347"/>
         <source>Partie</source>
         <translation>Parte</translation>
     </message>
@@ -674,25 +659,25 @@ Volete introdurre il vostro nome :</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="172"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2723"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2805"/>
         <source>&amp;A-Star</source>
         <translation>&amp;A-Stella</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="173"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2725"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2807"/>
         <source>Main &amp;droite au mur</source>
         <translation>Mano &amp;destra al muro</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="174"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2727"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2809"/>
         <source>Main &amp;gauche au mur</source>
         <translation>Mano &amp;sinistra al muro</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="175"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2729"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2811"/>
         <source>A&amp;veugle</source>
         <translation>Cie&amp;co</translation>
     </message>
@@ -718,256 +703,297 @@ Volete introdurre il vostro nome :</translation>
     </message>
     <message>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="377"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="587"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="858"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="905"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="952"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1077"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2597"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3260"/>
-        <source> - Labyrinthe</source>
-        <translation> - Labirinto</translation>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="591"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="886"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="937"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="988"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1117"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2667"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3348"/>
+        <source>%1 - Labyrinthe</source>
+        <oldsource> - Labyrinthe</oldsource>
+        <translation>%1 - Labirinto</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="792"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="825"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="810"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="848"/>
         <source>Impossible d&apos;enregistrer la partie</source>
         <translation>Impossibile di registrare la parte</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="792"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="825"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="811"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="849"/>
         <source>Il est impossible d&apos;ouvrir le fichier pour enregistrer la partie.</source>
         <translation>È impossibile aprire lo schedario per registrare la parte.</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="804"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="824"/>
         <source>Enregistrer la partie sous ...</source>
         <translation>Registrare la parte sotto ...</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="869"/>
         <source>Niveau : Facile (</source>
-        <translation>Livello : Facile (</translation>
+        <translation type="vanished">Livello : Facile (</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="916"/>
         <source>Niveau : Moyen (</source>
-        <translation>Livello : Mezzo (</translation>
+        <translation type="vanished">Livello : Mezzo (</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="963"/>
         <source>Niveau : Difficile (</source>
-        <translation>Livello : Difficile (</translation>
+        <translation type="vanished">Livello : Difficile (</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="994"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1031"/>
         <source>Longueur :</source>
         <translation>Lunghezza :</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="995"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1032"/>
         <source>Largeur :</source>
         <translation>Larghezza :</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="996"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1033"/>
         <source>Taille du labyrinthe</source>
         <translation>Taglia del labirinto</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="998"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1035"/>
         <source>Taille adaptée à l&apos;écran</source>
         <translation>Taglia adattata allo schermo</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="999"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1036"/>
         <source>Taille du format du papier</source>
         <translation>Taglia del formato della carta</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1000"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1037"/>
         <source>Configurer</source>
         <translation>Configurare</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1162"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1204"/>
         <source>Meilleurs temps</source>
         <translation>Migliori tempi</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1166"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1208"/>
         <source>Scores 2D</source>
         <translation>Punteggi 2D</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1167"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1209"/>
         <source>Scores 2D en 3D</source>
         <translation>Punteggi 2D in 3D</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1188"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1220"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1249"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1230"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1262"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1291"/>
         <source>&lt;b&gt;Nom&lt;/b&gt;</source>
         <translation>&lt;b&gt;Nome&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1189"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1221"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1250"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1231"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1263"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1292"/>
         <source>&lt;b&gt;Temps&lt;/b&gt;</source>
         <translation>&lt;b&gt;Tempi&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1190"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1222"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1251"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1232"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1264"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1293"/>
         <source>&lt;b&gt;Déplacement&lt;/b&gt;</source>
         <translation>&lt;b&gt;Spostamento&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1202"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1231"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1259"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2471"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2474"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2477"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2514"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2523"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2532"/>
         <source>. </source>
-        <translation>. </translation>
+        <translation type="vanished">. </translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1208"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1237"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1265"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2483"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2489"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2495"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="334"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="424"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="562"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1157"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1250"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1279"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1307"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2510"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2552"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2558"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2564"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2733"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2780"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3022"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3316"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3343"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3415"/>
         <source>hh:mm:ss</source>
         <translation>hh:mm:ss</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1302"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="587"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="631"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="882"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="933"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="984"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1113"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3049"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3193"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3344"/>
+        <source>Déplacement : %1</source>
+        <translation>Spostamento : %1</translation>
+    </message>
+    <message>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="898"/>
+        <source>Niveau : Facile (%1x%2)</source>
+        <translation>Livello : Facile (%1x%2)</translation>
+    </message>
+    <message>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="949"/>
+        <source>Niveau : Moyen (%1x%2)</source>
+        <translation>Livello : Mezzo (%1x%2)</translation>
+    </message>
+    <message>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1000"/>
+        <source>Niveau : Difficile (%1x%2)</source>
+        <translation>Livello : Difficile (%1x%2)</translation>
+    </message>
+    <message>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1244"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1273"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1301"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2540"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2543"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2546"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2583"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2592"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2601"/>
+        <source>%1. </source>
+        <translation>%1. </translation>
+    </message>
+    <message>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1345"/>
         <source>La partie en cours n&apos;est pas enregistrée.
 Voulez-vous vraiment quitter le jeu ?</source>
         <translation>La parte in corso non è registrata.
 Volete veramente lasciare il gioco ?</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1356"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1403"/>
         <source>Affichage</source>
         <translation>Affissione</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1363"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1410"/>
         <source>Taille des cases</source>
         <translation>Taglia delle capanne</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1399"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1446"/>
         <source>Longueur des chemins :</source>
         <translation>Lunghezza dei percorsi:</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1400"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1447"/>
         <source>Largeur des chemins:</source>
         <translation>Larghezza dei percorsi:</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1401"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1448"/>
         <source>Longueur des murs :</source>
         <translation>Lunghezza delle pareti:</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1402"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1449"/>
         <source>Largeur des murs :</source>
         <translation>Larghezza delle pareti:</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1405"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1452"/>
         <source>Fond</source>
         <translation>Fondo</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1406"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1462"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1518"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2110"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1453"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1509"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1565"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2174"/>
         <source>Couleur :</source>
         <translation>Colore :</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1407"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1463"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1519"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2111"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1454"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1510"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1566"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2175"/>
         <source>Choisir la couleur</source>
         <translation>Scegliere il colore</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1415"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1471"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1527"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1462"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1518"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1574"/>
         <source>Motif :</source>
         <translation>Motivo :</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1418"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1425"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1474"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1481"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1530"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1537"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1465"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1472"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1521"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1528"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1577"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1584"/>
         <source>Parcourir</source>
         <translation>Percorrere</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1422"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1478"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1534"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1469"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1525"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1581"/>
         <source>Image :</source>
         <translation>Immagine :</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1461"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1508"/>
         <source>Mur</source>
         <translation>Muro</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1517"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1564"/>
         <source>Parcours</source>
         <translation>Percorso</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1648"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1695"/>
         <source>Musique</source>
         <translation>Musica</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1657"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1704"/>
         <source>Musique :</source>
         <translation>Musica :</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1658"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1705"/>
         <source>&amp;Muet</source>
         <translation>&amp;Muto</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1660"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1707"/>
         <source>&amp;Parcourir</source>
         <translation>&amp;Percorrere</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1710"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1757"/>
         <source>But du jeu</source>
         <translation>Obiettivo del gioco</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1716"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1763"/>
         <source>Le but du labyrinthe est de trouver
 la sortie le plus vite possible en surmontant
 les épreuves des modes choisis.
@@ -978,12 +1004,12 @@ le prove dei modi scelti.
 </translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1736"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1785"/>
         <source>Commandes</source>
         <translation>Comandi</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1742"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1791"/>
         <source>Pour se déplacer dans le labyrinthe,
 vous pouvez utiliser soit les touches
 directionnelles, soit la souris.</source>
@@ -992,178 +1018,177 @@ potete utilizzare o i tasti
 direzionali, o il mouse.</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1762"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1813"/>
         <source>À propos du Labyrinthe ...</source>
         <translation>A proposito del Labirinto ...</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1768"/>
         <source>Labyrinthe </source>
-        <translation>Labirinto </translation>
+        <translation type="vanished">Labirinto </translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1789"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2774"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1845"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2857"/>
         <source>Choisir une couleur de fond</source>
         <translation>Scegliere un colore di fondo</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1813"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1869"/>
         <source>Choisir un motif de fond</source>
         <translation>Scegliere un motivo di fondo</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1813"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1831"/>
         <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1870"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1888"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1927"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1945"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1889"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1930"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1949"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1990"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2009"/>
         <source>Images (*.jpg *.png *.bmp *.gif)</source>
         <translation>Immagini (*.jpg *.png *.bmp *.gif)</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1831"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1888"/>
         <source>Choisir une image de fond</source>
         <translation>Scegliere un&apos;immagine di fondo</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1846"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1905"/>
         <source>Choisir une couleur de mur</source>
         <translation>Scegliere un colore di muro</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1870"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1929"/>
         <source>Choisir un motif de mur</source>
         <translation>Scegliere un motivo di muro</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1888"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1948"/>
         <source>Choisir une image de mur</source>
         <translation>Scegliere un&apos;immagine di muro</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1903"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1965"/>
         <source>Choisir une couleur de parcours</source>
         <translation>Scegliere un colore di percorso</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1927"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1989"/>
         <source>Choisir un motif de parcours</source>
         <translation>Scegliere un motivo di percorso</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="1945"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2008"/>
         <source>Choisir une image de parcours</source>
         <translation>Scegliere un&apos;immagine di percorso</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2099"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2163"/>
         <source>Modes</source>
         <translation>Modi</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2119"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2183"/>
         <source>Rayon :</source>
         <translation>Raggio :</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2133"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2197"/>
         <source>&amp;Obscurité</source>
         <translation>&amp;Oscurità</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2140"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2204"/>
         <source>Angle :</source>
         <oldsource>Angle</oldsource>
         <translation>Angolo :</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2144"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2208"/>
         <source>°</source>
         <translation>°</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2153"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2205"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2237"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2296"/>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2328"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2217"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2269"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2301"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2360"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2392"/>
         <source> ms</source>
         <translation> ms</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2158"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2222"/>
         <source>Sens horaire</source>
         <translation>Senso orario</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2186"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2250"/>
         <source>&amp;Rotation</source>
         <translation>&amp;Rotazione</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2577"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2646"/>
         <source>Choisir une musique</source>
         <translation>Scegliere una musica</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2577"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2647"/>
         <source>Musiques (*.wav *.ogg *.mp3 *.wma *.mid)</source>
         <translation>Musiche (*.wav *.ogg *.mp3 *.wma *.mid)</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2607"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="2677"/>
         <source>Repren&amp;dre</source>
         <translation>Ripren&amp;dere</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3011"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3095"/>
         <source>Il est impossible d&apos;ouvrir le fichier pour charger la partie.</source>
         <translation>È impossibile aprire lo schedario per incaricare la parte.</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3064"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3149"/>
         <source>Langue</source>
         <translation>Lingua</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3071"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3156"/>
         <source>Langue :</source>
         <translation>Lingua :</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3072"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3157"/>
         <source>Le redémarrage de l&apos;application est nécessaire.</source>
         <translation>La ripresa dell&apos;applicazione è necessaria.</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3074"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3159"/>
         <source>Système</source>
         <translation>Sistema</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3074"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3159"/>
         <source>Français</source>
         <translation>Francese</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3074"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3159"/>
         <source>Anglais</source>
         <translation>Inglese</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3074"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3160"/>
         <source>Espagnol</source>
         <translation>Spagnolo</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3074"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3160"/>
         <source>Allemand</source>
         <translation>Tedesco</translation>
     </message>
     <message>
-        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3074"/>
+        <location filename="src/Labyrinth2d/Qt/MainWindow.cpp" line="3160"/>
         <source>Italien</source>
         <translation>Italiano</translation>
     </message>

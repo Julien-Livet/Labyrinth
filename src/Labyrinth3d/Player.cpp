@@ -445,7 +445,7 @@ size_t Labyrinth3d::Player::stepBack(std::function<void(std::chrono::millisecond
             continue;
         }
 
-        Direction direction;
+        Direction direction{Up};
 
         if (std::get<0>(current_) == std::get<0>(traceIntersections_.back()))
         {

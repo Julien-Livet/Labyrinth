@@ -39,6 +39,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
         void setClearColor(const QColor& color);
         void setTexture(unsigned int i, unsigned int j, const QImage& image);
         const QImage& imageTexture(unsigned int i, unsigned int j) const;
+        size_t textureSize() const;
         void makeBox(QVector3D const& bottom,
                      QVector3D const& top,
                      std::array<QImage, 6> const& images = std::array<QImage, 6>{QImage(128, 128, QImage::Format_ARGB32),

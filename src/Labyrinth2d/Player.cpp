@@ -398,7 +398,7 @@ size_t Labyrinth2d::Player::stepBack(std::function<void(std::chrono::millisecond
             continue;
         }
 
-        Direction direction;
+        Direction direction{Up};
 
         if (current_.first == traceIntersections_.back().first)
         {

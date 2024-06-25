@@ -331,7 +331,7 @@ MainWindow::MainWindow()
     //scrollArea->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     niveau = new QLabel(this);
     deplacement = new QLabel(this);
-    chronometre = new QCheckBox(tr("&Chronomètre : ") + temps.toString(QString("hh:mm:ss")), this);
+    chronometre = new QCheckBox(tr("&Chronomètre : %1").arg(temps.toString(tr("hh:mm:ss"))), this);
 
     groupBoxNiveau = new QGroupBox;
     QHBoxLayout *hBoxLayoutNiveau = new QHBoxLayout;
@@ -374,7 +374,7 @@ MainWindow::MainWindow()
     setCentralWidget(widget);
 
     setWindowIcon(QIcon(":/Images/resources/Labyrinth.ico"));
-    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
+    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + tr("%1 - Labyrinthe").arg(nomPartie));
 
     connect(actionNouvellePartie, SIGNAL(triggered()), this, SLOT(nouvellePartie()));
     connect(actionRecommencer, SIGNAL(triggered()), this, SLOT(recommencer()));
@@ -421,7 +421,7 @@ MainWindow::MainWindow()
 
     if (ouvertureReussie)
     {
-        chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
+        chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(tr("hh:mm:ss"))));
         nouveau = false;
 
         chronometre->setDisabled(labyrinth->getPartieEnCours());
@@ -475,7 +475,7 @@ MainWindow::MainWindow()
             actionPersonnalise->setChecked(true);
         }
 
-        niveau->setText(tr("Niveau : ") + n + tr(" (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
+        niveau->setText(tr("Niveau : %1 (%2x%3)").arg(n).arg(labyrinth->getLongueur()).arg(labyrinth->getLargeur()));
 
         labyrinth->activer();
     }
@@ -514,7 +514,7 @@ MainWindow::MainWindow()
         else
             actionPersonnalise->setChecked(true);
 
-        niveau->setText(tr("Niveau : ") + n + tr(" (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
+        niveau->setText(tr("Niveau : %1 (%2x%3)").arg(n).arg(labyrinth->getLongueur()).arg(labyrinth->getLargeur()));
         actionAfficherTrace->setChecked(labyrinth->getAfficherTrace());
         actionEffacerChemin->setChecked(labyrinth->getEffacerChemin());
 
@@ -558,7 +558,8 @@ void MainWindow::commencer()
 
 void MainWindow::actualiserChronometre()
 {
-    chronometre->setText(tr("&Chronomètre : ") + QTime(0, 0).addMSecs(elapsedTimer.elapsed() + ms).toString(QString("hh:mm:ss")));
+    chronometre->setText(tr("&Chronomètre : %1").arg(QTime(0, 0).addMSecs(elapsedTimer.elapsed() + ms)
+                                                                .toString(tr("hh:mm:ss"))));
 }
 
 void MainWindow::nouvellePartie()
@@ -568,7 +569,10 @@ void MainWindow::nouvellePartie()
         if (!pauseImposee)
             mettreEnPause();
 
-        if (QMessageBox::warning(this, tr("Partie non enregistrée"), tr("La partie en cours n'est pas enregistrée.\nVoulez-vous vraiment faire une nouvelle partie ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        if (QMessageBox::warning(this, tr("Partie non enregistrée"),
+                                 tr("La partie en cours n'est pas enregistrée.\n"
+                                    "Voulez-vous vraiment faire une nouvelle partie ?"),
+                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         {
             if (!pauseImposee)
                 mettreEnPause();
@@ -579,12 +583,12 @@ void MainWindow::nouvellePartie()
     temps = QTime(0, 0, 0);
     ms = 0;
     timer->stop();
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
-    deplacement->setText(tr("Déplacement : ") + QString::number(0));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(QString("hh:mm:ss"))));
+    deplacement->setText(tr("Déplacement : %1").arg(0));
     nouveau = true;
     pauseImposee = false;
     nomPartie = tr("Partie");
-    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
+    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + tr("%1 - Labyrinthe").arg(nomPartie));
 
     chronometre->setDisabled(false);
 
@@ -609,7 +613,10 @@ void MainWindow::recommencer()
         if (!pauseImposee)
             mettreEnPause();
 
-        if (QMessageBox::warning(this, tr("Partie non enregistrée"), tr("La partie en cours n'est pas enregistrée.\nVoulez-vous vraiment recommencer cette partie ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        if (QMessageBox::warning(this, tr("Partie non enregistrée"),
+                                 tr("La partie en cours n'est pas enregistrée.\n"
+                                    "Voulez-vous vraiment recommencer cette partie ?"),
+                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         {
             if (!pauseImposee)
                 mettreEnPause();
@@ -620,8 +627,8 @@ void MainWindow::recommencer()
     temps = QTime(0, 0, 0);
     ms = 0;
     timer->stop();
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
-    deplacement->setText(tr("Déplacement : ") + QString::number(0));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(QString("hh:mm:ss"))));
+    deplacement->setText(tr("Déplacement : %1").arg(0));
     pauseImposee = false;
 
     chronometre->setDisabled(false);
@@ -656,7 +663,8 @@ void MainWindow::arreter()
     if (labyrinth->getTypeLabyrinthe() == QLabyrinth::Labyrinthe2Den3D)
         scores = &scores2Den3D;
 
-    if (chronometre->isChecked() && labyrinth->getNiveau() != QLabyrinth::Personnalise && labyrinth->getModeLabyrinthe().mode == QLabyrinth::Aucun)
+    if (chronometre->isChecked() && labyrinth->getNiveau() != QLabyrinth::Personnalise
+        && labyrinth->getModeLabyrinthe().mode == QLabyrinth::Aucun)
     {
         for (int i = 0; i < (*scores)[int(labyrinth->getNiveau())].size(); i++)
         {
@@ -672,7 +680,10 @@ void MainWindow::arreter()
 
     if (indexScore != -1)
     {
-        QString nom = QInputDialog::getText(this, tr("Nouveau score"), tr("Félicitations ! Vous avez terminé le labyrinthe en un temps record !\nVeuillez entrer votre nom :"), QLineEdit::Normal, dernierNomEnregistre);
+        QString nom = QInputDialog::getText(this, tr("Nouveau score"),
+                                            tr("Félicitations ! Vous avez terminé le labyrinthe en un temps record !\n"
+                                               "Veuillez entrer votre nom :"),
+                                            QLineEdit::Normal, dernierNomEnregistre);
 
         if (!nom.isEmpty())
         {
@@ -688,7 +699,8 @@ void MainWindow::arreter()
         }
     }
     else
-        QMessageBox::information(this, tr("Partie terminée"), tr("Félicitations ! Vous avez terminé le labyrinthe !"), QMessageBox::Ok);
+        QMessageBox::information(this, tr("Partie terminée"), tr("Félicitations ! Vous avez terminé le labyrinthe !"),
+                                 QMessageBox::Ok);
 }
 
 void MainWindow::mettreEnPause()
@@ -738,7 +750,10 @@ void MainWindow::ouvrir()
         if (!pauseImposee)
             mettreEnPause();
 
-        if (QMessageBox::warning(this, tr("Partie non enregistrée"), tr("La partie en cours n'est pas enregistrée.\nVoulez-vous vraiment charger une autre partie ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        if (QMessageBox::warning(this, tr("Partie non enregistrée"),
+                                 tr("La partie en cours n'est pas enregistrée.\n"
+                                    "Voulez-vous vraiment charger une autre partie ?"),
+                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         {
             if (!pauseImposee)
                 mettreEnPause();
@@ -763,7 +778,8 @@ void MainWindow::enregistrer()
     if (fichierEnregistrement.isEmpty() || nouveau)
     {
         fichierEnregistrement = nomPartie+tr(".laby");
-        fichierEnregistrement = QFileDialog::getSaveFileName(this, tr("Enregistrer la partie"), fichierEnregistrement, tr("Labyrinthes (*.laby)"));
+        fichierEnregistrement = QFileDialog::getSaveFileName(this, tr("Enregistrer la partie"),
+                                                             fichierEnregistrement, tr("Labyrinthes (*.laby)"));
         if (!fichierEnregistrement.isEmpty())
         {
             if (fichierEnregistrement.right(5) != tr(".laby"))
@@ -784,12 +800,16 @@ void MainWindow::enregistrer()
 
             //data << labyrinthe 2D (ou 2D en 3D) ou 3D;
 
-            labyrinth->enregistrer(data, chronometre->isChecked(), ms, pauseImposee, emplacementMusique, audioOutput->isMuted(), actionLabyrintheSeulement->isChecked(), adaptationEcran, adaptationFormats);
+            labyrinth->enregistrer(data, chronometre->isChecked(), ms, pauseImposee,
+                                   emplacementMusique, audioOutput->isMuted(),
+                                   actionLabyrintheSeulement->isChecked(), adaptationEcran, adaptationFormats);
 
             f.close();
         }
         else
-            QMessageBox::warning(this, tr("Impossible d'enregistrer la partie"), tr("Il est impossible d'ouvrir le fichier pour enregistrer la partie."), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Impossible d'enregistrer la partie"),
+                                 tr("Il est impossible d'ouvrir le fichier pour enregistrer la partie."),
+                                 QMessageBox::Ok);
     }
 
     if (!pauseImposee)
@@ -801,7 +821,8 @@ void MainWindow::enregistrerSous()
     if (!pauseImposee)
         mettreEnPause();
 
-    QString fichier = QFileDialog::getSaveFileName(this, tr("Enregistrer la partie sous ..."), fichierEnregistrement, tr("Labyrinthes (*.laby)"));
+    QString fichier = QFileDialog::getSaveFileName(this, tr("Enregistrer la partie sous ..."),
+                                                   fichierEnregistrement, tr("Labyrinthes (*.laby)"));
 
     if (!fichier.isEmpty())
     {
@@ -817,12 +838,16 @@ void MainWindow::enregistrerSous()
             QDataStream data(&f);
             data.setVersion(QDataStream::Qt_4_7);
 
-            labyrinth->enregistrer(data, chronometre->isChecked(), ms, pauseImposee, emplacementMusique, audioOutput->isMuted(), actionLabyrintheSeulement->isChecked(), adaptationEcran, adaptationFormats);
+            labyrinth->enregistrer(data, chronometre->isChecked(), ms, pauseImposee,
+                                   emplacementMusique, audioOutput->isMuted(),
+                                   actionLabyrintheSeulement->isChecked(), adaptationEcran, adaptationFormats);
 
             f.close();
         }
         else
-            QMessageBox::warning(this, tr("Impossible d'enregistrer la partie"), tr("Il est impossible d'ouvrir le fichier pour enregistrer la partie."), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Impossible d'enregistrer la partie"),
+                                 tr("Il est impossible d'ouvrir le fichier pour enregistrer la partie."),
+                                 QMessageBox::Ok);
     }
 
     if (!pauseImposee)
@@ -839,7 +864,10 @@ void MainWindow::facile()
         if (!pauseImposee)
             mettreEnPause();
 
-        if (QMessageBox::warning(this, tr("Partie non enregistrée"), tr("La partie en cours n'est pas enregistrée.\nVoulez-vous vraiment faire une nouvelle partie ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        if (QMessageBox::warning(this, tr("Partie non enregistrée"),
+                                 tr("La partie en cours n'est pas enregistrée.\n"
+                                    "Voulez-vous vraiment faire une nouvelle partie ?"),
+                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         {
             if (!pauseImposee)
                 mettreEnPause();
@@ -850,12 +878,12 @@ void MainWindow::facile()
     temps = QTime(0, 0, 0);
     ms = 0;
     timer->stop();
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
-    deplacement->setText(tr("Déplacement : ") + QString::number(0));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(QString("hh:mm:ss"))));
+    deplacement->setText(tr("Déplacement : %1").arg(0));
     nouveau = true;
     pauseImposee = false;
     nomPartie = tr("Partie");
-    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
+    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + tr("%1 - Labyrinthe").arg(nomPartie));
 
     chronometre->setDisabled(false);
     for (auto& a : actionsAlgorithmesResolution)
@@ -864,9 +892,10 @@ void MainWindow::facile()
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    labyrinth->nouveau(QLabyrinth::Facile, 0, 0, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(QLabyrinth::Facile, 0, 0, labyrinth->getAlgorithme(),
+                       labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
-    niveau->setText(tr("Niveau : Facile (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
+    niveau->setText(tr("Niveau : Facile (%1x%2)").arg(labyrinth->getLongueur()).arg(labyrinth->getLargeur()));
 
     for (auto& a : actionsAlgorithmesResolution)
         a->setDisabled(false);
@@ -886,7 +915,10 @@ void MainWindow::moyen()
         if (!pauseImposee)
             mettreEnPause();
 
-        if (QMessageBox::warning(this, tr("Partie non enregistrée"), tr("La partie en cours n'est pas enregistrée.\nVoulez-vous vraiment faire une nouvelle partie ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        if (QMessageBox::warning(this, tr("Partie non enregistrée"),
+                                 tr("La partie en cours n'est pas enregistrée.\n"
+                                    "Voulez-vous vraiment faire une nouvelle partie ?"),
+                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         {
             if (!pauseImposee)
                 mettreEnPause();
@@ -897,12 +929,12 @@ void MainWindow::moyen()
     temps = QTime(0, 0, 0);
     ms = 0;
     timer->stop();
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
-    deplacement->setText(tr("Déplacement : ") + QString::number(0));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(QString("hh:mm:ss"))));
+    deplacement->setText(tr("Déplacement : %1").arg(0));
     nouveau = true;
     pauseImposee = false;
     nomPartie = tr("Partie");
-    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
+    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + tr("%1 - Labyrinthe").arg(nomPartie));
 
     chronometre->setDisabled(false);
     for (auto& a : actionsAlgorithmesResolution)
@@ -911,9 +943,10 @@ void MainWindow::moyen()
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    labyrinth->nouveau(QLabyrinth::Moyen, 0, 0, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(QLabyrinth::Moyen, 0, 0, labyrinth->getAlgorithme(),
+                       labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
-    niveau->setText(tr("Niveau : Moyen (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
+    niveau->setText(tr("Niveau : Moyen (%1x%2)").arg(labyrinth->getLongueur()).arg(labyrinth->getLargeur()));
 
     for (auto& a : actionsAlgorithmesResolution)
         a->setDisabled(false);
@@ -933,7 +966,10 @@ void MainWindow::difficile()
         if (!pauseImposee)
             mettreEnPause();
 
-        if (QMessageBox::warning(this, tr("Partie non enregistrée"), tr("La partie en cours n'est pas enregistrée.\nVoulez-vous vraiment faire une nouvelle partie ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        if (QMessageBox::warning(this, tr("Partie non enregistrée"),
+                                 tr("La partie en cours n'est pas enregistrée.\n"
+                                    "Voulez-vous vraiment faire une nouvelle partie ?"),
+                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         {
             if (!pauseImposee)
                 mettreEnPause();
@@ -944,12 +980,12 @@ void MainWindow::difficile()
     temps = QTime(0, 0, 0);
     ms = 0;
     timer->stop();
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
-    deplacement->setText(tr("Déplacement : ") + QString::number(0));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(QString("hh:mm:ss"))));
+    deplacement->setText(tr("Déplacement : %1").arg(0));
     nouveau = true;
     pauseImposee = false;
     nomPartie = tr("Partie");
-    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
+    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + tr("%1 - Labyrinthe").arg(nomPartie));
 
     chronometre->setDisabled(false);
     for (auto& a : actionsAlgorithmesResolution)
@@ -958,9 +994,10 @@ void MainWindow::difficile()
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    labyrinth->nouveau(QLabyrinth::Difficile, 0, 0, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(QLabyrinth::Difficile, 0, 0, labyrinth->getAlgorithme(),
+                       labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
-    niveau->setText(tr("Niveau : Difficile (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
+    niveau->setText(tr("Niveau : Difficile (%1x%2)").arg(labyrinth->getLongueur()).arg(labyrinth->getLargeur()));
 
     for (auto& a : actionsAlgorithmesResolution)
         a->setDisabled(false);
@@ -1058,7 +1095,10 @@ void MainWindow::personnalise()
 
     if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !labyrinth->getPartieTerminee())
     {
-        if (QMessageBox::warning(this, tr("Partie non enregistrée"), tr("La partie en cours n'est pas enregistrée.\nVoulez-vous vraiment faire une nouvelle partie ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        if (QMessageBox::warning(this, tr("Partie non enregistrée"),
+                                 tr("La partie en cours n'est pas enregistrée.\n"
+                                    "Voulez-vous vraiment faire une nouvelle partie ?"),
+                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         {
             if (!pauseImposee)
                 mettreEnPause();
@@ -1069,12 +1109,12 @@ void MainWindow::personnalise()
     temps = QTime(0, 0, 0);
     ms = 0;
     timer->stop();
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
-    deplacement->setText(tr("Déplacement : ") + QString::number(0));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(QString("hh:mm:ss"))));
+    deplacement->setText(tr("Déplacement : %1").arg(0));
     nouveau = true;
     pauseImposee = false;
     nomPartie = tr("Partie");
-    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
+    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + tr("%1 - Labyrinthe").arg(nomPartie));
 
     chronometre->setDisabled(false);
     for (auto& a : actionsAlgorithmesResolution)
@@ -1083,7 +1123,9 @@ void MainWindow::personnalise()
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    labyrinth->nouveau(QLabyrinth::Personnalise, spinBoxLongueur->value(), spinBoxLargeur->value(), labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(QLabyrinth::Personnalise, spinBoxLongueur->value(),
+                       spinBoxLargeur->value(), labyrinth->getAlgorithme(),
+                       labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
     QString n = tr("Personnalisé");
 
@@ -1105,14 +1147,14 @@ void MainWindow::personnalise()
 
     dialog->deleteLater();
 
-    niveau->setText(tr("Niveau : ") + n + tr(" (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
+    niveau->setText(tr("Niveau : %1 (%2x%3)").arg(n).arg(labyrinth->getLongueur()).arg(labyrinth->getLargeur()));
 
     for (auto& a : actionsAlgorithmesResolution)
         a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
 
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(tr("hh:mm:ss"))));
 
     if (labyrinth->getLongueur() * labyrinth->getLargeur() > LONGUEURDIFFICILE * LARGEURDIFFICILE)
     {
@@ -1199,7 +1241,7 @@ void MainWindow::meilleursTemps()
         scores = &scores2Den3D;
     for (int i = 0; i < NOMBRESCORES; i++)
     {
-        labelsNomsFacile << new QLabel(QString::number(i+1) + tr(". "), tabFacile);
+        labelsNomsFacile << new QLabel(tr("%1. ").arg(i + 1), tabFacile);
         labelsTempsFacile << new QLabel(tr(""), tabFacile);
         labelsDeplacementsFacile << new QLabel(tr(""), tabFacile);
         if (i < (*scores)[0].size())
@@ -1228,7 +1270,7 @@ void MainWindow::meilleursTemps()
     labelsDeplacementsMoyen.clear();
     for (int i = 0; i < NOMBRESCORES; i++)
     {
-        labelsNomsMoyen << new QLabel(QString::number(i + 1) + tr(". "), tabMoyen);
+        labelsNomsMoyen << new QLabel(tr("%1. ").arg(i + 1), tabMoyen);
         labelsTempsMoyen << new QLabel(tr(""), tabMoyen);
         labelsDeplacementsMoyen << new QLabel(tr(""), tabMoyen);
         if (i < (*scores)[1].size())
@@ -1256,7 +1298,7 @@ void MainWindow::meilleursTemps()
     labelsTempsDifficile.clear();
     for (int i = 0; i < NOMBRESCORES; i++)
     {
-        labelsNomsDifficile << new QLabel(QString::number(i + 1) + tr(". "), tabDifficile);
+        labelsNomsDifficile << new QLabel(tr("%1. ").arg(i + 1), tabDifficile);
         labelsTempsDifficile << new QLabel(tr(""), tabDifficile);
         labelsDeplacementsDifficile << new QLabel(tr(""), tabDifficile);
         if (i < (*scores)[2].size())
@@ -1299,7 +1341,10 @@ void MainWindow::quitter()
         if (!pauseImposee)
             mettreEnPause();
 
-        if (QMessageBox::warning(this, tr("Partie non enregistrée"), tr("La partie en cours n'est pas enregistrée.\nVoulez-vous vraiment quitter le jeu ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        if (QMessageBox::warning(this, tr("Partie non enregistrée"),
+                                 tr("La partie en cours n'est pas enregistrée.\n"
+                                    "Voulez-vous vraiment quitter le jeu ?"),
+                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         {
             if (!pauseImposee)
                 mettreEnPause();
@@ -1314,7 +1359,9 @@ void MainWindow::quitter()
         QDataStream data(&f);
         data.setVersion(QDataStream::Qt_4_7);
 
-        labyrinth->enregistrer(data, chronometre->isChecked(), ms, pauseImposee, emplacementMusique, audioOutput->isMuted(), actionLabyrintheSeulement->isChecked(), adaptationEcran, adaptationFormats, false);
+        labyrinth->enregistrer(data, chronometre->isChecked(), ms, pauseImposee,
+                               emplacementMusique, audioOutput->isMuted(),
+                               actionLabyrintheSeulement->isChecked(), adaptationEcran, adaptationFormats, false);
 
         for (int i = 0; i < 3; i++)
         {
@@ -1713,7 +1760,9 @@ void MainWindow::butDuJeu()
     buttonBox.setCenterButtons(true);
     connect(buttonBox.button(QDialogButtonBox::Ok), SIGNAL(clicked()), &dialog, SLOT(accept()));
 
-    QLabel label(tr("Le but du labyrinthe est de trouver\nla sortie le plus vite possible en surmontant\nles épreuves des modes choisis.\n"), &dialog);
+    QLabel label(tr("Le but du labyrinthe est de trouver\n"
+                    "la sortie le plus vite possible en surmontant\n"
+                    "les épreuves des modes choisis.\n"), &dialog);
     label.setAlignment(Qt::AlignCenter);
 
     QVBoxLayout vBoxLayout;
@@ -1739,7 +1788,9 @@ void MainWindow::commandes()
     buttonBox.setCenterButtons(true);
     connect(buttonBox.button(QDialogButtonBox::Ok), SIGNAL(clicked()), &dialog, SLOT(accept()));
 
-    QLabel label(tr("Pour se déplacer dans le labyrinthe,\nvous pouvez utiliser soit les touches\ndirectionnelles, soit la souris."), &dialog);
+    QLabel label(tr("Pour se déplacer dans le labyrinthe,\n"
+                    "vous pouvez utiliser soit les touches\n"
+                    "directionnelles, soit la souris."), &dialog);
     label.setAlignment(Qt::AlignCenter);
 
     QVBoxLayout vBoxLayout;
@@ -1765,7 +1816,11 @@ void MainWindow::aPropos()
     buttonBox.setCenterButtons(true);
     connect(buttonBox.button(QDialogButtonBox::Ok), SIGNAL(clicked()), &dialog, SLOT(accept()));
 
-    QLabel label(tr("Labyrinthe ") + VERSION + tr("\n\nLe labyrinthe est un jeu gratuit et\nlibre de distribution réalisé par LIVET Julien\nà l'aide des bibliothèques Qt ") + QString(qVersion()) + tr(" et FMOD,\net de LIVET Claire pour la traduction italienne, ainsi\nque de LIVET Benjamin pour la traduction allemande.\n"), &dialog);
+    QLabel label(tr("Labyrinthe %1\n\nLe labyrinthe est un jeu gratuit et\n"
+                    "libre de distribution réalisé par LIVET Julien\n"
+                    "à l'aide des bibliothèques Qt %2 et FMOD,\n"
+                    "et de LIVET Claire pour la traduction italienne, ainsi\n"
+                    "que de LIVET Benjamin pour la traduction allemande.\n").arg(VERSION).arg(qVersion()), &dialog);
     label.setAlignment(Qt::AlignCenter);
 
     QVBoxLayout vBoxLayout;
@@ -1786,7 +1841,8 @@ void MainWindow::stateChanged(int)
 
 void MainWindow::choisirCouleurFond()
 {
-    QColor couleur = QColorDialog::getColor(QColor(boutonCouleurFond->property("Couleur").toString().toUInt()), boutonCouleurFond, tr("Choisir une couleur de fond"));
+    QColor couleur = QColorDialog::getColor(QColor(boutonCouleurFond->property("Couleur").toString().toUInt()),
+                                            boutonCouleurFond, tr("Choisir une couleur de fond"));
 
     if (!couleur.isValid())
         return;
@@ -1810,7 +1866,8 @@ void MainWindow::choisirMotifFond()
     QString s = lineEditMotifFond->text();
     if (!QFileInfo(s).exists())
         s = QApplication::applicationDirPath() + QString("/Images");
-    QString image = QFileDialog::getOpenFileName(lineEditMotifFond, tr("Choisir un motif de fond"), s, tr("Images (*.jpg *.png *.bmp *.gif)"));
+    QString image = QFileDialog::getOpenFileName(lineEditMotifFond, tr("Choisir un motif de fond"), s,
+                                                 tr("Images (*.jpg *.png *.bmp *.gif)"));
 
     if (image.isEmpty())
         return;
@@ -1828,7 +1885,8 @@ void MainWindow::choisirImageFond()
     QString s = lineEditImageFond->text();
     if (!QFileInfo(s).exists() || s.startsWith(QString(":/")))
         s = QApplication::applicationDirPath() + QString("/Images");
-    QString image = QFileDialog::getOpenFileName(lineEditImageFond, tr("Choisir une image de fond"), s, tr("Images (*.jpg *.png *.bmp *.gif)"));
+    QString image = QFileDialog::getOpenFileName(lineEditImageFond, tr("Choisir une image de fond"), s,
+                                                 tr("Images (*.jpg *.png *.bmp *.gif)"));
 
     if (image.isEmpty())
         return;
@@ -1843,7 +1901,8 @@ void MainWindow::reinitialiserImageFond()
 
 void MainWindow::choisirCouleurMur()
 {
-    QColor couleur = QColorDialog::getColor(QColor(boutonCouleurMur->property("Couleur").toString().toUInt()), boutonCouleurMur, tr("Choisir une couleur de mur"));
+    QColor couleur = QColorDialog::getColor(QColor(boutonCouleurMur->property("Couleur").toString().toUInt()),
+                                            boutonCouleurMur, tr("Choisir une couleur de mur"));
 
     if (!couleur.isValid())
         return;
@@ -1867,7 +1926,8 @@ void MainWindow::choisirMotifMur()
     QString s = lineEditMotifMur->text();
     if (!QFileInfo(s).exists() || s.startsWith(QString(":/")))
         s = QApplication::applicationDirPath() + QString("/Images");
-    QString image = QFileDialog::getOpenFileName(lineEditMotifMur, tr("Choisir un motif de mur"), s, tr("Images (*.jpg *.png *.bmp *.gif)"));
+    QString image = QFileDialog::getOpenFileName(lineEditMotifMur, tr("Choisir un motif de mur"), s,
+                                                 tr("Images (*.jpg *.png *.bmp *.gif)"));
 
     if (image.isEmpty())
         return;
@@ -1885,7 +1945,8 @@ void MainWindow::choisirImageMur()
     QString s = lineEditImageMur->text();
     if (!QFileInfo(s).exists() || s.startsWith(QString(":/")))
         s = QApplication::applicationDirPath() + QString("/Images");
-    QString image = QFileDialog::getOpenFileName(lineEditImageMur, tr("Choisir une image de mur"), s, tr("Images (*.jpg *.png *.bmp *.gif)"));
+    QString image = QFileDialog::getOpenFileName(lineEditImageMur, tr("Choisir une image de mur"), s,
+                                                 tr("Images (*.jpg *.png *.bmp *.gif)"));
 
     if (image.isEmpty())
         return;
@@ -1900,7 +1961,8 @@ void MainWindow::reinitialiserImageMur()
 
 void MainWindow::choisirCouleurParcours()
 {
-    QColor couleur = QColorDialog::getColor(QColor(boutonCouleurParcours->property("Couleur").toString().toUInt()), boutonCouleurParcours, tr("Choisir une couleur de parcours"));
+    QColor couleur = QColorDialog::getColor(QColor(boutonCouleurParcours->property("Couleur").toString().toUInt()),
+                                            boutonCouleurParcours, tr("Choisir une couleur de parcours"));
 
     if (!couleur.isValid())
         return;
@@ -1924,7 +1986,8 @@ void MainWindow::choisirMotifParcours()
     QString s = lineEditMotifParcours->text();
     if (!QFileInfo(s).dir().exists() || s.startsWith(QString(":/")))
         s = QApplication::applicationDirPath() + QString("/Images");
-    QString image = QFileDialog::getOpenFileName(lineEditMotifParcours, tr("Choisir un motif de parcours"), s, tr("Images (*.jpg *.png *.bmp *.gif)"));
+    QString image = QFileDialog::getOpenFileName(lineEditMotifParcours, tr("Choisir un motif de parcours"), s,
+                                                 tr("Images (*.jpg *.png *.bmp *.gif)"));
 
     if (image.isEmpty())
         return;
@@ -1942,7 +2005,8 @@ void MainWindow::choisirImageParcours()
     QString s = lineEditImageParcours->text();
     if (!QFileInfo(s).exists() || s.startsWith(QString(":/")))
         s = QApplication::applicationDirPath() + QString("/Images");
-    QString image = QFileDialog::getOpenFileName(lineEditImageParcours, tr("Choisir une image de parcours"), s, tr("Images (*.jpg *.png *.bmp *.gif)"));
+    QString image = QFileDialog::getOpenFileName(lineEditImageParcours, tr("Choisir une image de parcours"), s,
+                                                 tr("Images (*.jpg *.png *.bmp *.gif)"));
 
     if (image.isEmpty())
         return;
@@ -2429,7 +2493,10 @@ void MainWindow::modes()
 
     if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !labyrinth->getPartieTerminee())
     {
-        if (QMessageBox::warning(this, tr("Partie non enregistrée"), tr("La partie en cours n'est pas enregistrée.\nVoulez-vous vraiment faire une nouvelle partie ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        if (QMessageBox::warning(this, tr("Partie non enregistrée"),
+                                 tr("La partie en cours n'est pas enregistrée.\n"
+                                    "Voulez-vous vraiment faire une nouvelle partie ?"),
+                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         {
             if (!pauseImposee)
                 mettreEnPause();
@@ -2440,7 +2507,7 @@ void MainWindow::modes()
     temps = QTime(0, 0, 0);
     ms = 0;
     timer->stop();
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(tr("hh:mm:ss"))));
     nouveau = true;
     pauseImposee = false;
 
@@ -2451,7 +2518,9 @@ void MainWindow::modes()
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(), labyrinth->getLargeur(), labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), &mode);
+    labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(), labyrinth->getLargeur(),
+                       labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(),
+                       labyrinth->getFormeLabyrinthe(), &mode);
 
     for (auto& a : actionsAlgorithmesResolution)
         a->setDisabled(false);
@@ -2468,13 +2537,13 @@ void MainWindow::changementCategorieScores()
 
     for (int i = 0; i < NOMBRESCORES; i++)
     {
-        labelsNomsFacile[i]->setText(QString::number(i + 1) + tr(". "));
+        labelsNomsFacile[i]->setText(tr("%1. ").arg(i + 1));
         labelsTempsFacile[i]->setText(tr(""));
         labelsDeplacementsFacile[i]->setText(tr(""));
-        labelsNomsMoyen[i]->setText(QString::number(i + 1) + tr(". "));
+        labelsNomsMoyen[i]->setText(tr("%1. ").arg(i + 1));
         labelsTempsMoyen[i]->setText(tr(""));
         labelsDeplacementsMoyen[i]->setText(tr(""));
-        labelsNomsDifficile[i]->setText(QString::number(i + 1) + tr(". "));
+        labelsNomsDifficile[i]->setText(tr("%1. ").arg(i + 1));
         labelsTempsDifficile[i]->setText(tr(""));
         labelsDeplacementsDifficile[i]->setText(tr(""));
         if (i < (*scores)[0].size())
@@ -2511,7 +2580,7 @@ void MainWindow::reinitialiserScores()
     {
         for (int i = 0; i < NOMBRESCORES; i++)
         {
-            labelsNomsFacile[i]->setText(QString::number(i + 1) + tr(". "));
+            labelsNomsFacile[i]->setText(tr("%1. ").arg(i + 1));
             labelsTempsFacile[i]->setText(tr(""));
             labelsDeplacementsFacile[i]->setText(tr(""));
         }
@@ -2520,7 +2589,7 @@ void MainWindow::reinitialiserScores()
     {
         for (int i = 0; i < NOMBRESCORES; i++)
         {
-            labelsNomsMoyen[i]->setText(QString::number(i + 1) + tr(". "));
+            labelsNomsMoyen[i]->setText(tr("%1. ").arg(i + 1));
             labelsTempsMoyen[i]->setText(tr(""));
             labelsDeplacementsMoyen[i]->setText(tr(""));
         }
@@ -2529,7 +2598,7 @@ void MainWindow::reinitialiserScores()
     {
         for (int i = 0; i < NOMBRESCORES; i++)
         {
-            labelsNomsDifficile[i]->setText(QString::number(i + 1) + tr(". "));
+            labelsNomsDifficile[i]->setText(tr("%1. ").arg(i + 1));
             labelsTempsDifficile[i]->setText(tr(""));
             labelsDeplacementsDifficile[i]->setText(tr(""));
         }
@@ -2574,7 +2643,8 @@ void MainWindow::parcourirMusique()
     QString s = lineEditMusique->text();
     if (!QFileInfo(s).exists())
         s = QApplication::applicationDirPath();
-    QString texte = QFileDialog::getOpenFileName(this, tr("Choisir une musique"), s, tr("Musiques (*.wav *.ogg *.mp3 *.wma *.mid)"));
+    QString texte = QFileDialog::getOpenFileName(this, tr("Choisir une musique"), s,
+                                                 tr("Musiques (*.wav *.ogg *.mp3 *.wma *.mid)"));
 
     if (texte.isNull())
         return;
@@ -2594,7 +2664,7 @@ void MainWindow::effacerChemin()
 
 void MainWindow::changerEnregistrement()
 {
-    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
+    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + tr("%1 - Labyrinthe").arg(nomPartie));
 
     actionEnregistrer->setDisabled(labyrinth->getEnregistre());
 }
@@ -2620,7 +2690,8 @@ void MainWindow::changeEvent(QEvent *event)
         Qt::WindowStates stateWindow = dynamic_cast<QWindowStateChangeEvent *>(event)->oldState();
 
         if (stateWindow != windowState())
-            if (((stateWindow & Qt::WindowFullScreen) && !(windowState() & Qt::WindowFullScreen)) || (!(stateWindow & Qt::WindowFullScreen) && (windowState() & Qt::WindowFullScreen)))
+            if (((stateWindow & Qt::WindowFullScreen) && !(windowState() & Qt::WindowFullScreen))
+                || (!(stateWindow & Qt::WindowFullScreen) && (windowState() & Qt::WindowFullScreen)))
                 actionPleinEcran->setChecked(isFullScreen());
     }
     else if (event->type() == QEvent::LanguageChange)
@@ -2641,7 +2712,10 @@ void MainWindow::type()
         if (!pauseImposee)
             mettreEnPause();
 
-        if (QMessageBox::warning(this, tr("Partie non enregistrée"), tr("La partie en cours n'est pas enregistrée.\nVoulez-vous vraiment faire une nouvelle partie ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        if (QMessageBox::warning(this, tr("Partie non enregistrée"),
+                                 tr("La partie en cours n'est pas enregistrée.\n"
+                                    "Voulez-vous vraiment faire une nouvelle partie ?"),
+                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         {
             if (!pauseImposee)
                 mettreEnPause();
@@ -2656,7 +2730,7 @@ void MainWindow::type()
     temps = QTime(0, 0, 0);
     ms = 0;
     timer->stop();
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(tr("hh:mm:ss"))));
     nouveau = true;
 
     chronometre->setDisabled(false);
@@ -2671,7 +2745,9 @@ void MainWindow::type()
     if (actionLabyrinthe2Den3D->isChecked())
         type = QLabyrinth::Labyrinthe2Den3D;
 
-    labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(), labyrinth->getLargeur(), labyrinth->getAlgorithme(), type, labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(),
+                       labyrinth->getLargeur(), labyrinth->getAlgorithme(),
+                       type, labyrinth->getFormeLabyrinthe(), 0);
 
     for (auto& a : actionsAlgorithmesResolution)
         a->setDisabled(false);
@@ -2686,7 +2762,10 @@ void MainWindow::algorithmeGeneration()
         if (!pauseImposee)
             mettreEnPause();
 
-        if (QMessageBox::warning(this, tr("Partie non enregistrée"), tr("La partie en cours n'est pas enregistrée.\nVoulez-vous vraiment faire une nouvelle partie ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        if (QMessageBox::warning(this, tr("Partie non enregistrée"),
+                                 tr("La partie en cours n'est pas enregistrée.\n"
+                                    "Voulez-vous vraiment faire une nouvelle partie ?"),
+                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         {
             if (!pauseImposee)
                 mettreEnPause();
@@ -2698,7 +2777,7 @@ void MainWindow::algorithmeGeneration()
     temps = QTime(0, 0, 0);
     ms = 0;
     timer->stop();
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(tr("hh:mm:ss"))));
     nouveau = true;
 
     chronometre->setDisabled(false);
@@ -2708,7 +2787,10 @@ void MainWindow::algorithmeGeneration()
     actionMettreEnPause->setDisabled(true);
     actionEffacerChemin->setDisabled(false);
 
-    labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(), labyrinth->getLargeur(), QLabyrinth::Algorithme(actionsAlgorithmesGeneration.indexOf(qobject_cast<QAction *>(sender()))), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(labyrinth->getNiveau(), labyrinth->getLongueur(),
+                       labyrinth->getLargeur(),
+                       QLabyrinth::Algorithme(actionsAlgorithmesGeneration.indexOf(qobject_cast<QAction *>(sender()))),
+                       labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
     for (auto& a : actionsAlgorithmesResolution)
         a->setDisabled(false);
@@ -2771,7 +2853,8 @@ void MainWindow::reinitialiserModes()
 
 void MainWindow::choisirCouleurObscurite()
 {
-    QColor couleur = QColorDialog::getColor(QColor(boutonCouleurObscurite->property("Couleur").toString().toUInt()), boutonCouleurObscurite, tr("Choisir une couleur de fond"));
+    QColor couleur = QColorDialog::getColor(QColor(boutonCouleurObscurite->property("Couleur").toString().toUInt()),
+                                            boutonCouleurObscurite, tr("Choisir une couleur de fond"));
 
     if (!couleur.isValid())
         return;
@@ -2936,7 +3019,7 @@ void MainWindow::chargerPartie(const QString &fichier)
 
         f.close();
 
-        chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
+        chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(tr("hh:mm:ss"))));
         nouveau = false;
 
         QString n;
@@ -2962,8 +3045,8 @@ void MainWindow::chargerPartie(const QString &fichier)
             actionPersonnalise->setChecked(true);
         }
 
-        niveau->setText(tr("Niveau : ") + n + tr(" (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
-        deplacement->setText(tr("Déplacement : ") + QString::number(labyrinth->getNombreDeplacement()));
+        niveau->setText(tr("Niveau : %1 (%2x%3)").arg(n).arg(labyrinth->getLongueur()).arg(labyrinth->getLargeur()));
+        deplacement->setText(tr("Déplacement : %1").arg(labyrinth->getNombreDeplacement()));
 
         chronometre->setDisabled(labyrinth->getPartieEnCours());
         chronometre->setChecked(chrono);
@@ -3008,7 +3091,8 @@ void MainWindow::chargerPartie(const QString &fichier)
     }
     else
     {
-        QMessageBox::warning(this, tr("Impossible de charger la partie"), tr("Il est impossible d'ouvrir le fichier pour charger la partie."), QMessageBox::Ok);
+        QMessageBox::warning(this, tr("Impossible de charger la partie"),
+                             tr("Il est impossible d'ouvrir le fichier pour charger la partie."), QMessageBox::Ok);
 
         if (!labyrinth->getEnregistre() && labyrinth->getPartieEnCours() && !pauseImposee)
             mettreEnPause();
@@ -3024,7 +3108,8 @@ void MainWindow::actualiserLangue()
         case Systeme:
         default:
             locale = QLocale::system().name().section('_', 0, 0);
-            if (locale != QString("fr") && locale != QString("en") && locale != QString("es") && locale != QString("de") && locale != QString("it"))
+            if (locale != QString("fr") && locale != QString("en") && locale != QString("es")
+                && locale != QString("de") && locale != QString("it"))
                 locale = QString("en");
             break;
         case Francais:
@@ -3071,7 +3156,8 @@ void MainWindow::langue()
     QLabel *label = new QLabel(tr("Langue :"), dialog);
     QLabel *label2 = new QLabel(tr("Le redémarrage de l'application est nécessaire."), dialog);
     comboBoxLangue = new QComboBox(dialog);
-    comboBoxLangue->addItems(QStringList() << tr("Système") << tr("Français") << tr("Anglais") << tr("Espagnol") << tr("Allemand") << tr("Italien"));
+    comboBoxLangue->addItems(QStringList() << tr("Système") << tr("Français") << tr("Anglais")
+                                           << tr("Espagnol") << tr("Allemand") << tr("Italien"));
     comboBoxLangue->setCurrentIndex(int(langueChoisie));
 
     QGridLayout *gridLayout = new QGridLayout;
@@ -3104,7 +3190,7 @@ void MainWindow::reinitialiserLangue()
 
 void MainWindow::actualiserDeplacement()
 {
-    deplacement->setText(tr("Déplacement : ")+QString::number(labyrinth->getNombreDeplacement()));
+    deplacement->setText(tr("Déplacement : %1").arg(labyrinth->getNombreDeplacement()));
 }
 
 QString MainWindow::getNomPartie() const
@@ -3199,7 +3285,8 @@ void MainWindow::setAdaptationTailleEcran(bool oui)
             largeur -= 2;
     }
 
-    labyrinth->nouveau(QLabyrinth::Personnalise, longueur, largeur, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(QLabyrinth::Personnalise, longueur, largeur, labyrinth->getAlgorithme(),
+                       labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
     QString n = tr("Personnalisé");
 
@@ -3219,16 +3306,17 @@ void MainWindow::setAdaptationTailleEcran(bool oui)
         actionDifficile->setChecked(true);
     }
 
-    niveau->setText(tr("Niveau : ") + n + tr(" (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
+    niveau->setText(tr("Niveau : %1 (%2x%3)").arg(n).arg(labyrinth->getLongueur()).arg(labyrinth->getLargeur()));
 
     for (auto& a : actionsAlgorithmesResolution)
         a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
 
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(tr("hh:mm:ss"))));
 
-    if (labyrinth->getLongueur()*labyrinth->getLargeur() > LONGUEURDIFFICILE*LARGEURDIFFICILE && !labyrinth->enModeEcranDeVeille())
+    if (labyrinth->getLongueur() * labyrinth->getLargeur() > LONGUEURDIFFICILE * LARGEURDIFFICILE
+        && !labyrinth->enModeEcranDeVeille())
     {
         labyrinth->setResolutionProgressive(false);
         actionResolutionProgressive->setChecked(false);
@@ -3252,12 +3340,12 @@ void MainWindow::setAdaptationTaillePapier(bool oui)
     temps = QTime(0, 0, 0);
     ms = 0;
     timer->stop();
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
-    deplacement->setText(tr("Déplacement : ") + QString::number(0));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(tr("hh:mm:ss"))));
+    deplacement->setText(tr("Déplacement : %1").arg(0));
     nouveau = true;
     pauseImposee = false;
     nomPartie = tr("Partie");
-    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + nomPartie + tr(" - Labyrinthe"));
+    setWindowTitle(((labyrinth->getEnregistre()) ? QString() : QString("*")) + tr("%1 - Labyrinthe").arg(nomPartie));
 
     chronometre->setDisabled(false);
     for (auto& a : actionsAlgorithmesResolution)
@@ -3280,10 +3368,10 @@ void MainWindow::setAdaptationTaillePapier(bool oui)
         largeurOrigine = printer->pageRect(QPrinter::Millimeter).width();
     }
 
-    int longueur = longueurOrigine/labyrinth->getTailleCase().width();
-    int largeur = largeurOrigine/labyrinth->getTailleCase().height();
+    int longueur = longueurOrigine / labyrinth->getTailleCase().width();
+    int largeur = largeurOrigine / labyrinth->getTailleCase().height();
 
-    if (!(longueur%2))
+    if (!(longueur % 2))
     {
         longueur++;
         if (longueur * labyrinth->getTailleCase().width() > longueurOrigine)
@@ -3296,7 +3384,8 @@ void MainWindow::setAdaptationTaillePapier(bool oui)
             largeur -= 2;
     }
 
-    labyrinth->nouveau(QLabyrinth::Personnalise, longueur, largeur, labyrinth->getAlgorithme(), labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
+    labyrinth->nouveau(QLabyrinth::Personnalise, longueur, largeur, labyrinth->getAlgorithme(),
+                       labyrinth->getTypeLabyrinthe(), labyrinth->getFormeLabyrinthe(), 0);
 
     QString n = tr("Personnalisé");
 
@@ -3316,16 +3405,17 @@ void MainWindow::setAdaptationTaillePapier(bool oui)
         actionDifficile->setChecked(true);
     }
 
-    niveau->setText(tr("Niveau : ") + n + tr(" (") + QString::number(labyrinth->getLongueur()) + tr("x") + QString::number(labyrinth->getLargeur()) + tr(")"));
+    niveau->setText(tr("Niveau : %1 (%2x%3)").arg(n).arg(labyrinth->getLongueur()).arg(labyrinth->getLargeur()));
 
     for (auto& a : actionsAlgorithmesResolution)
         a->setDisabled(false);
     actionResoudre->setDisabled(false);
     actionMettreEnPause->setDisabled(false);
 
-    chronometre->setText(tr("&Chronomètre : ") + temps.addMSecs(ms).toString(QString("hh:mm:ss")));
+    chronometre->setText(tr("&Chronomètre : %1").arg(temps.addMSecs(ms).toString(tr("hh:mm:ss"))));
 
-    if (labyrinth->getLongueur() * labyrinth->getLargeur() > LONGUEURDIFFICILE * LARGEURDIFFICILE && !labyrinth->enModeEcranDeVeille())
+    if (labyrinth->getLongueur() * labyrinth->getLargeur() > LONGUEURDIFFICILE * LARGEURDIFFICILE
+        && !labyrinth->enModeEcranDeVeille())
     {
         labyrinth->setResolutionProgressive(false);
         actionResolutionProgressive->setChecked(false);
