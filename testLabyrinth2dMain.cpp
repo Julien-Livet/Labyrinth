@@ -355,7 +355,7 @@ int main(int argc, char** argv)
 
     /*std::thread thSolvePlayer1(&Player::solve<std::default_random_engine, Solver::WallHand>, &l.player(player1Id),
                                  std::ref(g), std::ref(whsr), sleep, 0, 0,
-                                 cycleOperationsSolving, cyclePauseSolving, nullptr);*//*
+                                 cycleOperationsSolving, cyclePauseSolving, nullptr);*/
     std::thread thSolvePlayer2(&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player2Id),
                                std::ref(g), std::ref(ass), sleep, 0, 0,
                                cycleOperationsSolving, cyclePauseSolving, nullptr);
@@ -370,7 +370,7 @@ int main(int argc, char** argv)
     thSolvePlayer2.detach();
     thSolvePlayer3.detach();
     thSolvePlayer4.detach();
-*/
+
     Mover::QKeyPress kpm(l, player1Id);
 
     wr->installEventFilter(&kpm);
