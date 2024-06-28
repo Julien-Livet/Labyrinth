@@ -1312,7 +1312,7 @@ bool QLabyrinth::resoudre(int nombreFois)
     auto const sleep{
         [this] (std::chrono::milliseconds const& ms) -> void
         {
-            QTest::qWait(ms);
+            QTest::qWait(ms.count());
             this->update();
         }
     };
@@ -2129,7 +2129,7 @@ void QLabyrinth::mouvementSouris(const QPoint &point)
         routineDeplacement1();
         int const sens = (y - getEmplacementYJoueur()) / qAbs(y - getEmplacementYJoueur());
         labyrinth->player(playerId).move(sens == 1 ? Labyrinth2d::Down : Labyrinth2d::Up,
-            [this] (std::chrono::milliseconds const& ms) -> void { QTest::qWait(ms); this->update(); },
+                                        [this] (std::chrono::milliseconds const& ms) -> void { QTest::qWait(ms.count()); this->update(); },
                                          qAbs(y - getEmplacementYJoueur()));
 		emit deplacementChange();
 		routineDeplacement2();
@@ -2139,7 +2139,7 @@ void QLabyrinth::mouvementSouris(const QPoint &point)
         routineDeplacement1();
         int const sens = (x - getEmplacementXJoueur()) / qAbs(x - getEmplacementXJoueur());
         labyrinth->player(playerId).move(sens == 1 ? Labyrinth2d::Right : Labyrinth2d::Left,
-                                         [this] (std::chrono::milliseconds const& ms) -> void { QTest::qWait(ms); this->update(); },
+                                         [this] (std::chrono::milliseconds const& ms) -> void { QTest::qWait(ms.count()); this->update(); },
                                          qAbs(x - getEmplacementXJoueur()));
 		emit deplacementChange();
 		routineDeplacement2();
@@ -2358,7 +2358,7 @@ void QLabyrinth::nouveau(Niveau n, int longueurLabyrinthe, int largeurLabyrinthe
     auto const sleep{
         [this] (std::chrono::milliseconds const& ms) -> void
         {
-            QTest::qWait(ms);
+            QTest::qWait(ms.count());
             this->update();
         }
     };
@@ -3192,7 +3192,7 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
     if (b)
     {
         std::queue<char> queue;
-        size_t size{0};
+        long unsigned int size{0};
         data >> size;
 
         for (size_t i{0}; i < size; ++i)

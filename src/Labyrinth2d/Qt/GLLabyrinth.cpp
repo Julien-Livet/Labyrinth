@@ -506,7 +506,7 @@ void GLLabyrinth::solveLabyrinth()
     auto const sleep{
         [this] (std::chrono::milliseconds const& ms) -> void
         {
-            QTest::qWait(ms);
+            QTest::qWait(ms.count());
             this->update();
         }
     };

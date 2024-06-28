@@ -12,7 +12,7 @@
 #include <QTimer>
 #include <QWidget>
 
-#include "Labyrinth2D/Labyrinth.h"
+#include "Labyrinth2d/Labyrinth.h"
 #include "Labyrinth2d/Mover/QKeyPress.h"
 #include "Labyrinth2d/Renderer/QPainter.h"
 
