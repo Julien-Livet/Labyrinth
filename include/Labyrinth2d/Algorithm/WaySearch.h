@@ -9,6 +9,7 @@
  *  \date 20/01/2016
  */
 
+#include <algorithm>
 #include <chrono>
 #include <vector>
 
@@ -75,85 +76,48 @@ void Labyrinth2d::Algorithm::WaySearch::operator()(URNG& g, SubGrid const& subGr
                                                    size_t cycleOperations, std::chrono::milliseconds const& cyclePause,
                                                    std::chrono::milliseconds const* timeout)
 {
-    auto const t(std::chrono::steady_clock::now());
+    auto const t{std::chrono::steady_clock::now()};
 
-    size_t const height(subGrid.height());
-    size_t const width(subGrid.width());
-    size_t const rows(subGrid.rows());
-    size_t const columns(subGrid.columns());
+    auto const height{subGrid.height()};
+    auto const width{subGrid.width()};
+    auto const rows{subGrid.rows()};
+    auto const columns{subGrid.columns()};
 
-    for (size_t i(1); i < height - 3; i += 2)
+    for (size_t i{1}; i < height - 3; i += 2)
     {
-        for (size_t j(2); j < width - 1; j += 2)
+        for (size_t j{2}; j < width - 1; j += 2)
         {
             subGrid.set(i, j);
             subGrid.set(i + 1, j - 1);
         }
     }
 
-    for (size_t i(2); i < height - 1; i += 2)
+    for (size_t i{2}; i < height - 1; i += 2)
         subGrid.set(i, width - 2);
 
-    for (size_t j(2); j < width - 1; j += 2)
+    for (size_t j{2}; j < width - 1; j += 2)
         subGrid.set(height - 2, j);
 
     class Location
     {
         public:
-            enum Operation
+            Location(size_t startI, size_t startJ) : startI_{startI}, startJ_{startJ},
+                                                     directions_{std::make_pair(2, 0), std::make_pair(-2, 0),
+                                                                 std::make_pair(0, 2), std::make_pair(0, -2)}
             {
-                Oppose,
-                Swap,
-                SwapAndOppose
-            };
-
-            Location(size_t startI, size_t startJ, size_t randomNumber) : startI_(startI), startJ_(startJ),
-                                                                          dStartI_(0), dStartJ_(0),
-                                                                          di_(dStartI_), dj_(dStartJ_),
-                                                                          operations_{Oppose, Swap, SwapAndOppose}
-            {
-                std::array<std::pair<int, int>, 4> constexpr d{std::make_pair(2, 0), std::make_pair(-2, 0),
-                                                               std::make_pair(0, 2), std::make_pair(0, -2)};
-
-                dStartI_ = d[randomNumber % d.size()].first;
-                dStartJ_ = d[randomNumber % d.size()].second;
-
-                di_ = dStartI_;
-                dj_ = dStartJ_;
             }
 
-            void change(size_t randomNumber)
+            void change()
             {
-                if (operations_.empty())
+                if (directions_.empty())
                     return;
 
-                size_t const i(randomNumber % operations_.size());
-
-                switch (operations_[i])
-                {
-                    case Oppose:
-                        di_ = -dStartI_;
-                        dj_ = -dStartJ_;
-                        break;
-
-                    case Swap:
-                        di_ = dStartJ_;
-                        dj_ = dStartI_;
-                        break;
-
-                    case SwapAndOppose:
-                        di_ = -dStartJ_;
-                        dj_ = -dStartI_;
-                        break;
-                }
-
-                operations_[i] = operations_.back();
-                operations_.pop_back();
+                directions_.pop_back();
             }
 
             bool spent() const
             {
-                return operations_.empty();
+                return directions_.empty();
             }
 
             size_t startI() const
@@ -166,54 +130,57 @@ void Labyrinth2d::Algorithm::WaySearch::operator()(URNG& g, SubGrid const& subGr
                 return startJ_;
             }
 
-            int dStartI() const
-            {
-                return dStartI_;
-            }
-
-            int dStartJ() const
-            {
-                return dStartJ_;
-            }
-
             int di() const
             {
-                return di_;
+                if (directions_.empty())
+                    return 0;
+
+                return directions_.back().first;
             }
 
             int dj() const
             {
-                return dj_;
+                if (directions_.empty())
+                    return 0;
+
+                return directions_.back().second;
             }
 
             size_t i() const
             {
-                return startI_ + di_;
+                return startI_ + di();
             }
 
             size_t j() const
             {
-                return startJ_ + dj_;
+                return startJ_ + dj();
+            }
+
+            std::vector<std::pair<int, int> >::iterator begin()
+            {
+                return directions_.begin();
+            }
+
+            std::vector<std::pair<int, int> >::iterator end()
+            {
+                return directions_.end();
             }
 
         private:
             size_t startI_;
             size_t startJ_;
-            int dStartI_;
-            int dStartJ_;
-            int di_;
-            int dj_;
-            std::vector<Operation> operations_;
+            std::vector<std::pair<int, int> > directions_;
     };
 
-    std::vector<Location> history{Location(2 * (g() % rows)+ 1, 2 * (g() % columns) + 1, g())};
+    std::vector<Location> history{Location{2 * (g() % rows)+ 1, 2 * (g() % columns) + 1}};
+    std::shuffle(history.back().begin(), history.back().end(), g);
 
     std::vector<bool> visitedCells(rows * columns, false);
 
     visitedCells[(history.back().startI() - 1) / 2 * columns + (history.back().startJ() - 1) / 2] = true;
 
-    size_t openedWalls(0);
-    bool updatedHistory(false);
+    size_t openedWalls{0};
+    bool updatedHistory{false};
 
     while (openedWalls < (height - 1) * (width - 1) / 4 - 1)
     {
@@ -227,7 +194,7 @@ void Labyrinth2d::Algorithm::WaySearch::operator()(URNG& g, SubGrid const& subGr
             if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) > *timeout)
                 throw TimeoutException();
 
-        size_t i(0);
+        size_t i{0};
 
         if (type == DepthFirstSearch)
             i = history.size() - 1;
@@ -254,11 +221,12 @@ void Labyrinth2d::Algorithm::WaySearch::operator()(URNG& g, SubGrid const& subGr
 
             visitedCells[(history[i].i() - 1) / 2 * columns + (history[i].j() - 1) / 2] = true;
 
-            history.push_back(Location(history[i].i(), history[i].j(), g()));
+            history.push_back(Location{history[i].i(), history[i].j()});
+            std::shuffle(history.back().begin(), history.back().end(), g);
         }
 
         if (!history[i].spent())
-            history[i].change(g());
+            history[i].change();
         else
         {
             history[i] = history.back();

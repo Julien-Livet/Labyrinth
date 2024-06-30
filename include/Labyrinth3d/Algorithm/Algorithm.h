@@ -14,5 +14,6 @@
 #include "RandomDegenerative.h"
 #include "Recursive.h"
 #include "RandomSlicer.h"
+#include "WaySearch.h"
 
 #endif // LABYRINTH3D_ALGORITHM_ALGORITHM_H

@@ -52,24 +52,21 @@ int main(int argc, char** argv)
 /*
     //Not working
     Algorithm::Kruskal ka;
-    l.generate(g, ka, sleep, cycleOperations, cyclePause);*/
+    l.generate(g, ka, sleep, cycleOperations, cyclePause);
+*//*
     Algorithm::CellFusion cfa;
-    l.generate(g, cfa, sleep, cycleOperations, cyclePause);/*
+    l.generate(g, cfa, sleep, cycleOperations, cyclePause);
+*//*
     //Not working
     Algorithm::RecursiveDivision rda;
-    l.generate(g, rda, sleep, cycleOperations, cyclePause);*/
-/*
-    //Not working
-    Algorithm::WaySearch wsa(Algorithm::WaySearch::DepthFirstSearch);
-    //Algorithm::WaySearch wsa(Algorithm:WaySearch::Prim);
-    //Algorithm::WaySearch wsa(Algorithm::WaySearch::HuntAndKill);
-
-    //l.generate(g, wsa, sleep, cycleOperations, cyclePause);
-    std::thread thGenerate(&Labyrinth::generate<std::default_random_engine, Algorithm::WaySearch>,
-                           &l, std::ref(g), std::ref(wsa), sleep, cycleOperations, cyclePause, nullptr);
-    thGenerate.detach();
+    l.generate(g, rda, sleep, cycleOperations, cyclePause);
 */
-    QApplication application(argc, argv);
+    //Algorithm::WaySearch wsa{Algorithm::WaySearch::DepthFirstSearch};
+    Algorithm::WaySearch wsa{Algorithm::WaySearch::Prim};
+    //Algorithm::WaySearch wsa{Algorithm::WaySearch::HuntAndKill};
+    l.generate(g, wsa, sleep, cycleOperations, cyclePause);
+
+    QApplication application{argc, argv};
 
     std::string const path{"C:/Users/juju0/AppData/Roaming/FreeCAD/Macro"};
 

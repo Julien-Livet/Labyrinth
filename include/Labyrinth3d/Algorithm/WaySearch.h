@@ -9,6 +9,7 @@
  *  \date 20/01/2016
  */
 
+#include <algorithm>
 #include <chrono>
 #include <vector>
 
@@ -75,163 +76,73 @@ void Labyrinth3d::Algorithm::WaySearch::operator()(URNG& g, SubGrid const& subGr
                                                    size_t cycleOperations, std::chrono::milliseconds const& cyclePause,
                                                    std::chrono::milliseconds const* timeout)
 {
-    auto const t(std::chrono::steady_clock::now());
+    auto const t{std::chrono::steady_clock::now()};
 
-    size_t const height(subGrid.height());
-    size_t const width(subGrid.width());
-    size_t const floors(subGrid.floors());
-    size_t const rows(subGrid.rows());
-    size_t const columns(subGrid.columns());
-    size_t const depth(subGrid.depth());
+    auto const height{subGrid.height()};
+    auto const width{subGrid.width()};
+    auto const floors{subGrid.floors()};
+    auto const rows{subGrid.rows()};
+    auto const columns{subGrid.columns()};
+    auto const depth{subGrid.depth()};
 
-    for (size_t k(1); k < depth; k += 2)
+    for (size_t k{1}; k < depth - 1; ++k)
     {
-        for (size_t i(1); i < height - 3; i += 2)
+        for (size_t i{1}; i < height - 3; i += 2)
         {
-            for (size_t j(2); j < width - 1; j += 2)
+            for (size_t j{2}; j < width - 1; j += 2)
             {
                 subGrid.set(i, j, k);
                 subGrid.set(i + 1, j - 1, k);
             }
         }
 
-        for (size_t i(2); i < height - 1; i += 2)
+        for (size_t i{2}; i < height - 1; i += 2)
             subGrid.set(i, width - 2, k);
 
-        for (size_t j(2); j < width - 1; j += 2)
+        for (size_t j{2}; j < width - 1; j += 2)
             subGrid.set(height - 2, j, k);
     }
 
-    for (size_t i(1); i < height; i += 2)
-        for (size_t k(2); k < depth - 1; k += 2)
-            for (size_t j(1); j < height - 1; j += 2)
+    for (size_t k{2}; k < depth - 1; k += 2)
+    {
+        for (size_t i{1}; i < height; i += 2)
+        {
+            for (size_t j{1}; j < width; j += 2)
                 subGrid.set(i, j, k);
+        }
+    }
+
+    for (size_t k{1}; k < depth - 1; k += 2)
+    {
+        for (size_t i{2}; i < height - 1; i += 2)
+        {
+            for (size_t j{2}; j < width - 1; j += 2)
+                subGrid.set(i, j, k);
+        }
+    }
 
     class Location
     {
         public:
-            enum Operation
+            Location(size_t startI, size_t startJ,
+                     size_t startK) : startI_{startI}, startJ_{startJ}, startK_{startK},
+                                      directions_{std::make_tuple(2, 0, 0), std::make_tuple(-2, 0, 0),
+                                                  std::make_tuple(0, 2, 0), std::make_tuple(0, -2, 0),
+                                                  std::make_tuple(0, 0, 2), std::make_tuple(0, 0, -2)}
             {
-                Oppose,
-                SwapIj,
-                SwapAndOpposeIj,
-                SwapIk,
-                SwapAndOpposeIk,
-                SwapJk,
-                SwapAndOpposeJk,
-                RotateToLeft,
-                RotateToLeftAndOppose,
-                RotateToRight,
-                RotateToRightAndOppose,
-            };
-
-            Location(size_t startI, size_t startJ, size_t startK,
-                     size_t randomNumber) : startI_(startI), startJ_(startJ), startK_(startK),
-                                            dStartI_(2), dStartJ_(0), dStartK_(0),
-                                            di_(dStartI_), dj_(dStartJ_), dk_(dStartK_),
-                                            operations_{Oppose,
-                                                        SwapIj, SwapAndOpposeIj,
-                                                        SwapIk, SwapAndOpposeIk,
-                                                        SwapJk, SwapAndOpposeJk,
-                                                        RotateToLeft, RotateToLeftAndOppose,
-                                                        RotateToRight, RotateToRightAndOppose}
-            {
-                std::array<std::tuple<int, int, int>, 6> constexpr d{std::make_tuple(2, 0, 0), std::make_tuple(-2, 0, 0),
-                                                                     std::make_tuple(0, 2, 0), std::make_tuple(0, -2, 0),
-                                                                     std::make_tuple(0, 0, 2), std::make_tuple(0, 0, -2)};
-
-                dStartI_ = std::get<0>(d[randomNumber % d.size()]);
-                dStartJ_ = std::get<1>(d[randomNumber % d.size()]);
-                dStartK_ = std::get<2>(d[randomNumber % d.size()]);
-
-                di_ = dStartI_;
-                dj_ = dStartJ_;
-                dk_ = dStartK_;
             }
 
-            void change(size_t randomNumber)
+            void change()
             {
-                if (operations_.empty())
+                if (directions_.empty())
                     return;
 
-                size_t const i(randomNumber % operations_.size());
-
-                switch (operations_[i])
-                {
-                    case Oppose:
-                        di_ = -dStartI_;
-                        dj_ = -dStartJ_;
-                        dk_ = -dStartK_;
-                        break;
-
-                    case SwapIj:
-                        di_ = dStartJ_;
-                        dj_ = dStartI_;
-                        dk_ = dStartK_;
-                        break;
-
-                    case SwapAndOpposeIj:
-                        di_ = -dStartJ_;
-                        dj_ = -dStartI_;
-                        dk_ = dStartK_;
-                        break;
-
-                    case SwapIk:
-                        di_ = dStartK_;
-                        dj_ = dStartJ_;
-                        dk_ = dStartI_;
-                        break;
-
-                    case SwapAndOpposeIk:
-                        di_ = -dStartK_;
-                        dj_ = dStartJ_;
-                        dk_ = -dStartI_;
-                        break;
-
-                    case SwapJk:
-                        di_ = dStartI_;
-                        dj_ = dStartK_;
-                        dk_ = dStartJ_;
-                        break;
-
-                    case SwapAndOpposeJk:
-                        di_ = dStartI_;
-                        dj_ = -dStartK_;
-                        dk_ = -dStartJ_;
-                        break;
-
-                    case RotateToLeft:
-                        di_ = dStartJ_;
-                        dj_ = dStartK_;
-                        dk_ = dStartI_;
-                        break;
-
-                    case RotateToLeftAndOppose:
-                        di_ = -dStartJ_;
-                        dj_ = -dStartK_;
-                        dk_ = -dStartI_;
-                        break;
-
-                    case RotateToRight:
-                        di_ = dStartK_;
-                        dj_ = dStartI_;
-                        dk_ = dStartJ_;
-                        break;
-
-                    case RotateToRightAndOppose:
-                        di_ = -dStartK_;
-                        dj_ = -dStartI_;
-                        dk_ = -dStartJ_;
-                        break;
-                }
-
-                operations_[i] = operations_.back();
-                operations_.pop_back();
+                directions_.pop_back();
             }
 
             bool spent() const
             {
-                return operations_.empty();
+                return directions_.empty();
             }
 
             size_t startI() const
@@ -249,73 +160,72 @@ void Labyrinth3d::Algorithm::WaySearch::operator()(URNG& g, SubGrid const& subGr
                 return startK_;
             }
 
-            int dStartI() const
-            {
-                return dStartI_;
-            }
-
-            int dStartJ() const
-            {
-                return dStartJ_;
-            }
-
-            int dStartK() const
-            {
-                return dStartK_;
-            }
-
             int di() const
             {
-                return di_;
+                if (directions_.empty())
+                    return 0;
+
+                return std::get<0>(directions_.back());
             }
 
             int dj() const
             {
-                return dj_;
+                if (directions_.empty())
+                    return 0;
+
+                return std::get<1>(directions_.back());
             }
 
             int dk() const
             {
-                return dk_;
+                if (directions_.empty())
+                    return 0;
+
+                return std::get<2>(directions_.back());
             }
 
             size_t i() const
             {
-                return startI_ + di_;
+                return startI_ + di();
             }
 
             size_t j() const
             {
-                return startJ_ + dj_;
+                return startJ_ + dj();
             }
 
             size_t k() const
             {
-                return startK_ + dk_;
+                return startK_ + dk();
+            }
+
+            std::vector<std::tuple<int, int, int> >::iterator begin()
+            {
+                return directions_.begin();
+            }
+
+            std::vector<std::tuple<int, int, int> >::iterator end()
+            {
+                return directions_.end();
             }
 
         private:
             size_t startI_;
             size_t startJ_;
             size_t startK_;
-            int dStartI_;
-            int dStartJ_;
-            int dStartK_;
-            int di_;
-            int dj_;
-            int dk_;
-            std::vector<Operation> operations_;
+            std::vector<std::tuple<int, int, int> > directions_;
     };
 
-    std::vector<Location> history{Location(2 * (g() % rows)+ 1, 2 * (g() % columns) + 1,  2 * (g() % floors) + 1, g())};
+    std::vector<Location> history{Location{2 * (g() % rows)+ 1, 2 * (g() % columns) + 1,  2 * (g() % floors) + 1}};
+    std::shuffle(history.back().begin(), history.back().end(), g);
 
     std::vector<bool> visitedCells(rows * columns * floors, false);
 
     visitedCells[((history.back().startK() - 1) * rows + history.back().startI() - 1) / 2 * columns
                  + (history.back().startJ() - 1) / 2] = true;
 
-    size_t openedWalls(0);
-    bool updatedHistory(false);
+    size_t openedWalls{0};
+    bool updatedHistory{false};
 
     while (openedWalls < (height - 1) * (width - 1) * (depth - 1) / 8 - 1)
     {
@@ -329,7 +239,7 @@ void Labyrinth3d::Algorithm::WaySearch::operator()(URNG& g, SubGrid const& subGr
             if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) > *timeout)
                 throw TimeoutException();
 
-        size_t i(0);
+        size_t i{0};
 
         if (type == DepthFirstSearch)
             i = history.size() - 1;
@@ -358,11 +268,12 @@ void Labyrinth3d::Algorithm::WaySearch::operator()(URNG& g, SubGrid const& subGr
 
             visitedCells[((history[i].k() - 1) * rows + history[i].i() - 1) / 2 * columns + (history[i].j() - 1) / 2] = true;
 
-            history.push_back(Location(history[i].i(), history[i].j(), history[i].k(), g()));
+            history.push_back(Location{history[i].i(), history[i].j(), history[i].k()});
+            std::shuffle(history.back().begin(), history.back().end(), g);
         }
 
         if (!history[i].spent())
-            history[i].change(g());
+            history[i].change();
         else
         {
             history[i] = history.back();
