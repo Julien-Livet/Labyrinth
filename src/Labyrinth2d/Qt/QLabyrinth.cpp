@@ -3086,7 +3086,7 @@ void QLabyrinth::enregistrer(QDataStream &data, bool chrono, int ms, bool pauseI
         std::queue<char> queue;
         labyrinth->write(queue);
 
-        data << queue.size();
+        data.writeRawData(reinterpret_cast<char const*>(queue.size()), sizeof(size_t));
         while (!queue.empty())
         {
             data << queue.front();
@@ -3192,8 +3192,8 @@ void QLabyrinth::charger(QDataStream &data, bool &chrono, int &ms, QString &musi
     if (b)
     {
         std::queue<char> queue;
-        long unsigned int size{0};
-        data >> size;
+        size_t size{0};
+        data.readRawData(reinterpret_cast<char*>(&size), sizeof(size_t));
 
         for (size_t i{0}; i < size; ++i)
         {
