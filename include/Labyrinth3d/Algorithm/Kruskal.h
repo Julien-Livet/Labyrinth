@@ -101,29 +101,38 @@ void Labyrinth3d::Algorithm::Kruskal::operator()(URNG& g, SubGrid const& subGrid
     size_t const width(subGrid.width());
     size_t const depth(subGrid.depth());
 
-    for (size_t k(1); k < depth; k += 2)
+    for (size_t k{1}; k < depth - 1; ++k)
     {
-        for (size_t i(1); i < height - 3; i += 2)
+        for (size_t i{1}; i < height - 3; i += 2)
         {
-            for (size_t j(2); j < width - 1; j += 2)
+            for (size_t j{2}; j < width - 1; j += 2)
             {
                 subGrid.set(i, j, k);
                 subGrid.set(i + 1, j - 1, k);
             }
         }
 
-        for (size_t i(2); i < height - 1; i += 2)
+        for (size_t i{2}; i < height - 1; i += 2)
             subGrid.set(i, width - 2, k);
 
-        for (size_t j(2); j < width - 1; j += 2)
+        for (size_t j{2}; j < width - 1; j += 2)
             subGrid.set(height - 2, j, k);
     }
 
-    for (size_t i(1); i < width; i += 2)
+    for (size_t k{2}; k < depth - 1; k += 2)
     {
-        for (size_t k(2); k < depth - 1; k += 2)
+        for (size_t i{1}; i < height; i += 2)
         {
-            for (size_t j(1); j < height - 1; j += 2)
+            for (size_t j{1}; j < width; j += 2)
+                subGrid.set(i, j, k);
+        }
+    }
+
+    for (size_t k{1}; k < depth - 1; k += 2)
+    {
+        for (size_t i{2}; i < height - 1; i += 2)
+        {
+            for (size_t j{2}; j < width - 1; j += 2)
                 subGrid.set(i, j, k);
         }
     }
@@ -141,14 +150,14 @@ void Labyrinth3d::Algorithm::Kruskal::recursiveGeneration_(URNG &g, SubGrid cons
                                                            std::chrono::milliseconds const& cyclePause,
                                                            std::chrono::milliseconds const* timeout)
 {
-    auto const t(std::chrono::steady_clock::now());
+    auto const t{std::chrono::steady_clock::now()};
 
-    size_t const height(subGrid.height());
-    size_t const width(subGrid.width());
-    size_t const depth(subGrid.depth());
-    size_t const rows(subGrid.rows());
-    size_t const columns(subGrid.columns());
-    size_t const floors(subGrid.floors());
+    auto const height{subGrid.height()};
+    auto const width{subGrid.width()};
+    auto const depth{subGrid.depth()};
+    auto const rows{subGrid.rows()};
+    auto const columns{subGrid.columns()};
+    auto const floors{subGrid.floors()};
 
     std::vector<size_t> grid;
     std::vector<std::tuple<size_t, size_t, size_t> > possiblePositions;
@@ -156,15 +165,15 @@ void Labyrinth3d::Algorithm::Kruskal::recursiveGeneration_(URNG &g, SubGrid cons
     grid.reserve(rows * columns * floors);
     possiblePositions.reserve(rows * columns * floors);
 
-    for (size_t i(0); i < rows * columns * floors; ++i)
+    for (size_t i{0}; i < rows * columns * floors; ++i)
     {
         grid.push_back(i);
-        possiblePositions.push_back(std::make_tuple((i / columns * 2 + 1) % rows,
-                                                    (i % columns) * 2 + 1,
-                                                    (i / (columns * rows)) * 2 + 1));
+        possiblePositions.emplace_back(std::make_tuple((i / columns * 2 + 1) % rows,
+                                                       (i % columns) * 2 + 1,
+                                                       (i / (columns * rows)) * 2 + 1));
     }
 
-    size_t openedWalls(0);
+    size_t openedWalls{0};
 
     while (openedWalls < (height - 1) * (width - 1)  * (depth - 1) / 8 - 1)
     {
@@ -182,11 +191,11 @@ void Labyrinth3d::Algorithm::Kruskal::recursiveGeneration_(URNG &g, SubGrid cons
                                                                    std::make_tuple(0, 2, 0), std::make_tuple(0, -2, 0),
                                                                    std::make_tuple(0, 0, 2), std::make_tuple(0, 0, -2)};
 
-        size_t const i(g() % possiblePositions.size());
+        size_t const i{g() % possiblePositions.size()};
 
-        size_t j(g() % possibleDirections.size());
+        size_t j{g() % possibleDirections.size()};
 
-        bool b(std::get<0>(possiblePositions[i]) + std::get<0>(possibleDirections[j]) < height
+        bool b{std::get<0>(possiblePositions[i]) + std::get<0>(possibleDirections[j]) < height
                && std::get<1>(possiblePositions[i]) + std::get<1>(possibleDirections[j]) < width
                && std::get<2>(possiblePositions[i]) + std::get<2>(possibleDirections[j]) < depth
                && grid[((std::get<2>(possiblePositions[i]) - 1) * rows
@@ -194,7 +203,7 @@ void Labyrinth3d::Algorithm::Kruskal::recursiveGeneration_(URNG &g, SubGrid cons
                        + (std::get<1>(possiblePositions[i]) - 1) / 2]
                   != grid[((std::get<2>(possiblePositions[i]) - 1 + std::get<2>(possibleDirections[j])) * rows
                            + std::get<0>(possiblePositions[i]) - 1 + std::get<0>(possibleDirections[j])) / 2 * columns
-                          + (std::get<1>(possiblePositions[i]) - 1 + std::get<1>(possibleDirections[j])) / 2]);
+                          + (std::get<1>(possiblePositions[i]) - 1 + std::get<1>(possibleDirections[j])) / 2]};
 
         while (!b)
         {
@@ -246,14 +255,14 @@ void Labyrinth3d::Algorithm::Kruskal::loopGeneration_(URNG &g, SubGrid const& su
                                                       size_t cycleOperations, std::chrono::milliseconds const& cyclePause,
                                                       std::chrono::milliseconds const* timeout)
 {
-    auto const t(std::chrono::steady_clock::now());
+    auto const t{std::chrono::steady_clock::now()};
 
-    size_t const height(subGrid.height());
-    size_t const width(subGrid.width());
-    size_t const depth(subGrid.depth());
-    size_t const rows(subGrid.rows());
-    size_t const columns(subGrid.columns());
-    size_t const floors(subGrid.floors());
+    auto const height{subGrid.height()};
+    auto const width{subGrid.width()};
+    auto const depth{subGrid.depth()};
+    auto const rows{subGrid.rows()};
+    auto const columns{subGrid.columns()};
+    auto const floors{subGrid.floors()};
 
     std::vector<size_t> grid;
     std::vector<std::tuple<size_t, size_t, size_t> > possiblePositions;
@@ -261,17 +270,17 @@ void Labyrinth3d::Algorithm::Kruskal::loopGeneration_(URNG &g, SubGrid const& su
     grid.reserve(rows * columns * floors);
     possiblePositions.reserve(rows * columns * floors);
 
-    for (size_t i(0); i < rows * columns * floors; ++i)
+    for (size_t i{0}; i < rows * columns * floors; ++i)
     {
-        grid.push_back(i);
-        possiblePositions.push_back(std::make_tuple((i / columns * 2 + 1) % rows,
-                                                    (i % columns) * 2 + 1,
-                                                    (i / (columns * rows)) * 2 + 1));
+        grid.emplace_back(i);
+        possiblePositions.emplace_back(std::make_tuple((i / columns * 2 + 1) % rows,
+                                                       (i % columns) * 2 + 1,
+                                                       (i / (columns * rows)) * 2 + 1));
     }
 
-    boost::disjoint_sets_with_storage<> disjointsSets(rows * columns * floors);
+    boost::disjoint_sets_with_storage<> disjointsSets{rows * columns * floors};
 
-    size_t openedWalls(0);
+    size_t openedWalls{0};
 
     while (openedWalls < (height - 1) * (width - 1) * (depth - 1) / 8 - 1)
     {
@@ -289,20 +298,20 @@ void Labyrinth3d::Algorithm::Kruskal::loopGeneration_(URNG &g, SubGrid const& su
                                                                    std::make_tuple(0, 2, 0), std::make_tuple(0, -2, 0),
                                                                    std::make_tuple(0, 0, 2), std::make_tuple(0, 0, -2)};
 
-        size_t const i(g() % possiblePositions.size());
+        size_t const i{g() % possiblePositions.size()};
 
-        size_t j(g() % possibleDirections.size());
+        size_t j{g() % possibleDirections.size()};
 
-        auto const element(disjointsSets.find_set(((std::get<2>(possiblePositions[i]) - 1)) * rows
+        auto const element{disjointsSets.find_set(((std::get<2>(possiblePositions[i]) - 1)) * rows
                                                    + std::get<0>(possiblePositions[i]) - 1) / 2 * columns
-                                                  + (std::get<1>(possiblePositions[i]) - 1) / 2);
+                                                  + (std::get<1>(possiblePositions[i]) - 1) / 2};
 
-        bool b(std::get<0>(possiblePositions[i]) + std::get<0>(possibleDirections[j]) < height
+        bool b{std::get<0>(possiblePositions[i]) + std::get<0>(possibleDirections[j]) < height
                && std::get<1>(possiblePositions[i]) + std::get<1>(possibleDirections[j]) < width
                && std::get<2>(possiblePositions[i]) + std::get<2>(possibleDirections[j]) < depth
                && element != disjointsSets.find_set(((std::get<2>(possiblePositions[i]) - 1 + std::get<2>(possibleDirections[j])) * rows
                                                      + std::get<0>(possiblePositions[i]) - 1 + std::get<0>(possibleDirections[j])) / 2 * columns
-                                                    + (std::get<1>(possiblePositions[i]) - 1 + std::get<1>(possibleDirections[j])) / 2));
+                                                    + (std::get<1>(possiblePositions[i]) - 1 + std::get<1>(possibleDirections[j])) / 2)};
 
         while (!b)
         {
@@ -352,8 +361,8 @@ inline void Labyrinth3d::Algorithm::Kruskal::fill_(size_t value, std::vector<siz
                                                    std::tuple<size_t, size_t, size_t> const& position,
                                                    std::tuple<int, int, int> const& direction) const
 {
-    size_t const columns((width - 1) / 2);
-    size_t const rows((height - 1) / 2);
+    size_t const columns{(width - 1) / 2};
+    size_t const rows{(height - 1) / 2};
 
     grid[((std::get<2>(position) - 1 + std::get<2>(direction)) * rows
           + std::get<0>(position) - 1 + std::get<0>(direction)) / 2 * columns
