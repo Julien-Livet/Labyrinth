@@ -15,6 +15,7 @@ class TestAlgorithmCellFusion : public QObject
 		void solveBlind2x2();
 		void solve8x8();
         void writeAndRead8x8();
+
 		void generate1x1x1();
 		void generate2x1x1();
 		void generate1x2x1();

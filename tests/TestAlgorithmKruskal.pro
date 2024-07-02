@@ -14,7 +14,14 @@ SOURCES = testalgorithmkruskal.cpp \
           ../src/Labyrinth2d/Solver/WallHand.cpp \
           ../src/Labyrinth2d/Grid.cpp \
           ../src/Labyrinth2d/Labyrinth.cpp \
-          ../src/Labyrinth2d/Player.cpp
+          ../src/Labyrinth2d/Player.cpp \
+          ../src/Labyrinth3d/Algorithm/Kruskal.cpp \
+          ../src/Labyrinth3d/Algorithm/TimeoutException.cpp \
+          ../src/Labyrinth3d/Solver/FailureException.cpp \
+          ../src/Labyrinth3d/Solver/TimeoutException.cpp \
+          ../src/Labyrinth3d/Grid.cpp \
+          ../src/Labyrinth3d/Labyrinth.cpp \
+          ../src/Labyrinth3d/Player.cpp
 
 HEADERS = ../include/Labyrinth2d/Algorithm/Kruskal.h \
           ../include/Labyrinth2d/Algorithm/TimeoutException.h \
@@ -28,5 +35,16 @@ HEADERS = ../include/Labyrinth2d/Algorithm/Kruskal.h \
           ../include/Labyrinth2d/Grid.h \
           ../include/Labyrinth2d/Labyrinth.h \
           ../include/Labyrinth2d/Player.h \
-          ../include/Labyrinth2d/utility.h
+          ../include/Labyrinth2d/utility.h \
+          ../include/Labyrinth3d/Algorithm/Kruskal.h \
+          ../include/Labyrinth3d/Algorithm/TimeoutException.h \
+          ../include/Labyrinth3d/Solver/AStar.h \
+          ../include/Labyrinth3d/Solver/Blind.h \
+          ../include/Labyrinth3d/Solver/FailureException.h \
+          ../include/Labyrinth3d/Solver/Solver.h \
+          ../include/Labyrinth3d/Solver/TimeoutException.h \
+          ../include/Labyrinth3d/Grid.h \
+          ../include/Labyrinth3d/Labyrinth.h \
+          ../include/Labyrinth3d/Player.h \
+          ../include/Labyrinth3d/utility.h
 

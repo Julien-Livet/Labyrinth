@@ -165,12 +165,16 @@ void Labyrinth3d::Algorithm::Kruskal::recursiveGeneration_(URNG &g, SubGrid cons
     grid.reserve(rows * columns * floors);
     possiblePositions.reserve(rows * columns * floors);
 
-    for (size_t i{0}; i < rows * columns * floors; ++i)
+    for (size_t k{0}; k < floors; ++k)
     {
-        grid.push_back(i);
-        possiblePositions.emplace_back(std::make_tuple((i / columns * 2 + 1) % rows,
-                                                       (i % columns) * 2 + 1,
-                                                       (i / (columns * rows)) * 2 + 1));
+        for (size_t i{0}; i < rows; ++i)
+        {
+            for (size_t j{0}; j < columns; ++j)
+            {
+                grid.emplace_back((k * rows + i) * columns + j);
+                possiblePositions.emplace_back(std::make_tuple(i * 2 + 1, j * 2 + 1, k * 2 + 1));
+            }
+        }
     }
 
     size_t openedWalls{0};
@@ -270,12 +274,16 @@ void Labyrinth3d::Algorithm::Kruskal::loopGeneration_(URNG &g, SubGrid const& su
     grid.reserve(rows * columns * floors);
     possiblePositions.reserve(rows * columns * floors);
 
-    for (size_t i{0}; i < rows * columns * floors; ++i)
+    for (size_t k{0}; k < floors; ++k)
     {
-        grid.emplace_back(i);
-        possiblePositions.emplace_back(std::make_tuple((i / columns * 2 + 1) % rows,
-                                                       (i % columns) * 2 + 1,
-                                                       (i / (columns * rows)) * 2 + 1));
+        for (size_t i{0}; i < rows; ++i)
+        {
+            for (size_t j{0}; j < columns; ++j)
+            {
+                grid.emplace_back((k * rows + i) * columns + j);
+                possiblePositions.emplace_back(std::make_tuple(i * 2 + 1, j * 2 + 1, k * 2 + 1));
+            }
+        }
     }
 
     boost::disjoint_sets_with_storage<> disjointsSets{rows * columns * floors};

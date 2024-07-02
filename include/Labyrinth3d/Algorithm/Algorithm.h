@@ -10,6 +10,7 @@
  */
 
 #include "CellFusion.h"
+#include "Kruskal.h"
 #include "Random.h"
 #include "RandomDegenerative.h"
 #include "Recursive.h"

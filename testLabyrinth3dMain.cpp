@@ -23,16 +23,16 @@ using namespace Labyrinth3d;
 
 int main(int argc, char** argv)
 {
-    size_t const cycleOperations(0 * 1);
-    std::chrono::milliseconds const cyclePause(0 * 1 * 1);
-    size_t const cycleOperationsSolving(1);
-    std::chrono::milliseconds const cyclePauseSolving(10 * 50);
+    size_t const cycleOperations{0 * 1};
+    std::chrono::milliseconds const cyclePause{0 * 1 * 1};
+    size_t const cycleOperationsSolving{1};
+    std::chrono::milliseconds const cyclePauseSolving{10 * 50};
 
-    //size_t const seed(1717503823494194900);
-    size_t const seed(std::chrono::system_clock::now().time_since_epoch().count());
-    std::default_random_engine g(seed);
+    //size_t const seed(1719928298808300500);
+    auto const seed{std::chrono::system_clock::now().time_since_epoch().count()};
+    std::default_random_engine g{seed};
     std::cout << seed << std::endl;/*
-    //std::default_random_engine g(156320);
+    //std::default_random_engine g{156320};
     std::random_device g;*/
 
     auto const sleep{
@@ -44,28 +44,28 @@ int main(int argc, char** argv)
         }
     };
 
-    //Labyrinth l(2, 2, 2);
-    //Labyrinth l(3, 3, 3);
-    //Labyrinth l(5, 5, 5);
-    Labyrinth l(9, 9, 9);
-    //Labyrinth l(20, 20, 20);
-/*
+    //Labyrinth l{2, 2, 2};
+    //Labyrinth l{3, 3, 3};
+    //Labyrinth l{5, 5, 5};
+    Labyrinth l{9, 9, 9};
+    //Labyrinth l{20, 20, 20};
+
     //Not working
     Algorithm::Kruskal ka;
     l.generate(g, ka, sleep, cycleOperations, cyclePause);
-*//*
+/*
     Algorithm::CellFusion cfa;
     l.generate(g, cfa, sleep, cycleOperations, cyclePause);
 *//*
     //Not working
     Algorithm::RecursiveDivision rda;
     l.generate(g, rda, sleep, cycleOperations, cyclePause);
-*/
+*//*
     //Algorithm::WaySearch wsa{Algorithm::WaySearch::DepthFirstSearch};
     Algorithm::WaySearch wsa{Algorithm::WaySearch::Prim};
     //Algorithm::WaySearch wsa{Algorithm::WaySearch::HuntAndKill};
     l.generate(g, wsa, sleep, cycleOperations, cyclePause);
-
+*/
     QApplication application{argc, argv};
 
     std::string const path{"C:/Users/juju0/AppData/Roaming/FreeCAD/Macro"};
@@ -77,11 +77,11 @@ int main(int argc, char** argv)
 
     if (ofs)
     {
-        for (size_t k(0); k < l.grid().depth(); ++k)
+        for (size_t k{0}; k < l.grid().depth(); ++k)
         {
-            for (size_t i(0); i < l.grid().height(); ++i)
+            for (size_t i{0}; i < l.grid().height(); ++i)
             {
-                for (size_t j(0); j < l.grid().width(); ++j)
+                for (size_t j{0}; j < l.grid().width(); ++j)
                 {
                     if (l.grid().at(i, j, k))
                     {
@@ -101,27 +101,27 @@ int main(int argc, char** argv)
         ofs.close();
     }
 
-    size_t const player1Id(l.addPlayer(0, 0, 0, {l.grid().rows() - 1}, {l.grid().columns() - 1}, {l.grid().floors() - 1}, true));
-    size_t const player2Id(l.addPlayer(l.grid().rows() - 1, l.grid().columns() - 1, l.grid().floors() - 1, {0}, {0}, {0}, true));
-    size_t const player3Id(l.addPlayer(0, l.grid().columns() - 1, l.grid().floors() - 1, {l.grid().rows() - 1}, {0}, {0}, true));
+    auto const player1Id{l.addPlayer(0, 0, 0, {l.grid().rows() - 1}, {l.grid().columns() - 1}, {l.grid().floors() - 1}, true)};
+    auto const player2Id{l.addPlayer(l.grid().rows() - 1, l.grid().columns() - 1, l.grid().floors() - 1, {0}, {0}, {0}, true)};
+    auto const player3Id{l.addPlayer(0, l.grid().columns() - 1, l.grid().floors() - 1, {l.grid().rows() - 1}, {0}, {0}, true)};
 
     Solver::AStar ass;
 /*
     //l.player(player1d).solve(g, ass, sleep, 0, 0, cycleOperationsSolving, cyclePauseSolving);
-    std::thread thSolvePlayer1(&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player1Id),
+    std::thread thSolvePlayer1{&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player1Id),
                                std::ref(g), std::ref(ass), sleep, 0, 0,
-                               cycleOperationsSolving, cyclePauseSolving, nullptr);
+                               cycleOperationsSolving, cyclePauseSolving, nullptr};
 */
     Solver::Blind bs;
 
     //l.player(player2Id).solve(g, bs, sleep, 0, 0, cycleOperationsSolving, cyclePauseSolving);
-    std::thread thSolvePlayer2(&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player2Id),
+    std::thread thSolvePlayer2{&Player::solve<std::default_random_engine, Solver::AStar>, &l.player(player2Id),
                                std::ref(g), std::ref(ass), sleep, 0, 0,
-                               cycleOperationsSolving, cyclePauseSolving, nullptr);
+                               cycleOperationsSolving, cyclePauseSolving, nullptr};
     //l.player(player3Id).solve(g, bs, sleep, 0, 0, cycleOperationsSolving, cyclePauseSolving);
-    std::thread thSolvePlayer3(&Player::solve<std::default_random_engine, Solver::Blind>, &l.player(player3Id),
+    std::thread thSolvePlayer3{&Player::solve<std::default_random_engine, Solver::Blind>, &l.player(player3Id),
                                std::ref(g), std::ref(bs), sleep, 0, 0,
-                               cycleOperationsSolving, cyclePauseSolving, nullptr);
+                               cycleOperationsSolving, cyclePauseSolving, nullptr};
 
     //thSolvePlayer1.detach();
     thSolvePlayer2.detach();
@@ -129,10 +129,10 @@ int main(int argc, char** argv)
 
     bool constexpr displayTrace{true};
 
-    GLWidget glWidget(l, wallsSize, waysSize);
+    GLWidget glWidget{l, wallsSize, waysSize};
     glWidget.show();
     glWidget.resize(800, 600);
-    glWidget.move(QRect(QPoint(), QGuiApplication::screenAt(QPoint())->size()).center() - glWidget.rect().center());
+    glWidget.move(QRect{QPoint{}, QGuiApplication::screenAt(QPoint{})->size()}.center() - glWidget.rect().center());
     glWidget.setClearColor(Qt::white);
     glWidget.setPlayerDisplay(player1Id, GLWidget::PlayerDisplay{QColor{255, 0, 0, 255}, displayTrace, QColor{255, 0, 0, 127}});
     glWidget.setPlayerDisplay(player2Id, GLWidget::PlayerDisplay{QColor{0, 255, 0, 255}, displayTrace, QColor{0, 255, 0, 127}});
