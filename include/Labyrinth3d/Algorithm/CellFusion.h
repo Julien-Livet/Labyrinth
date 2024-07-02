@@ -123,7 +123,7 @@ void Labyrinth3d::Algorithm::CellFusion::operator()(URNG& g, SubGrid const& subG
         }
     }
 
-    size_t openedDoorNumber = 0;
+    size_t openedDoorNumber{0};
 
     while (cells.size() != 1)
     {
