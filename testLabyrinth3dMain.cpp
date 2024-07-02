@@ -50,7 +50,6 @@ int main(int argc, char** argv)
     Labyrinth l{9, 9, 9};
     //Labyrinth l{20, 20, 20};
 
-    //Not working
     Algorithm::Kruskal ka;
     l.generate(g, ka, sleep, cycleOperations, cyclePause);
 /*
