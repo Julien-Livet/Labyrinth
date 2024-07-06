@@ -50,7 +50,8 @@ namespace Labyrinth3d
     std::queue<char>& read(std::queue<char>& data, POD& pod)
     {
         // make sure we're not trying to read a complex object this way
-        static_assert(std::is_pod<POD>::value, "must be plain old data");
+        static_assert(std::is_standard_layout<POD>::value
+                      && std::is_trivial<POD>::value, "must be plain old data");
 
         std::vector<char> buffer{};
 
@@ -71,7 +72,8 @@ namespace Labyrinth3d
     std::queue<char>& write(std::queue<char>& data, POD const& pod)
     {
         // make sure we're not trying to write a complex object this way
-        static_assert(std::is_pod<POD>::value, "must be plain old data");
+        static_assert(std::is_standard_layout<POD>::value
+                      && std::is_trivial<POD>::value, "must be plain old data");
 
         std::vector<char> buffer(sizeof(POD));
 
