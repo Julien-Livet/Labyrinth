@@ -29,7 +29,8 @@ RCC_DIR = qrc
 RESOURCES += resources.qrc
 
 INCLUDEPATH += include \
-               D:\Programmes\boost_1_85_0
+               D:\Programmes\boost_1_85_0 \
+               D:\Programmes\eigen-master
 
 SOURCES += \
     testLabyrinth3dMain.cpp \
@@ -44,7 +45,9 @@ SOURCES += \
     src/Labyrinth3d/Solver/TimeoutException.cpp \
     src/Labyrinth3d/Grid.cpp \
     src/Labyrinth3d/Labyrinth.cpp \
-    src/Labyrinth3d/Player.cpp
+    src/Labyrinth3d/Player.cpp \
+    src/StlModel.cpp \
+    src/Utility.cpp
 
 HEADERS += \
     include/Labyrinth3d/Algorithm/Algorithm.h \
@@ -69,4 +72,8 @@ HEADERS += \
     include/Labyrinth3d/Grid.h \
     include/Labyrinth3d/Labyrinth.h \
     include/Labyrinth3d/Player.h \
-    include/Labyrinth3d/utility.h
+    include/Labyrinth3d/utility.h \
+    include/StlModel.h \
+    include/StlModel.tcc \
+    include/Utility.h \
+    include/Utility.tcc

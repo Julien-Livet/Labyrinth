@@ -19,6 +19,7 @@
 #include "Labyrinth2d/Renderer/Renderer.h"
 #include "Labyrinth2d/Solver/Solver.h"
 #include "Labyrinth2d/Mover/QKeyPress.h"
+#include "StlModel.h"
 
 using namespace Labyrinth2d;
 
@@ -291,6 +292,81 @@ int main(int argc, char** argv)
 
     std::ofstream ofs{path + "/labyrinth2d.FCMacro"};
 
+    StlModel stlModel;
+
+    auto addBox{
+        [&stlModel] (double x, double y, double z, double length, double width, double height) -> void
+        {
+            StlModel::Facet facet;
+
+            facet.normal = -Eigen::Vector3f::UnitZ();
+            facet.vertices[0] = (Eigen::Vector3f{} << x, y, z).finished();
+            facet.vertices[1] = facet.vertices[0];
+            facet.vertices[1][1] += width;
+            facet.vertices[2] = facet.vertices[0];
+            facet.vertices[2][0] += length;
+            stlModel.addFacet(facet);
+            facet.vertices[0][0] = facet.vertices[2][0];
+            facet.vertices[0][1] = facet.vertices[1][1];
+            std::swap(facet.vertices[0], facet.vertices[1]);
+            stlModel.addFacet(facet);
+            facet.normal = Eigen::Vector3f::UnitZ();
+            facet.vertices[0][2] += height;
+            facet.vertices[1][2] += height;
+            facet.vertices[2][2] += height;
+            std::swap(facet.vertices[0], facet.vertices[1]);
+            stlModel.addFacet(facet);
+            facet.vertices[0][0] = facet.vertices[1][0];
+            facet.vertices[0][1] = facet.vertices[2][1];
+            std::swap(facet.vertices[0], facet.vertices[1]);
+            stlModel.addFacet(facet);
+
+            facet.normal = -Eigen::Vector3f::UnitY();
+            facet.vertices[0] = (Eigen::Vector3f{} << x, y, z).finished();
+            facet.vertices[1] = facet.vertices[0];
+            facet.vertices[1][0] += length;
+            facet.vertices[2] = facet.vertices[0];
+            facet.vertices[2][2] += height;
+            stlModel.addFacet(facet);
+            facet.vertices[0][0] = facet.vertices[1][0];
+            facet.vertices[0][2] = facet.vertices[2][2];
+            std::swap(facet.vertices[0], facet.vertices[1]);
+            stlModel.addFacet(facet);
+            facet.normal = Eigen::Vector3f::UnitY();
+            facet.vertices[0][1] += width;
+            facet.vertices[1][1] += width;
+            facet.vertices[2][1] += width;
+            std::swap(facet.vertices[0], facet.vertices[1]);
+            stlModel.addFacet(facet);
+            facet.vertices[0][0] = facet.vertices[2][0];
+            facet.vertices[0][2] = facet.vertices[1][2];
+            std::swap(facet.vertices[0], facet.vertices[1]);
+            stlModel.addFacet(facet);
+
+            facet.normal = -Eigen::Vector3f::UnitX();
+            facet.vertices[0] = (Eigen::Vector3f{} << x, y, z).finished();
+            facet.vertices[1] = facet.vertices[0];
+            facet.vertices[1][2] += height;
+            facet.vertices[2] = facet.vertices[0];
+            facet.vertices[2][1] += width;
+            stlModel.addFacet(facet);
+            facet.vertices[0][1] = facet.vertices[2][1];
+            facet.vertices[0][2] = facet.vertices[1][2];
+            std::swap(facet.vertices[0], facet.vertices[1]);
+            stlModel.addFacet(facet);
+            facet.normal = Eigen::Vector3f::UnitX();
+            facet.vertices[0][0] += length;
+            facet.vertices[1][0] += length;
+            facet.vertices[2][0] += length;
+            std::swap(facet.vertices[0], facet.vertices[1]);
+            stlModel.addFacet(facet);
+            facet.vertices[0][1] = facet.vertices[1][1];
+            facet.vertices[0][2] = facet.vertices[2][2];
+            std::swap(facet.vertices[0], facet.vertices[1]);
+            stlModel.addFacet(facet);
+        }
+    };
+
     if (ofs)
     {
         for (size_t i{0}; i < l.grid().height(); ++i)
@@ -306,12 +382,21 @@ int main(int argc, char** argv)
                         << "cube.Placement = App.Placement(App.Vector(" << (j + 1) / 2 * wallsSize.width() + j / 2 * waysSize.width() << ", "
                                                                         << (i + 1) / 2 * wallsSize.height() + i / 2 * waysSize.height()
                                                                         << ", 0), App.Rotation(App.Vector(0, 0, 1), 0))\n";
+
+                    addBox((j + 1) / 2 * wallsSize.width() + j / 2 * waysSize.width(),
+                           (i + 1) / 2 * wallsSize.height() + i / 2 * waysSize.height(),
+                           0,
+                           (j % 2 ? waysSize.width() : wallsSize.width()),
+                           (i % 2 ? waysSize.height() : wallsSize.height()),
+                           2 * std::max(wallsSize.width(), wallsSize.height()));
                 }
             }
         }
 
         ofs.close();
     }
+
+    stlModel.save("labyrinth2d.stl", true);
 
     auto const player1Id{l.addPlayer(0, 0, {l.grid().rows() - 1}, {l.grid().columns() - 1}, true)};
     auto const player2Id{l.addPlayer(l.grid().rows() - 1, 0, {0}, {l.grid().columns() - 1}, true)};

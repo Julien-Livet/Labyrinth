@@ -28,7 +28,8 @@ RCC_DIR = qrc
 RESOURCES += resources.qrc
 
 INCLUDEPATH += include \
-               D:\Programmes\boost_1_85_0
+               D:\Programmes\boost_1_85_0 \
+               D:\Programmes\eigen-master
 
 SOURCES += \
     testLabyrinth2dMain.cpp \
@@ -45,7 +46,9 @@ SOURCES += \
     src/Labyrinth2d/Solver/WallHand.cpp \
     src/Labyrinth2d/Grid.cpp \
     src/Labyrinth2d/Labyrinth.cpp \
-    src/Labyrinth2d/Player.cpp
+    src/Labyrinth2d/Player.cpp \
+    src/StlModel.cpp \
+    src/Utility.cpp
 
 HEADERS += \
     include/Labyrinth2d/Algorithm/Algorithm.h \
@@ -71,4 +74,8 @@ HEADERS += \
     include/Labyrinth2d/Grid.h \
     include/Labyrinth2d/Labyrinth.h \
     include/Labyrinth2d/Player.h \
-    include/Labyrinth2d/utility.h
+    include/Labyrinth2d/utility.h \
+    include/StlModel.h \
+    include/StlModel.tcc \
+    include/Utility.h \
+    include/Utility.tcc
